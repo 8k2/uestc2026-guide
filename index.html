@@ -3919,8 +3919,8 @@ function searchAmapNearby(query,callback){
   try{xhr.send();}catch(e){callback({success:false,keyword:extracted.keyword});}
 }
 
-// 生成多平台搜索链接
-function buildPlatformLinks(query){
+// 生成AI问答多平台搜索链接
+function buildAiPlatformLinks(query){
   var q=encodeURIComponent(query);
   var links=[
     {name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q},
@@ -4173,7 +4173,7 @@ function renderAiMsg(result){
 // 渲染多平台搜索链接
 function renderPlatformLinks(query){
   var chat=document.getElementById('aiChat');
-  var links=buildPlatformLinks(query);
+  var links=buildAiPlatformLinks(query);
   var html='<div style="margin:8px 0 4px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">';
   html+='<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px">🔗 相关搜索</div>';
   html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
