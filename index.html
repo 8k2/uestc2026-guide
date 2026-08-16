@@ -3694,6 +3694,23 @@ function aiSearch(query){
   buildAIKB();
   var qTokens=expandQuery(query);
   var qLower=query.toLowerCase();
+  // 提取核心概念词（去除语气词、疑问词等）
+  var STOP_WORDS=['吗','呢','的','了','怎么','什么','如何','能否','可以','要不要','需不需要','啊','吧','呀','嘛','呢'];
+  var qCoreRaw=tokenize(qLower.replace(/[，？？！!、]/g,' '));
+  var qCoreWords=qCoreRaw.filter(function(w){return STOP_WORDS.indexOf(w)<0 && w.length>0});
+  // 对Q&A做直接核心词匹配，如果标题或内容同时包含多个核心词则大幅加分
+  var qaBoostTitles={};
+  if(typeof QQ_CHANNEL_QA!=='undefined'){
+    QQ_CHANNEL_QA.forEach(function(item,idx){
+      var tContent=(item.q+' '+item.a).toLowerCase();
+      var hitCount=0;
+      qCoreWords.forEach(function(w){
+        if(w.length>=2 && tContent.indexOf(w)>=0) hitCount++;
+      });
+      if(hitCount>=2) qaBoostTitles[item.q]=hitCount*8;
+      else if(hitCount===1 && qCoreWords.length<=2) qaBoostTitles[item.q]=hitCount*5;
+    });
+  }
   var scored=[];
   AI_KB.forEach(function(block){
     var blockTokens=tokenize(block.title+' '+block.content);
@@ -3714,11 +3731,20 @@ function aiSearch(query){
       var hitRatio=titleHitCount/Math.max(meaningfulQChars.length,1);
       if(hitRatio>=0.5) score+=Math.round(hitRatio*8);
       // 如果query中的核心词组（2字以上）完整出现在标题中，额外加分
-      var qCoreWords=tokenize(qLower.replace(/[，？？！!、的吗呢吧了呀]/g,' '));
-      qCoreWords.forEach(function(w){
+      var qTitleWords=tokenize(qLower.replace(/[，？？！!、的吗呢吧了呀]/g,' '));
+      qTitleWords.forEach(function(w){
         if(w.length>=2 && block.title.toLowerCase().indexOf(w)>=0) score+=6;
       });
     }
+    // 核心概念词组合在内容中的匹配加分
+    qCoreWords.forEach(function(w){
+      if(w.length>=2){
+        var combined=(block.title+' '+block.content).toLowerCase();
+        if(combined.indexOf(w)>=0) score+=3;
+      }
+    });
+    // Q&A核心词组合Boost
+    if(block.isQA && qaBoostTitles[block.title]) score+=qaBoostTitles[block.title];
     qTokens.forEach(function(qt){
       // 标题中命中权重更高
       var titleTokens=tokenize(block.title);
