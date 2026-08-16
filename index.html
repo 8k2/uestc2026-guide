@@ -180,21 +180,21 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <!-- 重要通知 -->
   <div class="section-title">重要通知</div>
   <div class="func-list">
-    <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE?p=G7ELZYIlzh3FLhGE24sY85" target="_blank" class="func-card">
+    <div class="func-card" onclick="openDetail('入学须知')">
       <div class="func-icon">📋</div>
       <div class="func-info"><div class="func-name">入学须知（官方2026版）</div><div class="func-desc">报到/缴费/户口/军训/安全考试/收费标准全收录</div></div>
       <div class="func-arrow">›</div>
-    </a>
+    </div>
     <a href="https://gis.uestc.edu.cn/cmipsh5/#/" target="_blank" class="func-card">
       <div class="func-icon">🗺️</div>
       <div class="func-info"><div class="func-name">官方GIS校园地图</div><div class="func-desc">手机端在线查看，双校区导航</div></div>
       <div class="func-arrow">›</div>
     </a>
-    <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE" target="_blank" class="func-card">
+    <div class="func-card" onclick="openDetail('入学须知')">
       <div class="func-icon">📋</div>
-      <div class="func-info"><div class="func-name">成电26新生报到指南</div><div class="func-desc">腾讯文档在线版，13个板块全覆盖</div></div>
+      <div class="func-info"><div class="func-name">成电26新生报到指南</div><div class="func-desc">官方PDF完整版，13个板块全覆盖</div></div>
       <div class="func-arrow">›</div>
-    </a>
+    </div>
   </div>
 
   <!-- 功能入口 -->
@@ -213,7 +213,6 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <!-- 外部链接 -->
   <div class="section-title">常用链接</div>
   <a href="https://qm.qq.com/q/xxxxx" target="_blank" class="link-card"><div class="link-icon">🐧</div><div class="link-info"><div class="link-name">成电2026新生大军全能版群</div><div class="link-desc">QQ群，获取最新资讯</div></div><div class="link-go">›</div></a>
-  <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE" target="_blank" class="link-card"><div class="link-icon">📋</div><div class="link-info"><div class="link-name">成电26新生报到指南</div><div class="link-desc">腾讯文档在线版</div></div><div class="link-go">›</div></a>
   <a href="https://gis.uestc.edu.cn/cmipsh5/#/" target="_blank" class="link-card"><div class="link-icon">🗺️</div><div class="link-info"><div class="link-name">官方GIS校园地图</div><div class="link-desc">手机端在线版</div></div><div class="link-go">›</div></a>
   <div style="height:20px"></div>
 </div>
@@ -264,7 +263,6 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 <div class="page" id="page-more">
   <div class="section-title">外部链接</div>
   <a href="https://qm.qq.com/q/xxxxx" target="_blank" class="link-card"><div class="link-icon">🐧</div><div class="link-info"><div class="link-name">成电2026新生大军全能版群</div><div class="link-desc">QQ群</div></div><div class="link-go">›</div></a>
-  <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE" target="_blank" class="link-card"><div class="link-icon">📋</div><div class="link-info"><div class="link-name">成电26新生报到指南</div><div class="link-desc">腾讯文档在线版</div></div><div class="link-go">›</div></a>
   <a href="https://gis.uestc.edu.cn/cmipsh5/#/" target="_blank" class="link-card"><div class="link-icon">🗺️</div><div class="link-info"><div class="link-name">官方GIS校园地图</div><div class="link-desc">手机端在线版</div></div><div class="link-go">›</div></a>
   <a href="https://freshman.uestc.edu.cn" target="_blank" class="link-card"><div class="link-icon">🌐</div><div class="link-info"><div class="link-name">迎新网站</div><div class="link-desc">freshman.uestc.edu.cn</div></div><div class="link-go">›</div></a>
   <a href="https://bbs.uestc.edu.cn" target="_blank" class="link-card"><div class="link-icon">💬</div><div class="link-info"><div class="link-name">清水河畔论坛</div><div class="link-desc">官方学生论坛</div></div><div class="link-go">›</div></a>
@@ -675,11 +673,132 @@ const DETAILS={
 `,
 
 '入学须知':`
-<h3>一、报到</h3>
-<p>2026年8月27-28日，详见"报到专区"</p>
-<h3>二、英语入学考试</h3>
-<p>8月29日14:30-16:30，详见"英语入学考试"</p>
-<h3>三、安全教育考试</h3>
+<h3>一、入学前准备</h3>
+<p>我校2026级新生（英才实验学院、格拉斯哥学院、格拉斯哥海南学院除外）入校后，按要求需参加大学英语入学考试，其目的是为英语分级教学提供依据。有关考试的具体信息详见附件一《大学英语入学考试须知》。</p>
+
+<h3>二、报到</h3>
+<p><span class="tag">2026年8月27日至8月28日</span></p>
+<h3>报到地址</h3>
+<ul>
+<li>清水河校区：成都市高新区（西区）西源大道2006号（邮编：611731）</li>
+<li>沙河校区：成都市成华区建设北路二段4号（邮编：610054）</li>
+<li>海南校区：海南陵水黎安国际教育创新试验区（邮编：572400）</li>
+</ul>
+
+<h3>新生报到必须携带以下证件和物品</h3>
+<ul>
+<li>录取通知书</li>
+<li>身份证原件和身份证复印件（身份证正反两面在一页）三份</li>
+<li>户口迁移证（需户口迁移的新生）</li>
+<li>近期一寸免冠彩色证件照4张</li>
+<li>新生档案（由省、市招生考试机构等统一邮寄的除外），报到时交所在学院，不得擅自拆封。若采用邮寄方式，邮寄地址及相关要求请登录迎新网站（freshman.uestc.edu.cn）"本科新生须知"——"档案寄送"栏目查阅</li>
+<li>银行储蓄卡一张（学生本人姓名开户，已满18周岁学生可选择到校后办理）</li>
+</ul>
+
+<h3>新生报到事项</h3>
+<ol>
+<li>8月20日后登录迎新网（freshman.uestc.edu.cn），点击页面右上角"登录"，激活账号后查询学号，完成信息填写和问卷调查及其他相关事项</li>
+<li>建议在8月25日至8月27日通过网上支付方式完成缴费，详见附件二《2026级本科新生缴费指南》，如需申请绿色通道，请到报到点办理相关手续</li>
+<li>请提前搜索并关注"平安成电"微信公众号，绑定个人信息，在校门道闸处扫"个人二维码"进校</li>
+<li>新生到校后，可先至报到点报到，也可直接入住宿舍后再前往报到点报到</li>
+<li>完成上述事项后，请继续完成领取军训服装、体检等相关事宜</li>
+</ol>
+
+<h3>入学资格审查</h3>
+<p>根据《普通高等学校学生管理规定》（教育部令第41号）以及《教育部关于做好2026年普通高校招生工作的通知》（教学〔2026〕1号）等文件要求，学校将对新生入学资格进行核查。</p>
+<div class="danger">学校不会通过其他方式收缴学费，也不会委托任何个人收取学费。请特别注意防范冒充熟人、虚假兼职、校园贷等各类电信网络诈骗！</div>
+
+<h3>三、缴费</h3>
+<p>根据四川省相关文件规定的学费、住宿费等收费标准，每位新生来校报到时，按下表所列收费标准缴纳费用。</p>
+
+<h3>2026年新生收费一览表（单位：元）</h3>
+<table>
+<tr><th>专业类型</th><th>学费</th><th>住宿费</th><th>合计</th></tr>
+<tr><td>电子信息类（"成电英才"计划）</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>电子信息类（信息与通信）</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>工科试验班（电子工程类）</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>数理基础科学（强基计划）</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>计算机类</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>数学类/应用物理学</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>生物医学工程类</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>经济管理试验班</td><td>6500</td><td>1200</td><td>7853.03</td></tr>
+<tr><td>集成电路设计与集成系统</td><td>9800</td><td>1200</td><td>11153.03</td></tr>
+<tr><td>软件工程（工业数智化）</td><td>9800</td><td>1000/1200</td><td>10953/11153</td></tr>
+<tr><td>软件工程（"人工智能+"实验班）</td><td>9800</td><td>1000/1200</td><td>10953/11153</td></tr>
+<tr><td>金融学/信息管理/社会科学/外语类</td><td>6000</td><td>1200</td><td>7353.03</td></tr>
+<tr><td>临床医学</td><td>7200</td><td>1000/1200</td><td>8353/8553</td></tr>
+<tr><td>护理学</td><td>6500</td><td>1000/1200</td><td>7653/7853</td></tr>
+<tr><td>电子信息类（中外合作办学）</td><td>100000</td><td>1200</td><td>101353.03</td></tr>
+<tr><td>电子信息类（中外合作办学·海南）</td><td>100000</td><td>1200</td><td>101408</td></tr>
+</table>
+
+<div class="info">①住宿费执行四川省公布标准，不同条件对应不同收费，最终以选房后缴费平台数据为准。②体检复查费153.03元（海南校区208元）。③中外合作办学（海南）专业因属地化管理，住宿费、体检费及医保费按海南省规定执行。</div>
+
+<h3>缴费方式</h3>
+<ul>
+<li>用户名=学号，密码=身份证后6位+"aA="（共9位，如123456aA=，若身份证最后一位为X需大写）</li>
+<li><b>支付宝</b>：搜"电子科技大学"→生活号→缴费大厅→学杂费</li>
+<li><b>微信</b>：搜"电子科大计划财务处"→师生缴费→马上缴费</li>
+<li><b>网银</b>：cwjf.uestc.edu.cn</li>
+<li><b>现场</b>：自助缴费机、刷卡或现金</li>
+<li>缴费成功后无需到计划财务处办理手续，24小时后登录缴费平台查看/打印电子票据</li>
+</ul>
+<div class="info">生源地助学贷款汇款信息：单位名称：电子科技大学；开户银行：中国建设银行四川成都新鸿支行；银行账号：5100 1908 6080 5900 0888。计划财务处咨询电话：028-61830870</div>
+
+<h3>四、户口迁移</h3>
+<ul>
+<li>新生本着<b>自愿原则</b>办理户口迁移</li>
+<li>凭录取通知书、身份证到户口所在地公安机关办理户口迁移手续</li>
+<li>户口迁移地址：
+  <ul>
+  <li>信息与软件工程学院、医学院：四川省成都市建设北路二段4号</li>
+  <li>格拉斯哥海南学院：海南省陵水黎族自治县黎安镇博学大道23号</li>
+  <li>其他学院：四川省成都市高新区西源大道2006号（如当地无"高新区"代码可用"武侯区"替代）</li>
+  </ul>
+</li>
+<li>需重点核对：姓名（与录取通知书一致）、出生日期、民族、出生地、籍贯、身份证号码（18位）</li>
+<li>《户口迁移证》骑缝处及右下角必须加盖户口专用章，修改处也需盖章</li>
+<li>建议急需使用身份证的同学，在迁移户口前先办理好身份证</li>
+</ul>
+
+<h3>五、住宿</h3>
+<ul>
+<li><span class="tag">8月22-23日</span> 登录选房网站或微信小程序选房</li>
+<li>电脑端：后勤保障部网站（hq.uestc.edu.cn）→ 服务导览 → 宿舍选房</li>
+<li>手机端：微信小程序"<b>成电微后勤</b>" → 微宿舍</li>
+<li>关注"<b>成电宿舍</b>"公众号获取时间安排和选房流程</li>
+<li>8月23日后未选房 → 学校统一安排</li>
+<li>新生床上用品参考尺寸：普通床1.95m×0.8m；加长床（身高≥1.9m）2.2m×1m；海南校区2m×1m</li>
+<li>禁止携带任何违章电器进入宿舍</li>
+</ul>
+
+<h3>六、办理党团组织关系</h3>
+<ul>
+<li><b>党员</b>：到中学所在地党组织办理转接，联系电话：028-61831251</li>
+<li><b>团员</b>：入学后在智慧团建系统（zhtj.youth.cn/zhtj/）转接到所在团支部。团员资料随人事档案转入，或本人携带到校后交给辅导员。"成电青年"公众号回复"组织关系转接"获取操作说明</li>
+</ul>
+
+<h3>七、新生骨干训练营</h3>
+<ul>
+<li>选拔100-120名新生，<span class="tag">8月23日</span>提前到校</li>
+<li>关注"成电工学"公众号，输入"新生骨干训练营"获取报名信息</li>
+</ul>
+
+<h3>八、军训安排</h3>
+<ul>
+<li><span class="tag">8月31日下午</span>开训典礼</li>
+<li><b>8月31日-9月12日</b>军事技能训练</li>
+<li>服装报到时领取</li>
+</ul>
+
+<h3>九、兵役登记</h3>
+<ul>
+<li>年满18周岁男性公民，入学前<b>必须</b>兵役登记</li>
+<li>登录"全国征兵网"（gfbzb.gov.cn）</li>
+<li>开学报到时打开网站查验登记结果（港澳台侨学生和留学生除外）</li>
+</ul>
+
+<h3>十、新生安全教育及考试</h3>
 <ul>
 <li>时间：<span class="tag">8月20-26日</span></li>
 <li>关注"平安成电"公众号 → 综合服务 → 安全教育</li>
@@ -687,38 +806,71 @@ const DETAILS={
 <li>开学报到须出示合格截图</li>
 <li>国家安全教育 = 自主修读必修课，计1学分！</li>
 </ul>
-<h3>四、收费标准</h3>
+
+<h3>十一、新生接待及到校路线</h3>
+<p>地铁2号线<b>犀浦站</b>设接站点</p>
+<ul>
+<li>8月26日 13:00-19:00</li>
+<li>8月27日 8:00-19:00</li>
+<li>8月28日 8:00-18:00</li>
+</ul>
+<div class="warn">成都东站、海南陵水站设有咨询点。其他站点均未设置咨询点，请新生和家长提高警惕，谨防上当受骗！</div>
+
+<h3>建议乘车路线</h3>
+<ul>
+<li>✈ <b>双流机场 → 清水河</b>：10号线→华兴换9号线→成都西站→蓉2号线→合作路站</li>
+<li>✈ <b>双流机场 → 沙河</b>：10号线→太平园换3号线→前锋路换6号线→建设北路</li>
+<li>🚄 <b>成都东 → 清水河</b>：2号线→犀浦→116路公交</li>
+<li>🚄 <b>成都东 → 沙河</b>：2号线→牛王庙换6号线→建设北路</li>
+<li>✈ <b>天府机场 → 清水河</b>：18号线→孵化园换9号线→成都西站→蓉2号线→合作路站</li>
+<li>✈ <b>天府机场 → 沙河</b>：18号线→西博城换6号线→建设北路</li>
+<li>✈ <b>海口/三亚/琼海 → 海南校区</b>：飞机到海口美兰/三亚凤凰/琼海博鳌→动车至陵水站→9路/夜11路公交→试验区站</li>
+</ul>
+
+<h3>通勤班车</h3>
+<p>关注"成电后勤"公众号→天府行小程序预约清水河↔沙河班车</p>
+
+<h3>十二、医疗健康须知</h3>
+<ul>
+<li>关注"电子科技大学医院"公众号，下载体检表查看体检流程</li>
+<li>或登录医院官网 www.hospital.uestc.edu.cn</li>
+<li>成都市社会保障卡：参加2027年成都城乡居民医保的参保新生，本人前往成都市内银行网点办理</li>
+<li>海南省社会保障卡：参加2027年海南省城乡居民医保的参保新生，本人前往陵水县内银行网点办理</li>
+</ul>
+
+<h3>十三、入学资讯</h3>
+<ul>
+<li>关注"<b>成电学工</b>"公众号获取新生入学资讯</li>
+<li>加入"清水河畔"论坛（bbs.uestc.edu.cn）</li>
+<li>学校网站：www.uestc.edu.cn</li>
+<li>迎新网站：freshman.uestc.edu.cn</li>
+<li>本科招生网：zs.uestc.edu.cn</li>
+</ul>
+
+<h3>十四、相关部门值班电话</h3>
 <table>
-<tr><th>专业类型</th><th>学费</th><th>合计</th></tr>
-<tr><td>一般理工科</td><td>6500</td><td>7853.03</td></tr>
-<tr><td>文科/经管</td><td>6000</td><td>7353.03</td></tr>
-<tr><td>软件工程</td><td>9800</td><td>10953-11153</td></tr>
-<tr><td>临床医学</td><td>7200</td><td>8353-8553</td></tr>
-<tr><td>中外合作办学</td><td>100000</td><td>约101353</td></tr>
+<tr><th>部门</th><th>清水河</th><th>沙河</th><th>海南</th></tr>
+<tr><td>学生工作部（报到咨询）</td><td>028-61830078</td><td>028-61830078</td><td>—</td></tr>
+<tr><td>教务处（招生咨询）</td><td>028-61831137</td><td>—</td><td>—</td></tr>
+<tr><td>后勤保障部（住宿咨询）</td><td>028-61830144</td><td>028-83201090</td><td>0898-83070777</td></tr>
+<tr><td>保卫处24小时</td><td>028-61830110/0119</td><td>028-83200110/02241</td><td>0898-83073110</td></tr>
+<tr><td>校医院</td><td>028-61838097</td><td>028-83200228</td><td>0898-83093328</td></tr>
+<tr><td>校医院夜间</td><td>13518194790</td><td>13518194790</td><td>19989701910</td></tr>
+<tr><td>信息中心</td><td>028-61831184</td><td>—</td><td>—</td></tr>
+<tr><td>学生资助管理中心</td><td>028-61831097</td><td>—</td><td>—</td></tr>
+<tr><td>计划财务处</td><td>028-61830870</td><td>—</td><td>—</td></tr>
 </table>
-<h3>五、缴费方式</h3>
+
+<h3>附件一：大学英语入学考试须知</h3>
+<p><span class="tag">2026年8月29日 14:30-16:30</span></p>
+<p>考试题型：客观题与主观题结合，包括听力、完形、阅读、写作等题型</p>
+<p>分级教学（英才实验学院、格拉斯哥学院、格拉斯哥海南学院除外）：</p>
 <ul>
-<li>用户名=学号，密码=身份证后6位+"aA="</li>
-<li>支付宝：搜"电子科技大学"→生活号→缴费大厅</li>
-<li>微信：搜"电子科大计划财务处"→师生缴费</li>
-<li>网银：cwjf.uestc.edu.cn</li>
-<li>生源地贷款：汇至学校建行账户5100 1908 6080 5900 0888</li>
+<li><b>通用英语（拓展）</b>：重点培养思辨和英语演讲能力</li>
+<li><b>通用英语（提高）</b>：中高级阅读/写作/听说，项目式混合教学</li>
+<li><b>通用英语（基础）</b>：听说读写综合夯实，信息化辅助教学</li>
 </ul>
-<h3>六、户口迁移</h3>
-<ul>
-<li>自愿原则，凭录取通知书+身份证到户口所在地公安机关办理</li>
-<li>迁移地址：其他学院→高新区西源大道2006号</li>
-</ul>
-<h3>七、部门电话</h3>
-<ul>
-<li>学生工作部：028-61830078</li>
-<li>教务处：028-61831137</li>
-<li>后勤（清水河）：028-61830144</li>
-<li>保卫处24h：028-61830110</li>
-<li>校医院：028-61830397 / 夜间13518194790</li>
-<li>信息中心：028-61831184</li>
-<li>学生资助管理中心：028-61831097</li>
-</ul>
+<div class="warn">每位同学必须配备能接收84兆赫调频广播+音频广播的耳机！入学报到时学校提供选购（24.5元/副）</div>
 `
 };
 
