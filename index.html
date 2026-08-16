@@ -3727,11 +3727,12 @@ function aiSearch(query){
       else if(hitCount===1){
         var hitWord=hitBigrams[0];
         // 过于通用的bigram不给boost
-        var genericBigrams=['校园','什么','怎么','可以','需要','需要'];
+        var genericBigrams=['校园','什么','怎么','可以','需要'];
         if(genericBigrams.indexOf(hitWord)<0) qaBoostTitles[item.q]=8;
       }
     });
   }
+  window._debugQaBoost=qaBoostTitles;
   var scored=[];
   AI_KB.forEach(function(block){
     var blockTokens=tokenize(block.title+' '+block.content);
