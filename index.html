@@ -3667,7 +3667,7 @@ var SYNONYMS={
   '快递':'快递 邮寄 拿快递','取款':'取款 atm 银行','洗':'洗澡 热水 洗衣',
   '手机':'手机 上课 收手机','体检':'体检 入学体检 检查','几人':'几人 四人 六人 人间',
   '停电':'断电 停电 供电','热水':'热水 洗澡 供水','违禁':'违禁 电器 没收',
-  '校园网':'校园网 wifi 宽带 上网 流量','租房':'租房 房租 住宿','外卖':'外卖 送餐',
+  '校园网':'校园网 wifi 宽带 上网 流量 选网 办理 办卡 套餐 宽带选择 校园卡',  '宽带':'校园网 宽带 上网 流量 套餐 办理','外卖':'外卖 送餐',
   '自习':'自习 自习室 图书馆 学习','社团':'社团 组织 活动','兼职':'兼职 打工 赚钱',
   '报到':'报到 入学 注册 新生','宿舍':'宿舍 寝室 住宿 床位 房间'
 };
@@ -3703,15 +3703,21 @@ function aiSearch(query){
       var tLower=block.title.toLowerCase();
       // 原始query直接子串匹配
       if(tLower.indexOf(qLower)>=0||qLower.indexOf(tLower.substring(0,8))>=0) score+=10;
-      // Q&A标题逐字符匹配
-      var qChars=qLower.replace(/[，？？！!、的吗呢吧了呀]/g,'').split('');
+      // Q&A标题逐字符匹配（去除无意义语气词）
+      var qChars=qLower.replace(/[，？？！!、的吗呢吧了呀怎么]/g,'').split('');
       var titleHitCount=0;
-      qChars.forEach(function(c){
-        if(c.trim().length>0 && block.title.indexOf(c)>=0) titleHitCount++;
+      var meaningfulQChars=qChars.filter(function(c){return c.trim().length>0});
+      meaningfulQChars.forEach(function(c){
+        if(block.title.indexOf(c)>=0) titleHitCount++;
       });
       // 至少3个字符命中才加分，比例越高分越高
-      var hitRatio=titleHitCount/Math.max(qChars.filter(function(c){return c.trim().length>0}).length,1);
+      var hitRatio=titleHitCount/Math.max(meaningfulQChars.length,1);
       if(hitRatio>=0.5) score+=Math.round(hitRatio*8);
+      // 如果query中的核心词组（2字以上）完整出现在标题中，额外加分
+      var qCoreWords=tokenize(qLower.replace(/[，？？！!、的吗呢吧了呀]/g,' '));
+      qCoreWords.forEach(function(w){
+        if(w.length>=2 && block.title.toLowerCase().indexOf(w)>=0) score+=6;
+      });
     }
     qTokens.forEach(function(qt){
       // 标题中命中权重更高
