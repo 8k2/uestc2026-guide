@@ -255,6 +255,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 
 /* === 动画 === */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes badgeSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .fade-in{animation:fadeIn .4s ease-out both}
 </style>
 </head>
@@ -305,7 +306,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <div class="search-box" onclick="openSearch()">
     <span class="search-icon">🔍</span>
     <input placeholder="泥电鱼塘全能版，输入你想知道的东西…" readonly>
-    <span class="search-ai-badge">AI</span>
+    <span class="search-ai-badge"><img src="https://raw.githubusercontent.com/8k2/uestc2026-guide/main/uestc_badge.jpg" style="width:20px;height:20px;border-radius:50%;animation:badgeSpin 3s linear infinite;vertical-align:middle;box-shadow:0 0 6px rgba(255,215,0,0.5)" alt="🎓"></span>
   </div>
 
   <!-- 快捷入口 -->
@@ -464,7 +465,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   </div>
   <div class="search-mode-tabs">
     <div class="search-mode-tab active" id="modeLocal" onclick="switchMode('local')">❤️ 一起电❤我</div>
-    <div class="search-mode-tab" id="modeAI" onclick="switchMode('ai')">🤖 AI智能问答</div>
+    <div class="search-mode-tab" id="modeAI" onclick="switchMode('ai')">🎓 成电AI</div>
     <div class="search-mode-tab" id="modeNearby" onclick="switchMode('nearby')">📍 附近搜索</div>
   </div>
   <div class="search-results" id="searchResults">
@@ -474,9 +475,11 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   </div>
   <div class="ai-chat" id="aiChat">
     <div class="ai-welcome" id="aiWelcome">
-      <div class="ai-welcome-icon">🤖</div>
-      <div class="ai-welcome-title">泥电鱼塘 AI 智能体</div>
-      <div class="ai-welcome-desc">我是专为成电新生打造的AI智能助手<br>基于本指南全部内容，实时一问一答<br>报到、宿舍、选课、校园生活…什么都能问</div>
+      <div class="ai-welcome-icon" style="position:relative;width:80px;height:80px;margin:0 auto 12px">
+        <img src="https://raw.githubusercontent.com/8k2/uestc2026-guide/main/uestc_badge.jpg" style="width:80px;height:80px;border-radius:50%;animation:badgeSpin 4s linear infinite;box-shadow:0 0 20px rgba(255,215,0,0.6),0 0 40px rgba(255,215,0,0.3),0 0 60px rgba(30,60,120,0.5);border:2px solid rgba(255,215,0,0.5)" alt="成电校徽">
+      </div>
+      <div class="ai-welcome-title">成电AI 智能体</div>
+      <div class="ai-welcome-desc">基于本指南全部内容+DeepSeek大模型，实时一问一答<br>报到、宿舍、选课、校园生活…什么都能问<br>AI+本地知识库双引擎，更懂成电</div>
     </div>
   </div>
   <div class="ai-input-bar" id="aiInputBar" style="display:none">
@@ -3808,6 +3811,54 @@ function aiQuickAsk(q){
   aiSend();
 }
 
+// DeepSeek大模型配置（通过硅基流动SiliconFlow免费接入）
+var DEEPSEEK_CONFIG={
+  apiKey:'',  // 填入你的SiliconFlow API Key（注册 https://siliconflow.cn 送免费额度）
+  baseUrl:'https://api.siliconflow.cn/v1/chat/completions',
+  model:'deepseek-ai/DeepSeek-V3',
+  enabled:false  // 有API Key后自动启用
+};
+
+// 调用DeepSeek大模型
+function callDeepSeek(query,localAnswer,callback){
+  if(!DEEPSEEK_CONFIG.apiKey){
+    DEEPSEEK_CONFIG.enabled=false;
+    callback(null);
+    return;
+  }
+  DEEPSEEK_CONFIG.enabled=true;
+  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的回答应该：\n1. 优先参考本地知识库的答案\n2. 如果本地知识库没有答案，你可以基于对成电的了解回答\n3. 回答要简洁、实用、口语化\n4. 如果不确定，请诚实说明\n5. 回答格式用纯文本，不要用markdown';
+  var userContent='本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query;
+  var body=JSON.stringify({
+    model:DEEPSEEK_CONFIG.model,
+    messages:[
+      {role:'system',content:systemPrompt},
+      {role:'user',content:userContent}
+    ],
+    max_tokens:512,
+    temperature:0.7
+  });
+  var xhr=new XMLHttpRequest();
+  xhr.open('POST',DEEPSEEK_CONFIG.baseUrl,true);
+  xhr.setRequestHeader('Content-Type','application/json');
+  xhr.setRequestHeader('Authorization','Bearer '+DEEPSEEK_CONFIG.apiKey);
+  xhr.timeout=15000;
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4){
+      if(xhr.status===200){
+        try{
+          var resp=JSON.parse(xhr.responseText);
+          var text=resp.choices&&resp.choices[0]&&resp.choices[0].message?resp.choices[0].message.content:'';
+          callback(text||null);
+        }catch(e){callback(null);}
+      }else{callback(null);}
+    }
+  };
+  xhr.onerror=function(){callback(null);};
+  xhr.ontimeout=function(){callback(null);};
+  try{xhr.send(body);}catch(e){callback(null);}
+}
+
 function aiSend(){
   var input=document.getElementById('aiInput');
   var q=input.value.trim();
@@ -3830,52 +3881,78 @@ function aiSend(){
   typing.innerHTML='<span></span><span></span><span></span>';
   chat.appendChild(typing);
   chat.scrollTop=chat.scrollHeight;
-  // 模拟思考延迟（增加真实感）
+  // 先用本地知识库回答
   var delay=600+Math.random()*400;
   setTimeout(function(){
     typing.remove();
     var result=aiGenerateAnswer(q);
-    var botMsg=document.createElement('div');
-    botMsg.className='ai-msg bot';
-    // 将回答转为HTML（格式化展示）
-    var html='';
-    var lines=result.answer.split('\n');
-    lines.forEach(function(line){
-      if(line.startsWith('【')){
-        var tagText=line.replace(/[【】]/g,'');
-        if(tagText.indexOf('学长学姐问答')>=0){
-          html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.08));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
-        }else{
-          html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+    var isLocalStrong=result.isQA||result.detailKey; // 本地知识库有强匹配
+    renderAiMsg(result);
+    // 如果本地回答不够好，尝试DeepSeek补充
+    if(!isLocalStrong && DEEPSEEK_CONFIG.apiKey){
+      var dsTyping=document.createElement('div');
+      dsTyping.className='ai-typing';
+      dsTyping.id='aiDsTyping';
+      dsTyping.innerHTML='<span></span><span></span><span></span>';
+      chat.appendChild(dsTyping);
+      chat.scrollTop=chat.scrollHeight;
+      callDeepSeek(q,result.answer,function(dsText){
+        var dsTypingEl=document.getElementById('aiDsTyping');
+        if(dsTypingEl)dsTypingEl.remove();
+        if(dsText){
+          var dsResult={answer:dsText,sources:['DeepSeek大模型'],isQA:false};
+          renderAiMsg(dsResult);
         }
-      }else if(line.startsWith('❓')){
-        html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
-      }else if(line.startsWith('💡')){
-        html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px">'+line.replace('💡 ','')+'</div>';
-      }else if(line.startsWith('👤')){
-        html+='<div style="font-size:11px;color:rgba(255,215,0,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
-      }else if(line.trim()===''){
-        // skip empty
-      }else{
-        html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(255,255,255,0.85)">'+line+'</p>';
-      }
-    });
-    if(result.sources.length>0){
-      html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4)">📎 来源：'+result.sources.map(function(s){
-        if(s==='成电频道'){
-          return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
-        }
-        return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
-      }).join('、')+'</div>';
+      });
     }
-    // 校园网/校园卡专用"查看详情"按钮
-    if(result.detailKey){
-      html+='<div style="margin-top:10px"><button style="background:linear-gradient(135deg,var(--gold),#ff9800);color:#1a1a2e;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;width:100%" onclick="closeSearch();openDetail(\''+result.detailKey+'\')">👉 查看校园网完整对比详情</button></div>';
-    }
-    botMsg.innerHTML=html;
-    chat.appendChild(botMsg);
-    chat.scrollTop=chat.scrollHeight;
   },delay);
+}
+
+// 渲染AI消息
+function renderAiMsg(result){
+  var chat=document.getElementById('aiChat');
+  var botMsg=document.createElement('div');
+  botMsg.className='ai-msg bot';
+  var html='';
+  var lines=result.answer.split('\n');
+  lines.forEach(function(line){
+    if(line.startsWith('【')){
+      var tagText=line.replace(/[【】]/g,'');
+      if(tagText.indexOf('学长学姐问答')>=0){
+        html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.08));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
+      }else{
+        html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+      }
+    }else if(line.startsWith('❓')){
+      html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
+    }else if(line.startsWith('💡')){
+      html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px">'+line.replace('💡 ','')+'</div>';
+    }else if(line.startsWith('👤')){
+      html+='<div style="font-size:11px;color:rgba(255,215,0,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
+    }else if(line.trim()===''){
+      // skip empty
+    }else{
+      html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(255,255,255,0.85)">'+line+'</p>';
+    }
+  });
+  if(result.sources.length>0){
+    html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4)">📎 来源：'+result.sources.map(function(s){
+      if(s==='成电频道'){
+        return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
+      }
+      if(s==='DeepSeek大模型'){
+        return '<span style="color:var(--gold)">DeepSeek大模型(联网)</span>';
+      }
+      return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
+    }).join('、')+'</div>';
+  }
+  // 校园网/校园卡专用"查看详情"按钮
+  if(result.detailKey){
+    html+='<div style="margin-top:10px"><button style="background:linear-gradient(135deg,var(--gold),#ff9800);color:#1a1a2e;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;width:100%" onclick="closeSearch();openDetail(\''+result.detailKey+'\')">👉 查看校园网完整对比详情</button></div>';
+  }
+  botMsg.innerHTML=html;
+  chat.appendChild(botMsg);
+  chat.scrollTop=chat.scrollHeight;
 }
 
 // === 附近搜索：清水河校区全能地点数据库 ===
