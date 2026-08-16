@@ -3713,25 +3713,25 @@ function aiSearch(query){
   var qCoreWords=chineseBigrams(qClean); // 得到["校园","园网"]
   // 对Q&A做直接核心bigram匹配，多个bigram同时命中说明语义高度匹配
   var qaBoostTitles={};
-  if(typeof QQ_CHANNEL_QA!=='undefined'){
-    QQ_CHANNEL_QA.forEach(function(item,idx){
-      var tContent=(item.q+' '+item.a).toLowerCase();
-      var hitCount=0;
-      var hitBigrams=[];
-      qCoreWords.forEach(function(w){
-        if(w.length>=2 && tContent.indexOf(w)>=0){ hitCount++; hitBigrams.push(w); }
-      });
-      // 2个以上bigram命中：语义高度匹配，大幅加分
-      if(hitCount>=2) qaBoostTitles[item.q]=20+hitCount*6;
-      // 只有1个bigram命中时，如果该bigram不是太通用的（如"校园"），才加分
-      else if(hitCount===1){
-        var hitWord=hitBigrams[0];
-        // 过于通用的bigram不给boost
-        var genericBigrams=['校园','什么','怎么','可以','需要'];
-        if(genericBigrams.indexOf(hitWord)<0) qaBoostTitles[item.q]=8;
-      }
+  // 直接从AI_KB中找isQA的条目计算boost
+  AI_KB.forEach(function(block){
+    if(!block.isQA) return;
+    var tContent=(block.title+' '+block.content).toLowerCase();
+    var hitCount=0;
+    var hitBigrams=[];
+    qCoreWords.forEach(function(w){
+      if(w.length>=2 && tContent.indexOf(w)>=0){ hitCount++; hitBigrams.push(w); }
     });
-  }
+    // 2个以上bigram命中：语义高度匹配，大幅加分
+    if(hitCount>=2) qaBoostTitles[block.title]=20+hitCount*6;
+    // 只有1个bigram命中时，如果该bigram不是太通用的（如"校园"），才加分
+    else if(hitCount===1){
+      var hitWord=hitBigrams[0];
+      // 过于通用的bigram不给boost
+      var genericBigrams=['校园','什么','怎么','可以','需要'];
+      if(genericBigrams.indexOf(hitWord)<0) qaBoostTitles[block.title]=8;
+    }
+  });
   window._debugQaBoost=qaBoostTitles;
   var scored=[];
   AI_KB.forEach(function(block){
