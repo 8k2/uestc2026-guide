@@ -3601,7 +3601,7 @@ function aiSend(){
     });
     if(result.sources.length>0){
       html+='<div class="ai-source">📎 来源：'+result.sources.map(function(s){
-        return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" onclick="closeSearch();openDetail(\\''+s+'\\')">'+s+'</a>';
+        return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
       }).join('、')+'</div>';
     }
     botMsg.innerHTML=html;
@@ -3723,6 +3723,18 @@ window.closeContactQR=function(e){
   if(e&&e.target&&e.target.id!=='contactModal'&&e.type==='click'){return}
   document.getElementById('contactModal').style.display='none';
 };
+
+// 确保所有关键函数挂载到window
+window.openSearch=openSearch;
+window.closeSearch=closeSearch;
+window.switchMode=switchMode;
+window.quickSearch=quickSearch;
+window.doSearch=doSearch;
+window.aiQuickAsk=aiQuickAsk;
+window.aiSend=aiSend;
+window.openDetail=openDetail;
+window.closeDetail=closeDetail;
+window.switchTab=switchTab;
 </script>
 </body>
 </html>
