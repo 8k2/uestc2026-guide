@@ -479,7 +479,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
         <img src="https://raw.githubusercontent.com/8k2/uestc2026-guide/main/uestc_badge.jpg" style="width:80px;height:80px;border-radius:50%;animation:badgeSpin 4s linear infinite;box-shadow:0 0 20px rgba(255,215,0,0.6),0 0 40px rgba(255,215,0,0.3),0 0 60px rgba(30,60,120,0.5);border:2px solid rgba(255,215,0,0.5)" alt="成电校徽">
       </div>
       <div class="ai-welcome-title">成电AI 智能体</div>
-      <div class="ai-welcome-desc">基于本指南全部内容+DeepSeek大模型，实时一问一答<br>报到、宿舍、选课、校园生活…什么都能问<br>AI+本地知识库双引擎，更懂成电</div>
+      <div class="ai-welcome-desc">基于本指南全部内容+大模型联网搜索，实时一问一答<br>报到、宿舍、选课、校园生活…什么都能问<br>AI+本地知识库双引擎，更懂成电</div>
     </div>
   </div>
   <div class="ai-input-bar" id="aiInputBar" style="display:none">
@@ -3811,26 +3811,32 @@ function aiQuickAsk(q){
   aiSend();
 }
 
-// DeepSeek大模型配置（通过硅基流动SiliconFlow免费接入）
-var DEEPSEEK_CONFIG={
-  apiKey:'',  // 填入你的SiliconFlow API Key（注册 https://siliconflow.cn 送免费额度）
-  baseUrl:'https://api.siliconflow.cn/v1/chat/completions',
-  model:'deepseek-ai/DeepSeek-V3',
-  enabled:false  // 有API Key后自动启用
-};
-
-// 调用DeepSeek大模型
-function callDeepSeek(query,localAnswer,callback){
-  if(!DEEPSEEK_CONFIG.apiKey){
-    DEEPSEEK_CONFIG.enabled=false;
-    callback(null);
-    return;
+// 大模型配置（双引擎，免费API）
+var AI_MODELS={
+  // 引擎1：DeepSeek-V3（通过硅基流动免费接入）
+  deepseek:{
+    apiKey:'sk-gzrioyemxmntmbokygqxpfghzmgwnlynmorjlkiumztpimnj',
+    baseUrl:'https://api.siliconflow.cn/v1/chat/completions',
+    model:'deepseek-ai/DeepSeek-V3'
+  },
+  // 引擎2：豆包大模型（通过火山引擎免费接入）
+  doubao:{
+    apiKey:'',  // 填入火山引擎API Key
+    baseUrl:'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+    model:'doubao-pro-32k'
   }
-  DEEPSEEK_CONFIG.enabled=true;
+};
+// 当前使用的引擎（deepseek优先，失败自动切换豆包）
+var AI_ENGINE='deepseek';
+
+// 调用大模型（双引擎自动切换）
+function callAIModel(query,localAnswer,callback){
+  var engine=AI_MODELS[AI_ENGINE];
+  if(!engine||!engine.apiKey){callback(null);return;}
   var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的回答应该：\n1. 优先参考本地知识库的答案\n2. 如果本地知识库没有答案，你可以基于对成电的了解回答\n3. 回答要简洁、实用、口语化\n4. 如果不确定，请诚实说明\n5. 回答格式用纯文本，不要用markdown';
   var userContent='本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query;
   var body=JSON.stringify({
-    model:DEEPSEEK_CONFIG.model,
+    model:engine.model,
     messages:[
       {role:'system',content:systemPrompt},
       {role:'user',content:userContent}
@@ -3839,9 +3845,47 @@ function callDeepSeek(query,localAnswer,callback){
     temperature:0.7
   });
   var xhr=new XMLHttpRequest();
-  xhr.open('POST',DEEPSEEK_CONFIG.baseUrl,true);
+  xhr.open('POST',engine.baseUrl,true);
   xhr.setRequestHeader('Content-Type','application/json');
-  xhr.setRequestHeader('Authorization','Bearer '+DEEPSEEK_CONFIG.apiKey);
+  xhr.setRequestHeader('Authorization','Bearer '+engine.apiKey);
+  xhr.timeout=15000;
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4){
+      if(xhr.status===200){
+        try{
+          var resp=JSON.parse(xhr.responseText);
+          var text=resp.choices&&resp.choices[0]&&resp.choices[0].message?resp.choices[0].message.content:'';
+          if(text){callback(text);return;}
+          // 主引擎失败，尝试备用引擎
+          tryBackupEngine(query,localAnswer,callback);
+        }catch(e){tryBackupEngine(query,localAnswer,callback);}
+      }else{tryBackupEngine(query,localAnswer,callback);}
+    }
+  };
+  xhr.onerror=function(){tryBackupEngine(query,localAnswer,callback);};
+  xhr.ontimeout=function(){tryBackupEngine(query,localAnswer,callback);};
+  try{xhr.send(body);}catch(e){tryBackupEngine(query,localAnswer,callback);}
+}
+// 备用引擎
+function tryBackupEngine(query,localAnswer,callback){
+  var backup=AI_ENGINE==='deepseek'?'doubao':'deepseek';
+  var engine=AI_MODELS[backup];
+  if(!engine||!engine.apiKey){callback(null);return;}
+  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的回答应该：\n1. 优先参考本地知识库的答案\n2. 如果本地知识库没有答案，你可以基于对成电的了解回答\n3. 回答要简洁、实用、口语化\n4. 如果不确定，请诚实说明\n5. 回答格式用纯文本，不要用markdown';
+  var userContent='本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query;
+  var body=JSON.stringify({
+    model:engine.model,
+    messages:[
+      {role:'system',content:systemPrompt},
+      {role:'user',content:userContent}
+    ],
+    max_tokens:512,
+    temperature:0.7
+  });
+  var xhr=new XMLHttpRequest();
+  xhr.open('POST',engine.baseUrl,true);
+  xhr.setRequestHeader('Content-Type','application/json');
+  xhr.setRequestHeader('Authorization','Bearer '+engine.apiKey);
   xhr.timeout=15000;
   xhr.onreadystatechange=function(){
     if(xhr.readyState===4){
@@ -3888,19 +3932,19 @@ function aiSend(){
     var result=aiGenerateAnswer(q);
     var isLocalStrong=result.isQA||result.detailKey; // 本地知识库有强匹配
     renderAiMsg(result);
-    // 如果本地回答不够好，尝试DeepSeek补充
-    if(!isLocalStrong && DEEPSEEK_CONFIG.apiKey){
+    // 如果本地回答不够好，尝试大模型联网补充
+    if(!isLocalStrong && (AI_MODELS.deepseek.apiKey||AI_MODELS.doubao.apiKey)){
       var dsTyping=document.createElement('div');
       dsTyping.className='ai-typing';
       dsTyping.id='aiDsTyping';
       dsTyping.innerHTML='<span></span><span></span><span></span>';
       chat.appendChild(dsTyping);
       chat.scrollTop=chat.scrollHeight;
-      callDeepSeek(q,result.answer,function(dsText){
+      callAIModel(q,result.answer,function(dsText){
         var dsTypingEl=document.getElementById('aiDsTyping');
         if(dsTypingEl)dsTypingEl.remove();
         if(dsText){
-          var dsResult={answer:dsText,sources:['DeepSeek大模型'],isQA:false};
+          var dsResult={answer:dsText,sources:['AI大模型(联网)'],isQA:false};
           renderAiMsg(dsResult);
         }
       });
@@ -3940,8 +3984,8 @@ function renderAiMsg(result){
       if(s==='成电频道'){
         return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
       }
-      if(s==='DeepSeek大模型'){
-        return '<span style="color:var(--gold)">DeepSeek大模型(联网)</span>';
+      if(s==='AI大模型(联网)'){
+        return '<span style="color:var(--gold)">AI大模型(联网)</span>';
       }
       return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
     }).join('、')+'</div>';
