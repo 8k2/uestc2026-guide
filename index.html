@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes,viewport-fit=cover">
+<title>成电圈主全能版新生指南</title>
+<style>
+:root{--gold:#ffd700;--gold2:#ffaa00;--blue:#165DFF;--dark:#0a0e27;--card:rgba(20,30,60,0.85);--text:#e0e8ff;--text2:rgba(255,255,255,0.55);--text3:rgba(255,255,255,0.3);--safe-b:env(safe-area-inset-bottom,0px)}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:var(--dark);color:var(--text);font-size:14px;line-height:1.6;overflow:hidden;height:100vh;height:100dvh}
+
+/* === 顶栏 === */
+.topbar{position:fixed;top:0;left:0;right:0;height:44px;z-index:100;display:flex;align-items:center;padding:0 16px;background:rgba(10,14,39,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,0.08)}
+.topbar-title{font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* === 页面容器 === */
+.pages{position:fixed;top:44px;left:0;right:0;bottom:50px;overflow:hidden}
+.page{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateX(100%);opacity:0;transition:transform .3s,opacity .3s;pointer-events:none;padding:0 0 20px}
+.page.active{transform:translateX(0);opacity:1;pointer-events:auto}
+.page.from-left{transform:translateX(-100%)}
+
+/* === 底部导航 === */
+.tabbar{position:fixed;bottom:0;left:0;right:0;height:calc(50px + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(10,14,39,0.95);backdrop-filter:blur(12px);border-top:1px solid rgba(255,215,0,0.1);display:flex;z-index:100}
+.tabbar-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);font-size:10px;cursor:pointer;transition:color .2s}
+.tabbar-item.active{color:var(--gold)}
+.tabbar-icon{font-size:22px;line-height:1}
+.tabbar-label{font-size:10px}
+
+/* === 首页英雄区 === */
+.hero{text-align:center;padding:40px 20px 24px;position:relative}
+.hero::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.2),transparent)}
+.hero-logo{font-size:52px;margin-bottom:8px}
+.hero-title{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px}
+.hero-sub{font-size:13px;color:var(--text2);margin-top:6px;letter-spacing:2px}
+.hero-badge{display:inline-block;margin-top:10px;padding:4px 14px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:20px;font-size:12px;color:var(--gold)}
+
+/* === 快捷入口 === */
+.quick-row{display:flex;gap:10px;padding:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.quick-row::-webkit-scrollbar{display:none}
+.quick-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 14px;background:var(--card);border:1px solid rgba(255,215,0,0.08);border-radius:14px;cursor:pointer;transition:all .2s;min-width:72px}
+.quick-item:active{transform:scale(.95);background:rgba(255,215,0,0.08)}
+.quick-icon{font-size:28px}
+.quick-label{font-size:11px;color:var(--text2);white-space:nowrap}
+
+/* === 分区标题 === */
+.section-title{display:flex;align-items:center;gap:8px;padding:20px 16px 10px;font-size:16px;font-weight:700}
+.section-title::before{content:'';width:3px;height:16px;background:var(--gold);border-radius:2px}
+
+/* === 功能卡片列表 === */
+.func-list{padding:0 16px}
+.func-card{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:10px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:14px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
+.func-card:active{transform:scale(.98);border-color:rgba(255,215,0,0.2)}
+.func-icon{font-size:28px;flex-shrink:0}
+.func-info{flex:1;min-width:0}
+.func-name{font-size:15px;font-weight:600;color:var(--gold)}
+.func-desc{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.func-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
+
+/* === 详情页 === */
+.detail-header{padding:20px 16px 12px;display:flex;align-items:center;gap:10px}
+.detail-back{width:32px;height:32px;border-radius:50%;background:rgba(255,215,0,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;color:var(--gold)}
+.detail-back:active{background:rgba(255,215,0,0.2)}
+.detail-title{font-size:18px;font-weight:700;color:var(--gold)}
+.detail-body{padding:0 16px 80px}
+.detail-body h3{font-size:15px;color:var(--gold);margin:18px 0 8px;padding-left:10px;border-left:3px solid var(--gold)}
+.detail-body p,.detail-body li{font-size:14px;color:var(--text);line-height:1.8}
+.detail-body ul{padding-left:18px;margin:6px 0}
+.detail-body li{margin-bottom:4px}
+.detail-body .warn{background:rgba(255,125,0,0.1);border-left:3px solid #ff7d00;border-radius:8px;padding:10px 12px;margin:10px 0;font-size:13px}
+.detail-body .danger{background:rgba(245,63,63,0.1);border-left:3px solid #f53f3f;border-radius:8px;padding:10px 12px;margin:10px 0;font-size:13px}
+.detail-body .info{background:rgba(22,93,255,0.1);border-left:3px solid var(--blue);border-radius:8px;padding:10px 12px;margin:10px 0;font-size:13px}
+.detail-body table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
+.detail-body th{background:rgba(255,215,0,0.08);text-align:left;padding:6px 8px;font-weight:600;color:var(--gold);border-bottom:1px solid rgba(255,215,0,0.15)}
+.detail-body td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.tag{display:inline-block;background:rgba(255,215,0,0.1);color:var(--gold);padding:1px 8px;border-radius:4px;font-size:12px;font-weight:600}
+
+/* === 搜索框 === */
+.search-box{margin:0 16px 8px;padding:10px 14px;background:rgba(20,30,60,0.6);border:1px solid rgba(255,215,0,0.08);border-radius:12px;display:flex;align-items:center;gap:8px}
+.search-box input{flex:1;border:none;background:none;color:var(--text);font-size:14px;outline:none}
+.search-box input::placeholder{color:var(--text3)}
+.search-icon{font-size:16px;color:var(--text3)}
+
+/* === 外部链接卡片 === */
+.link-card{display:flex;align-items:center;gap:10px;padding:12px 14px;margin:6px 16px;background:var(--card);border:1px solid rgba(0,180,220,0.1);border-radius:12px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
+.link-card:active{border-color:rgba(0,180,220,0.3);transform:scale(.98)}
+.link-icon{font-size:24px}
+.link-info{flex:1}
+.link-name{font-size:14px;font-weight:600;color:#80c0ff}
+.link-desc{font-size:11px;color:var(--text2)}
+.link-go{color:var(--text3);font-size:14px}
+
+/* === 动画 === */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease-out both}
+</style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<div class="topbar">
+  <div class="topbar-title">成电圈主全能版新生指南</div>
+</div>
+
+<!-- 页面容器 -->
+<div class="pages">
+
+<!-- ============ TAB1 首页 ============ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-logo">🎓</div>
+    <div class="hero-title">成电圈主全能版</div>
+    <div class="hero-sub">电子科技大学 · 清水河校区</div>
+    <div class="hero-badge">2026新生入学全能指南</div>
+  </div>
+
+  <div class="search-box" onclick="switchTab(1)">
+    <span class="search-icon">🔍</span>
+    <input placeholder="搜索报到、宿舍、选课…" readonly>
+  </div>
+
+  <!-- 快捷入口 -->
+  <div class="quick-row">
+    <div class="quick-item" onclick="openDetail('报到')"><div class="quick-icon">📝</div><div class="quick-label">报到</div></div>
+    <div class="quick-item" onclick="openDetail('宿舍')"><div class="quick-icon">🏠</div><div class="quick-label">宿舍</div></div>
+    <div class="quick-item" onclick="openDetail('学业')"><div class="quick-icon">📚</div><div class="quick-label">学业</div></div>
+    <div class="quick-item" onclick="openDetail('校园生活')"><div class="quick-icon">🍜</div><div class="quick-label">生活</div></div>
+    <div class="quick-item" onclick="openDetail('交通')"><div class="quick-icon">🚄</div><div class="quick-label">交通</div></div>
+    <div class="quick-item" onclick="openDetail('避坑')"><div class="quick-icon">🛡️</div><div class="quick-label">避坑</div></div>
+    <div class="quick-item" onclick="openDetail('军训')"><div class="quick-icon">🎖️</div><div class="quick-label">军训</div></div>
+  </div>
+
+  <!-- 重要通知 -->
+  <div class="section-title">重要通知</div>
+  <div class="func-list">
+    <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE?p=G7ELZYIlzh3FLhGE24sY85" target="_blank" class="func-card">
+      <div class="func-icon">📋</div>
+      <div class="func-info"><div class="func-name">入学须知（官方2026版）</div><div class="func-desc">报到/缴费/户口/军训/安全考试/收费标准全收录</div></div>
+      <div class="func-arrow">›</div>
+    </a>
+    <a href="https://gis.uestc.edu.cn/cmipsh5/#/" target="_blank" class="func-card">
+      <div class="func-icon">🗺️</div>
+      <div class="func-info"><div class="func-name">官方GIS校园地图</div><div class="func-desc">手机端在线查看，双校区导航</div></div>
+      <div class="func-arrow">›</div>
+    </a>
+    <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE" target="_blank" class="func-card">
+      <div class="func-icon">📋</div>
+      <div class="func-info"><div class="func-name">成电26新生报到指南</div><div class="func-desc">腾讯文档在线版，13个板块全覆盖</div></div>
+      <div class="func-arrow">›</div>
+    </a>
+  </div>
+
+  <!-- 功能入口 -->
+  <div class="section-title">全部功能</div>
+  <div class="func-list">
+    <div class="func-card" onclick="openDetail('报到')"><div class="func-icon">📝</div><div class="func-info"><div class="func-name">报到专区</div><div class="func-desc">必备材料 · 报到地点 · 流程 · 档案</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('宿舍')"><div class="func-icon">🏠</div><div class="func-info"><div class="func-name">宿舍专区</div><div class="func-desc">床位尺寸 · 热水 · 供电 · 选房规则</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">📚</div><div class="func-info"><div class="func-name">学业专区</div><div class="func-desc">选课 · 四级 · 英才班 · 转专业 · 竞赛</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('校园生活')"><div class="func-icon">🍜</div><div class="func-info"><div class="func-name">校园生活</div><div class="func-desc">食堂 · 一卡通 · WiFi · 打印 · 场馆</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('交通')"><div class="func-icon">🚄</div><div class="func-info"><div class="func-name">交通指南</div><div class="func-desc">机场/火车站到校 · 地铁 · 有轨电车</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">新生避坑专栏</div><div class="func-desc">校园卡 · 对对卡 · 诈骗提醒</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('军训')"><div class="func-icon">🎖️</div><div class="func-info"><div class="func-name">军训/新骨营</div><div class="func-desc">军训安排 · 新骨营报名 · 体测</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('入学须知')"><div class="func-icon">📋</div><div class="func-info"><div class="func-name">入学须知（官方）</div><div class="func-desc">户口 · 缴费 · 安全考试 · 部门电话</div></div><div class="func-arrow">›</div></div>
+  </div>
+
+  <!-- 外部链接 -->
+  <div class="section-title">常用链接</div>
+  <a href="https://qm.qq.com/q/xxxxx" target="_blank" class="link-card"><div class="link-icon">🐧</div><div class="link-info"><div class="link-name">成电2026新生大军全能版群</div><div class="link-desc">QQ群，获取最新资讯</div></div><div class="link-go">›</div></a>
+  <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE" target="_blank" class="link-card"><div class="link-icon">📋</div><div class="link-info"><div class="link-name">成电26新生报到指南</div><div class="link-desc">腾讯文档在线版</div></div><div class="link-go">›</div></a>
+  <a href="https://gis.uestc.edu.cn/cmipsh5/#/" target="_blank" class="link-card"><div class="link-icon">🗺️</div><div class="link-info"><div class="link-name">官方GIS校园地图</div><div class="link-desc">手机端在线版</div></div><div class="link-go">›</div></a>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ============ TAB2 报到+宿舍+入学须知 ============ -->
+<div class="page" id="page-enroll">
+  <div class="section-title">报到专区</div>
+  <div class="func-list">
+    <div class="func-card" onclick="openDetail('报到')"><div class="func-icon">📝</div><div class="func-info"><div class="func-name">报到须知</div><div class="func-desc">时间 · 地点 · 必带材料 · 流程</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('宿舍')"><div class="func-icon">🏠</div><div class="func-info"><div class="func-name">宿舍专区</div><div class="func-desc">选房 · 床位 · 热水 · 供电</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('入学须知')"><div class="func-icon">📋</div><div class="func-info"><div class="func-name">入学须知（官方）</div><div class="func-desc">户口 · 缴费 · 安全考试 · 部门电话</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('军训')"><div class="func-icon">🎖️</div><div class="func-info"><div class="func-name">军训/新骨营</div><div class="func-desc">军训安排 · 新骨营 · 兵役登记</div></div><div class="func-arrow">›</div></div>
+  </div>
+  <div class="section-title">交通指南</div>
+  <div class="func-list">
+    <div class="func-card" onclick="openDetail('交通')"><div class="func-icon">🚄</div><div class="func-info"><div class="func-name">到校路线</div><div class="func-desc">机场 · 火车站 · 地铁 · 有轨电车</div></div><div class="func-arrow">›</div></div>
+  </div>
+  <div class="section-title">新生避坑</div>
+  <div class="func-list">
+    <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">避坑专栏</div><div class="func-desc">校园卡 · 对对卡 · 诈骗提醒</div></div><div class="func-arrow">›</div></div>
+  </div>
+</div>
+
+<!-- ============ TAB3 校园生活 ============ -->
+<div class="page" id="page-life">
+  <div class="section-title">校园生活</div>
+  <div class="func-list">
+    <div class="func-card" onclick="openDetail('校园生活')"><div class="func-icon">🍜</div><div class="func-info"><div class="func-name">食堂分布</div><div class="func-desc">10大餐厅+商业街</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('一卡通')"><div class="func-icon">💳</div><div class="func-info"><div class="func-name">一卡通</div><div class="func-desc">充值 · 圈存 · 支付宝绑定</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('校园网络')"><div class="func-icon">📶</div><div class="func-info"><div class="func-name">UESTC-WiFi</div><div class="func-desc">免费校园网 · VPN · CARSI</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('打印')"><div class="func-icon">🖨️</div><div class="func-info"><div class="func-name">打印</div><div class="func-desc">文印中心 · 品学楼打印机</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('场馆')"><div class="func-icon">🏊</div><div class="func-info"><div class="func-name">场馆预约</div><div class="func-desc">游泳 · 健身 · 羽毛球 · 篮球</div></div><div class="func-arrow">›</div></div>
+  </div>
+</div>
+
+<!-- ============ TAB4 学业 ============ -->
+<div class="page" id="page-study">
+  <div class="section-title">学业专区</div>
+  <div class="func-list">
+    <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">📚</div><div class="func-info"><div class="func-name">选课攻略</div><div class="func-desc">权重选课 · A/B/C平台 · 技巧</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('英语')"><div class="func-icon">📖</div><div class="func-info"><div class="func-name">英语入学考试</div><div class="func-desc">8月29日 · 分级教学 · 耳机</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">英才班/转专业</div><div class="func-desc">拔尖班选拔 · 转专业 · 大类分流</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">🥇</div><div class="func-info"><div class="func-name">竞赛指南</div><div class="func-desc">电赛 · 蓝桥杯 · 工创赛</div></div><div class="func-arrow">›</div></div>
+  </div>
+</div>
+
+<!-- ============ TAB5 更多 ============ -->
+<div class="page" id="page-more">
+  <div class="section-title">外部链接</div>
+  <a href="https://qm.qq.com/q/xxxxx" target="_blank" class="link-card"><div class="link-icon">🐧</div><div class="link-info"><div class="link-name">成电2026新生大军全能版群</div><div class="link-desc">QQ群</div></div><div class="link-go">›</div></a>
+  <a href="https://docs.qq.com/aio/DR2NRWVZsZU5yVHJE" target="_blank" class="link-card"><div class="link-icon">📋</div><div class="link-info"><div class="link-name">成电26新生报到指南</div><div class="link-desc">腾讯文档在线版</div></div><div class="link-go">›</div></a>
+  <a href="https://gis.uestc.edu.cn/cmipsh5/#/" target="_blank" class="link-card"><div class="link-icon">🗺️</div><div class="link-info"><div class="link-name">官方GIS校园地图</div><div class="link-desc">手机端在线版</div></div><div class="link-go">›</div></a>
+  <a href="https://freshman.uestc.edu.cn" target="_blank" class="link-card"><div class="link-icon">🌐</div><div class="link-info"><div class="link-name">迎新网站</div><div class="link-desc">freshman.uestc.edu.cn</div></div><div class="link-go">›</div></a>
+  <a href="https://bbs.uestc.edu.cn" target="_blank" class="link-card"><div class="link-icon">💬</div><div class="link-info"><div class="link-name">清水河畔论坛</div><div class="link-desc">官方学生论坛</div></div><div class="link-go">›</div></a>
+
+  <div class="section-title">必关注公众号</div>
+  <div class="func-list">
+    <div class="func-card"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">成电学工</div><div class="func-desc">学生工作/奖助学金/就业</div></div></div>
+    <div class="func-card"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">平安成电</div><div class="func-desc">安全教育/进校闸机/校园安全</div></div></div>
+    <div class="func-card"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">成电宿舍</div><div class="func-desc">选房/住宿信息</div></div></div>
+    <div class="func-card"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">成电后勤</div><div class="func-desc">食堂/后勤/通勤班车</div></div></div>
+    <div class="func-card"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">成电微后勤</div><div class="func-desc">微宿舍选房小程序</div></div></div>
+    <div class="func-card"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">电子科技大学教务处</div><div class="func-desc">选课通知/成绩查询</div></div></div>
+  </div>
+
+  <div class="section-title">相关部门电话</div>
+  <div class="func-list">
+    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">学生工作部</div><div class="func-desc">028-61830078（报到咨询）</div></div></div>
+    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">教务处</div><div class="func-desc">028-61831137（招生咨询）</div></div></div>
+    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">后勤保障部</div><div class="func-desc">清水河028-61830144 / 沙河028-83201090</div></div></div>
+    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">保卫处24小时</div><div class="func-desc">清水河028-61830110 / 沙河028-83200110</div></div></div>
+    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">校医院</div><div class="func-desc">清水河028-61830397 / 夜间13518194790</div></div></div>
+    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">信息中心</div><div class="func-desc">028-61831184</div></div></div>
+  </div>
+
+  <div style="text-align:center;padding:30px 16px;color:var(--text3);font-size:12px">
+    <p>版权说明</p>
+    <p style="margin-top:4px">本指南由星辰智能体整理制作</p>
+    <p>内容来源于电子科技大学官方渠道</p>
+    </div>
+</div>
+
+<!-- ============ 详情面板（覆盖层） ============ -->
+<div id="detailPanel" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;transform:translateY(100%);transition:transform .3s ease;background:var(--dark);overflow-y:auto;-webkit-overflow-scrolling:touch">
+  <div class="detail-header">
+    <div class="detail-back" onclick="closeDetail()">‹</div>
+    <div class="detail-title" id="detailTitle"></div>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+</div><!-- pages -->
+
+<!-- 底部导航 -->
+<div class="tabbar">
+  <div class="tabbar-item active" onclick="switchTab(0)"><div class="tabbar-icon">🏠</div><div class="tabbar-label">首页</div></div>
+  <div class="tabbar-item" onclick="switchTab(1)"><div class="tabbar-icon">📝</div><div class="tabbar-label">报到</div></div>
+  <div class="tabbar-item" onclick="switchTab(2)"><div class="tabbar-icon">🍜</div><div class="tabbar-label">生活</div></div>
+  <div class="tabbar-item" onclick="switchTab(3)"><div class="tabbar-icon">📚</div><div class="tabbar-label">学业</div></div>
+  <div class="tabbar-item" onclick="switchTab(4)"><div class="tabbar-icon">⋯</div><div class="tabbar-label">更多</div></div>
+</div>
+
+<script>
+// === Tab切换 ===
+const pages=['page-home','page-enroll','page-life','page-study','page-more'];
+let curTab=0;
+function switchTab(i){
+  if(i===curTab)return;
+  document.querySelectorAll('.page')[curTab]?.classList.remove('active');
+  document.querySelectorAll('.tabbar-item')[curTab]?.classList.remove('active');
+  curTab=i;
+  document.querySelectorAll('.page')[curTab]?.classList.add('active');
+  document.querySelectorAll('.tabbar-item')[curTab]?.classList.add('active');
+}
+
+// === 详情数据 ===
+const DETAILS={
+'报到':`
+<h3>报到时间</h3>
+<p><span class="tag">2026年8月27日-28日</span></p>
+<h3>报到地点</h3>
+<ul>
+<li>信息与软件工程学院、医学院 → <b>沙河校区</b>（建设北路二段4号）</li>
+<li>格拉斯哥海南学院 → <b>海南校区</b>（海南陵水黎安国际教育创新试验区）</li>
+<li>其他学院 → <b>清水河校区</b>（西源大道2006号）</li>
+</ul>
+<h3>必备材料</h3>
+<ul>
+<li>录取通知书原件</li>
+<li>身份证原件 + 正反面复印件3份</li>
+<li>近期一寸免冠彩色证件照4张</li>
+<li>本人姓名开户的银行储蓄卡（已满18岁可到校后办）</li>
+<li>新生档案（未统一邮寄者不得拆封，邮寄地址见迎新网 freshman.uestc.edu.cn）</li>
+<li>户口迁移证（自愿）</li>
+<li>团员档案/组织关系转接材料</li>
+</ul>
+<h3>报到流程</h3>
+<ol>
+<li>8月20日后登录<b>迎新网</b>（freshman.uestc.edu.cn）激活账号查学号</li>
+<li>8月25-27日完成<b>网上缴费</b></li>
+<li>关注"平安成电"公众号绑定信息，扫个人二维码进校</li>
+<li>到校后先到报到点或先入住宿舍均可</li>
+<li>领取军训服装、完成体检等</li>
+<li>完成入学资格审查（学校统一核查）</li>
+</ol>
+<div class="danger">学校不会通过非官方方式收缴学费，不委托任何个人收取学费！</div>
+<h3>学籍档案注意事项</h3>
+<ul>
+<li>新生档案由省/市招生考试机构统一邮寄的，不需自带</li>
+<li>需自带档案的，不得擅自拆封！</li>
+<li>邮寄地址和方式请登录迎新网"档案寄送"栏目查阅</li>
+<li>报到时交所在学院</li>
+</ul>
+<h3>团组织关系转接</h3>
+<ul>
+<li>入学后在<b>智慧团建系统</b>（zhtj.youth.cn/zhtj/）转接到所在团支部</li>
+<li>团员资料随人事档案转入，或本人携带到校后交给辅导员</li>
+<li>关注"成电青年"公众号，回复"组织关系转接"获取操作说明</li>
+</ul>
+`,
+
+'宿舍':`
+<h3>选房规则</h3>
+<ul>
+<li><span class="tag">8月22-23日</span> 登录选房网站或微信小程序选房</li>
+<li>电脑端：后勤保障部网站（hq.uestc.edu.cn）→ 服务导览 → 宿舍选房</li>
+<li>手机端：微信小程序"<b>成电微后勤</b>" → 微宿舍</li>
+<li>关注"<b>成电宿舍</b>"公众号获取时间安排和选房流程</li>
+</ul>
+<div class="warn">8月23日后未选房 → 学校统一安排！禁止携带违章电器！</div>
+<h3>床位尺寸</h3>
+<table>
+<tr><th>类型</th><th>尺寸</th><th>适用</th></tr>
+<tr><td>普通床</td><td>1.95m × 0.8m</td><td>大部分新生</td></tr>
+<tr><td>加长床</td><td>2.2m × 1.0m</td><td>身高≥1.9m</td></tr>
+<tr><td>海南校区</td><td>2.0m × 1.0m</td><td>格拉斯哥海南学院</td></tr>
+</table>
+<h3>床帘推荐</h3>
+<ul>
+<li>建议购买<b>遮光床帘</b>，尺寸参考床位长度+高度约1.2m</li>
+<li>普通床：帘宽0.8m、长1.95m、高1.2m</li>
+<li>加长床：帘宽1.0m、长2.2m、高1.2m</li>
+<li>可在网上提前买好，也可到校后在商业街选购</li>
+</ul>
+<h3>热水/供电</h3>
+<ul>
+<li><b>淋浴</b>：1分钟0.1元（一卡通刷卡），一般使用时间为6:30-23:30</li>
+<li><b>供电</b>：宿舍不断电</li>
+<li>电费：每人每月免费5度 + 寝室每月免费20度</li>
+<li>充值方式：网上服务大厅或支付宝搜"电子科技大学"生活号</li>
+</ul>
+<h3>日常须知</h3>
+<ul>
+<li>开门6:30 / 关门23:30，晚归需填登记表</li>
+<li>每周四中午大扫除，下午检查</li>
+<li>本科生（学知苑）：四人间上床下桌 + 独卫热水空调</li>
+<li>研究生（硕丰苑）：两人间为主 + 独卫热水空调</li>
+</ul>
+`,
+
+'学业':`
+<h3>晚自习规则</h3>
+<div class="info">部分学院大一上学期安排统一晚自习，具体由学院通知。一般时间为周日至周四晚19:00-21:30。</div>
+<h3>选课机制</h3>
+<ul>
+<li><b>大一上</b>：主课系统自动选好，你只需选体育课、新生研讨课、人类文明经典赏析</li>
+<li><b>权重选课法</b>：每人100分权重，不是先到先得
+  <ul>
+  <li><b>A平台</b>（专业课）：两门课狠砸确保最满意老师</li>
+  <li><b>B平台</b>（体育&美育）：热门课砸100分！</li>
+  <li><b>C平台</b>（跨专业）：除非特别感兴趣，不要选</li>
+  </ul>
+</li>
+<li>投分别投5的整数倍，加1-2分（如11、47）</li>
+<li>讲师比教授平时分更高，挂科率也低</li>
+</ul>
+<h3>四级</h3>
+<ul>
+<li>大一上学期根据英语入学考试成绩分班</li>
+<li>拓展班同学大一上即可报名四级</li>
+<li>提高/基础班一般大一下或大二可报名</li>
+<li>四级报名时间关注教务处通知</li>
+</ul>
+<h3>英才班选拔</h3>
+<ul>
+<li>大一入学时有拔尖班选拔：英才班、珠峰班、双A班、强芯铸魂班等</li>
+<li>各学院通知不同，关注学院通知</li>
+</ul>
+<h3>转专业</h3>
+<ul>
+<li>两次机会：大一入学拔尖班选拔、<b>大一下学期</b>转专业</li>
+<li>各学院有转专业通知和要求，一般需面试+成绩排名</li>
+</ul>
+<h3>大类分流</h3>
+<ul>
+<li>部分学院按大类招生，大二按成绩和志愿分配专业</li>
+</ul>
+<h3>竞赛指南</h3>
+<ul>
+<li><b>全国大学生电子设计竞赛（电赛）</b>：含金量最高，大三9月举行，建议大二开始准备</li>
+<li><b>蓝桥杯</b>：软件/电子类，每年4月省赛6月国赛，门槛较低适合新手</li>
+<li><b>工程训练综合能力竞赛（工创赛）</b>：跨学科，含机器人/智能车等方向</li>
+<li>其他：数学建模、ACM、互联网+、挑战杯等</li>
+</ul>
+<div class="info">竞赛获奖是保研、奖学金、简历的重要加分项。建议大一下开始关注，加入相关实验室。</div>
+`,
+
+'英语':`
+<h3>考试时间</h3>
+<p><span class="tag">2026年8月29日 14:30-16:30</span></p>
+<h3>考试对象</h3>
+<p>英才实验学院、格拉斯哥学院、格拉斯哥海南学院<b>除外</b>的新生</p>
+<h3>考试题型</h3>
+<p>听力 + 完形 + 阅读 + 写作（客观+主观）</p>
+<h3>分级教学</h3>
+<ul>
+<li><b>通用英语（拓展）</b>：重点培养思辨和英语演讲能力</li>
+<li><b>通用英语（提高）</b>：中高级阅读/写作/听说，项目式混合教学</li>
+<li><b>通用英语（基础）</b>：听说读写综合夯实，信息化辅助教学</li>
+</ul>
+<div class="warn">每位同学必须配备能接收84兆赫调频广播+音频广播的耳机！学校报到时提供选购（24.5元/副）</div>
+`,
+
+'校园生活':`
+<h3>食堂分布</h3>
+<table>
+<tr><th>餐厅</th><th>特色</th></tr>
+<tr><td>科创餐厅</td><td>最新建成，评价最高，内有瑞幸</td></tr>
+<tr><td>朝阳餐厅</td><td>便宜量大，老麻抄手；二楼海底捞+KFC</td></tr>
+<tr><td>芙蓉餐厅</td><td>聚餐首选，像外面餐馆</td></tr>
+<tr><td>家园餐厅</td><td>自选菜多，自由度高</td></tr>
+<tr><td>学子餐厅</td><td>离教学区最近，出餐快，旁边麦当劳</td></tr>
+<tr><td>思源餐厅</td><td>川菜居多</td></tr>
+<tr><td>银桦/紫荆</td><td>一组团旁，餐品丰富</td></tr>
+<tr><td>西北餐厅</td><td>面食为主，清真</td></tr>
+<tr><td>桃园餐厅</td><td>南门体育场下，2025年翻新</td></tr>
+<tr><td>布蕾德西点屋</td><td>糕点烘焙</td></tr>
+</table>
+<p>商业街：餐饮、超市、理发、洗衣、快递、数码维修一应俱全</p>
+`,
+
+'一卡通':`
+<h3>校园一卡通</h3>
+<h3>功能</h3>
+<p>食堂消费、超市、宿舍淋浴（1分钟0.1元）、门禁、校园巴士、图书馆</p>
+<h3>重点</h3>
+<div class="info">支付宝/微信可绑定校园卡，手机直接支付！只有洗澡必须用实体卡</div>
+<h3>充值方式</h3>
+<ol>
+<li>支付宝搜"电子科技大学生活号"→ 绑定校园卡 → 选择金额充值</li>
+<li>微信绑定：参考学校公众号教程</li>
+<li>充值后约2分钟到账，需在食堂/超市/宿舍楼底<b>圈存机</b>圈存</li>
+<li>圈存操作：卡放识别区 → 点"支付宝" → 确认圈存余额 → 点圈存</li>
+</ol>
+`,
+
+'校园网络':`
+<h3>UESTC-WiFi</h3>
+<ul>
+<li>校园WiFi：<b>UESTC-WIFI</b>，用学号+密码免费登录</li>
+<li>教学区和图书馆覆盖好，室外和宿舍区覆盖较差</li>
+<li>数字资源24小时开放，校外通过VPN或CARSI认证访问</li>
+<li>自助图书馆：行政主楼五楼及品悦吧外，24小时运行</li>
+</ul>
+`,
+
+'打印':`
+<h3>打印文件</h3>
+<ul>
+<li>文印中心：0.12元/张</li>
+<li>品学楼/宿舍楼底打印机：黑白单面0.2元/页，彩色单面0.8元/页</li>
+<li>使用方式：文件发微信文件传输助手 → 扫码进入小程序 → 选文件支付即可打印</li>
+</ul>
+`,
+
+'场馆':`
+<h3>体育场馆</h3>
+<ul>
+<li><b>南门体育馆</b>：田径场、室内篮球、游泳馆、健身房、台球室等</li>
+<li><b>综合训练馆</b>：羽毛球、乒乓球、篮球、网球、排球、五人足球等</li>
+</ul>
+<h3>使用方式</h3>
+<ol>
+<li>关注"<b>成电第三空间</b>"公众号</li>
+<li>南门体育馆窗口办卡（带学生证）</li>
+<li>公众号 → 功能 → 场馆预约（绑定体育卡后手机操作）</li>
+</ol>
+`,
+
+'交通':`
+<h3>迎新接待</h3>
+<p>地铁2号线<b>犀浦站</b>设接待点</p>
+<ul>
+<li>8月26日 13:00-19:00</li>
+<li>8月27日 8:00-19:00</li>
+<li>8月28日 8:00-18:00</li>
+</ul>
+<div class="warn">其他站点均无接站！不要轻信自称"学校接站"的陌生人！</div>
+<h3>双流机场 → 清水河</h3>
+<p>10号线 → 华兴换9号线 → 成都西站 → 蓉2号线 → 合作路站</p>
+<h3>双流机场 → 沙河</h3>
+<p>10号线 → 太平园换3号线 → 前锋路换6号线 → 建设北路</p>
+<h3>成都东 → 清水河</h3>
+<p>2号线 → 犀浦 → 116路公交</p>
+<h3>成都东 → 沙河</h3>
+<p>2号线 → 牛王庙换6号线 → 建设北路</p>
+<h3>天府机场 → 清水河</h3>
+<p>18号线 → 孵化园换9号线 → 成都西站 → 蓉2号线 → 合作路站</p>
+<h3>天府机场 → 沙河</h3>
+<p>18号线 → 西博城换6号线 → 建设北路</p>
+<h3>通勤班车</h3>
+<p>关注"成电后勤"公众号 → 天府行小程序预约清水河↔沙河班车</p>
+`,
+
+'避坑':`
+<h3>校园卡（手机卡）</h3>
+<div class="info">校园网（UESTC-WIFI）用学号密码免费登录，但室外和宿舍覆盖差。校园卡是流量+宽带+通话的刚需。</div>
+<h3>中国电信校园卡</h3>
+<ul>
+<li>月租<span class="tag">39元</span>（原71元档，凭学生证优惠）</li>
+<li>翼支付每月返20元话费券，4年累计省640元</li>
+<li>流量每月合计710G，宽带300M起步</li>
+<li>每月可选1个会员（爱奇艺/B站/腾讯视频等20+平台）</li>
+<li>营业厅：清水河校区商业街1楼菜鸟驿站旁</li>
+</ul>
+<h3>中国移动校园卡</h3>
+<ul>
+<li>月租<span class="tag">39元</span>（勾选融合优惠包→39元，四年不涨价）</li>
+<li>宽带300M + 流量600G</li>
+<li>36选1会员 + 商超代金券</li>
+<li>营业厅：清水河校区商业街1楼16号瑞幸对面</li>
+</ul>
+<div class="warn">不要信"办了校园卡才能选课、订教材"——校园卡和选课无关。建议到校后现场对比后选择。</div>
+<h3>对对卡/联通</h3>
+<div class="info">联通也有校园套餐，建议三家都去营业厅拿宣传单对比后再决定。</div>
+<h3>常见骗局</h3>
+<ul>
+<li><b>1. 校园卡强制绑定说</b>：办卡和选课/宿舍无关</li>
+<li><b>2. 床品推销</b>：新生群里加好友推销的，品质售后无保证</li>
+<li><b>3. "学长学姐"英语培训班</b>：大部分不是本校学生，卷钱跑路多！</li>
+<li><b>4. 扫码领奖品</b>：盗取个人信息</li>
+<li><b>5. 邮箱钓鱼</b>：冒充"老师"的邮件让你确认成绩/报名竞赛</li>
+<li><b>6. 钓鱼网站</b>：写个人信息时反复确认网站真实性</li>
+</ul>
+<div class="danger">核心原则：凡是让你转账、缴费、提供验证码的，一律先核实！所有缴费走学校官方渠道！</div>
+`,
+
+'军训':`
+<h3>新生骨干训练营</h3>
+<ul>
+<li>选拔100-120名新生，<span class="tag">8月23日</span>提前到校</li>
+<li>关注"成电学工"公众号，输入"新生骨干训练营"报名</li>
+<li>强烈推荐：提前来校熟悉环境+认识辅导员学长学姐</li>
+</ul>
+<h3>军训安排</h3>
+<ul>
+<li><span class="tag">8月31日下午</span>开训典礼</li>
+<li><b>8月31日-9月12日</b>军事技能训练</li>
+<li>服装报到时领取</li>
+<li>身体原因不能参加需医院证明办免训</li>
+</ul>
+<h3>兵役登记</h3>
+<ul>
+<li>年满18周岁男性公民，入学前<b>必须</b>兵役登记</li>
+<li>登录"全国征兵网"（gfbzb.gov.cn）</li>
+<li>开学报到时打开网站查验登记结果</li>
+<li>港澳台侨学生和留学生除外</li>
+</ul>
+<h3>体测</h3>
+<p>大学期间共四次，关注"成电第三空间"公众号</p>
+`,
+
+'入学须知':`
+<h3>一、报到</h3>
+<p>2026年8月27-28日，详见"报到专区"</p>
+<h3>二、英语入学考试</h3>
+<p>8月29日14:30-16:30，详见"英语入学考试"</p>
+<h3>三、安全教育考试</h3>
+<ul>
+<li>时间：<span class="tag">8月20-26日</span></li>
+<li>关注"平安成电"公众号 → 综合服务 → 安全教育</li>
+<li>满分100，≥80合格，2小时答题，补考3次</li>
+<li>开学报到须出示合格截图</li>
+<li>国家安全教育 = 自主修读必修课，计1学分！</li>
+</ul>
+<h3>四、收费标准</h3>
+<table>
+<tr><th>专业类型</th><th>学费</th><th>合计</th></tr>
+<tr><td>一般理工科</td><td>6500</td><td>7853.03</td></tr>
+<tr><td>文科/经管</td><td>6000</td><td>7353.03</td></tr>
+<tr><td>软件工程</td><td>9800</td><td>10953-11153</td></tr>
+<tr><td>临床医学</td><td>7200</td><td>8353-8553</td></tr>
+<tr><td>中外合作办学</td><td>100000</td><td>约101353</td></tr>
+</table>
+<h3>五、缴费方式</h3>
+<ul>
+<li>用户名=学号，密码=身份证后6位+"aA="</li>
+<li>支付宝：搜"电子科技大学"→生活号→缴费大厅</li>
+<li>微信：搜"电子科大计划财务处"→师生缴费</li>
+<li>网银：cwjf.uestc.edu.cn</li>
+<li>生源地贷款：汇至学校建行账户5100 1908 6080 5900 0888</li>
+</ul>
+<h3>六、户口迁移</h3>
+<ul>
+<li>自愿原则，凭录取通知书+身份证到户口所在地公安机关办理</li>
+<li>迁移地址：其他学院→高新区西源大道2006号</li>
+</ul>
+<h3>七、部门电话</h3>
+<ul>
+<li>学生工作部：028-61830078</li>
+<li>教务处：028-61831137</li>
+<li>后勤（清水河）：028-61830144</li>
+<li>保卫处24h：028-61830110</li>
+<li>校医院：028-61830397 / 夜间13518194790</li>
+<li>信息中心：028-61831184</li>
+<li>学生资助管理中心：028-61831097</li>
+</ul>
+`
+};
+
+// === 打开/关闭详情 ===
+function openDetail(key){
+  const d=DETAILS[key];
+  if(!d){alert('该模块内容待补充，请联系圈主添加');return}
+  document.getElementById('detailTitle').textContent=key;
+  document.getElementById('detailBody').innerHTML=d;
+  document.getElementById('detailPanel').style.transform='translateY(0)';
+}
+function closeDetail(){
+  document.getElementById('detailPanel').style.transform='translateY(100%)';
+}
+</script>
+</body>
+</html>
