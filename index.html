@@ -191,7 +191,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="quick-item" onclick="openDetail('学业')"><div class="quick-icon">📚</div><div class="quick-label">学业</div></div>
     <div class="quick-item" onclick="openDetail('校园生活')"><div class="quick-icon">🍜</div><div class="quick-label">生活</div></div>
     <div class="quick-item" onclick="openDetail('交通')"><div class="quick-icon">🚄</div><div class="quick-label">交通</div></div>
-    <div class="quick-item" onclick="openDetail('避坑')"><div class="quick-icon">🛡️</div><div class="quick-label">避坑</div></div>
+    <div class="quick-item" onclick="openDetail('避坑')"><div class="quick-icon">🛡️</div><div class="quick-label">校园网</div></div>
     <div class="quick-item" onclick="openDetail('军训')"><div class="quick-icon">🎖️</div><div class="quick-label">军训</div></div>
   </div>
 
@@ -223,7 +223,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">📚</div><div class="func-info"><div class="func-name">学业专区</div><div class="func-desc">选课 · 四级 · 英才班 · 转专业 · 竞赛</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('校园生活')"><div class="func-icon">🍜</div><div class="func-info"><div class="func-name">校园生活</div><div class="func-desc">食堂 · 一卡通 · WiFi · 打印 · 场馆</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('交通')"><div class="func-icon">🚄</div><div class="func-info"><div class="func-name">交通指南</div><div class="func-desc">机场/火车站到校 · 地铁 · 有轨电车</div></div><div class="func-arrow">›</div></div>
-    <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">新生避坑专栏</div><div class="func-desc">校园卡 · 对对卡 · 诈骗提醒</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">校园网选择与避坑</div><div class="func-desc">电信vs移动 · 套餐对比 · 性价比推荐</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('军训')"><div class="func-icon">🎖️</div><div class="func-info"><div class="func-name">军训/新骨营</div><div class="func-desc">军训安排 · 新骨营报名 · 体测</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('奖学金')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">奖学金细则</div><div class="func-desc">国奖/国励/校奖/企业奖 · 评选规则</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('转专业')"><div class="func-icon">🔄</div><div class="func-info"><div class="func-name">转专业指南</div><div class="func-desc">16学院细则 · 流程 · 考核方式</div></div><div class="func-arrow">›</div></div>
@@ -251,9 +251,9 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <div class="func-list">
     <div class="func-card" onclick="openDetail('交通')"><div class="func-icon">🚄</div><div class="func-info"><div class="func-name">到校路线</div><div class="func-desc">机场 · 火车站 · 地铁 · 有轨电车</div></div><div class="func-arrow">›</div></div>
   </div>
-  <div class="section-title">新生避坑</div>
+  <div class="section-title">校园网选择与避坑</div>
   <div class="func-list">
-    <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">避坑专栏</div><div class="func-desc">校园卡 · 对对卡 · 诈骗提醒</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">校园网选择与避坑</div><div class="func-desc">电信vs移动 · 套餐对比 · 性价比推荐</div></div><div class="func-arrow">›</div></div>
   </div>
 </div>
 
@@ -347,7 +347,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
         <div class="search-hot-tag" onclick="quickSearch('选课')">选课</div>
         <div class="search-hot-tag" onclick="quickSearch('食堂')">食堂</div>
         <div class="search-hot-tag" onclick="quickSearch('军训')">军训</div>
-        <div class="search-hot-tag" onclick="quickSearch('避坑')">避坑</div>
+        <div class="search-hot-tag" onclick="quickSearch('校园网')">校园网</div>
         <div class="search-hot-tag" onclick="quickSearch('四级')">四级</div>
         <div class="search-hot-tag" onclick="quickSearch('交通')">交通</div>
       </div>
@@ -642,36 +642,91 @@ const DETAILS={
 `,
 
 '避坑':`
-<h3>校园卡（手机卡）</h3>
-<div class="info">校园网（UESTC-WIFI）用学号密码免费登录，但室外和宿舍覆盖差。校园卡是流量+宽带+通话的刚需。</div>
-<h3>中国电信校园卡</h3>
+<h3>校园网 vs 校园卡，先搞清楚</h3>
+<div class="info"><b>校园网（UESTC-WIFI）</b>：用学号+密码免费登录，教学区/图书馆覆盖好，但宿舍区和室外覆盖差，且只能上网不能打电话。<b>校园卡</b>：手机SIM卡，流量+宽带+通话全包，是每个新生的刚需。</div>
+<p>结论：校园网免费但覆盖有限，校园卡是流量+宽带+通话的必需品。建议到校后根据自己需求选择。</p>
+
+<h3>中国电信校园卡（2026成电专属）</h3>
+<div style="text-align:center;margin:12px 0">
+<img src="telecom_2026.jpg" style="max-width:100%;border-radius:12px;border:1px solid rgba(255,215,0,0.15)" alt="电信2026套餐图">
+</div>
 <ul>
-<li>月租<span class="tag">39元</span>（原71元档，凭学生证优惠）</li>
-<li>翼支付每月返20元话费券，4年累计省640元</li>
-<li>流量每月合计710G，宽带300M起步</li>
-<li>每月可选1个会员（爱奇艺/B站/腾讯视频等20+平台）</li>
-<li>营业厅：清水河校区商业街1楼菜鸟驿站旁</li>
+<li>月租：<span class="tag">39元/月</span>（原71元档，大学生凭学生证享优惠）</li>
+<li><b>实际月费低至19元</b>：每月翼支付返20元现金券（1月/2月/7月/8月无），4年累计省640元</li>
+<li>流量：170G全国通用 + 80G国内定向 + 100G省内 + 360G校园 = <b>合计710G/月</b></li>
+<li>寒暑假额外赠送20G/月全国通用流量</li>
+<li>通话：200分钟省内 + 800分钟区域 + 3000分钟校园V网</li>
+<li>宽带：<b>300M</b> 宽带</li>
+<li>每月任选1份平台会员（爱奇艺/B站/腾讯视频/QQ音乐/网易云/优酷/芒果TV/喜马拉雅/美团/KEEP等<b>20+平台</b>）</li>
+<li>基础权益：天翼超高清+天翼云盘+天翼智能反诈+高校云盘</li>
 </ul>
-<h3>中国移动校园卡</h3>
+<h3>电信核心优势</h3>
 <ul>
-<li>月租<span class="tag">39元</span>（勾选融合优惠包→39元，四年不涨价）</li>
-<li>宽带300M + 流量600G</li>
-<li>36选1会员 + 商超代金券</li>
-<li>营业厅：清水河校区商业街1楼16号瑞幸对面</li>
+<li><b>全校覆盖无死角</b>：教学楼、宿舍楼、图书馆、操场全区域5G信号覆盖，一张网卡走校园</li>
+<li><b>换寝室无需迁移</b>：宽带账号随卡走，换寝室不用重新办号配置</li>
+<li><b>无合约约束</b>：仅需新生达到6个月在网率即可，无强制合约期，随时可退</li>
+<li><b>寒暑假保障</b>：返乡额外加赠流量，不断网</li>
+<li><b>4年优惠可续</b>：到期持身份证到营业厅免费续约再享4年</li>
 </ul>
-<div class="warn">不要信"办了校园卡才能选课、订教材"——校园卡和选课无关。建议到校后现场对比后选择。</div>
-<h3>对对卡/联通</h3>
-<div class="info">联通也有校园套餐，建议三家都去营业厅拿宣传单对比后再决定。</div>
-<h3>常见骗局</h3>
+<div class="info">电信营业厅：清水河校区商业街1楼菜鸟驿站旁</div>
+
+<h3>中国移动校园卡（2026成电芒果卡）</h3>
+<div style="text-align:center;margin:12px 0">
+<img src="mobile_2026.jpg" style="max-width:100%;border-radius:12px;border:1px solid rgba(255,215,0,0.15)" alt="移动2026套餐图">
+</div>
 <ul>
-<li><b>1. 校园卡强制绑定说</b>：办卡和选课/宿舍无关</li>
-<li><b>2. 床品推销</b>：新生群里加好友推销的，品质售后无保证</li>
-<li><b>3. "学长学姐"英语培训班</b>：大部分不是本校学生，卷钱跑路多！</li>
-<li><b>4. 扫码领奖品</b>：盗取个人信息</li>
-<li><b>5. 邮箱钓鱼</b>：冒充"老师"的邮件让你确认成绩/报名竞赛</li>
-<li><b>6. 钓鱼网站</b>：写个人信息时反复确认网站真实性</li>
+<li>月租：<span class="tag">39元/月</span>（动感地带芒果卡60套餐权益校园版，叠加优惠后实付39元）</li>
+<li>优惠构成：校园68套餐优惠享2个月 + 送优惠20元档（四年期）+ 2021校园客户享优惠10元四年档</li>
+<li>流量：80G国内流量（四年） + 100G+80G四川区域流量（四年期） + 300G校区流量 = <b>合计约560G/月</b></li>
+<li>通话：校园100分钟语音升级（四年档）+ 校园V网3元包月功能费</li>
+<li>宽带：<b>300M</b> 宽带</li>
+<li>会员：36选1会员 + 商超代金券 + 云手机会员（36个月）</li>
 </ul>
-<div class="danger">核心原则：凡是让你转账、缴费、提供验证码的，一律先核实！所有缴费走学校官方渠道！</div>
+<h3>移动核心优势</h3>
+<ul>
+<li><b>中途可退</b>：一年合约期，但中途解约不用赔违约金</li>
+<li><b>云手机会员</b>：36个月免费云手机服务</li>
+<li><b>36选1会员</b>：会员选择比电信更多</li>
+</ul>
+<div class="warn">移动为一年合约期（但中途解约不赔违约金），需注意合约相关条款。校园V网功能费3元/月另计。</div>
+<div class="info">移动营业厅：清水河校区商业街1楼16号瑞幸对面</div>
+
+<h3>电信 vs 移动 对比总结</h3>
+<table>
+<tr><th>对比项</th><th>中国电信</th><th>中国移动</th></tr>
+<tr><td>标称月租</td><td>39元</td><td>39元</td></tr>
+<tr><td>实际月费</td><td><b>低至19元</b>（翼支付返20）</td><td>约39元（优惠结构较复杂）</td></tr>
+<tr><td>总流量</td><td><b>710G/月</b></td><td>约560G/月</td></tr>
+<tr><td>校园覆盖</td><td><b>全区覆盖</b>（教室/宿舍/图书馆/操场）</td><td>宿舍+部分区域</td></tr>
+<tr><td>宽带</td><td>300M</td><td>300M</td></tr>
+<tr><td>会员权益</td><td>20+选1/月</td><td>36选1+云手机</td></tr>
+<tr><td>合约/约束</td><td><b>无合约</b>（6个月在网率即可）</td><td>1年合约期（解约不赔违约金）</td></tr>
+<tr><td>换寝室</td><td>无需迁移</td><td>可能需重新配置</td></tr>
+<tr><td>寒暑假</td><td>额外+20G通用流量</td><td>无额外加赠</td></tr>
+<tr><td>优惠期限</td><td>4年可续</td><td>4年</td></tr>
+</table>
+
+<h3>新生怎么选？</h3>
+<div class="info"><b>性价比首选推荐：中国电信</b></div>
+<ul>
+<li>实际月费低至19元，4年省640元，性价比最高</li>
+<li>全区5G覆盖无死角，换寝室无需迁移，体验最省心</li>
+<li>无合约约束，新生友好，不坑人</li>
+<li>710G月流量+寒暑假加赠，完全够用</li>
+</ul>
+<div class="warn">如果你特别看重会员选择数（36选1 vs 20+选1）或需要云手机功能，移动也值得考虑。两家营业厅都在商业街，建议到校后实地对比再决定。</div>
+
+<h3>官方信息</h3>
+<div class="info">学校官方通知链接：<a href="https://info.uestc.edu.cn/info/1225/4455.htm" target="_blank" class="sw-link">info.uestc.edu.cn/info/1225/4455.htm</a></div>
+<p>如需联系官方负责人员，可拨打营业厅电话（到校后咨询）或到商业街营业厅现场办理。</p>
+
+<h3>校园卡常见误解</h3>
+<ul>
+<li><b>误解1：办了校园卡才能选课</b> — 假的！校园卡和选课/宿舍毫无关系</li>
+<li><b>误解2：不办卡就没有网用</b> — 校园网（UESTC-WIFI）免费用，但覆盖有限，宿舍可能信号差</li>
+<li><b>误解3：只能办一家</b> — 可以双卡手机同时用两张卡（电信+移动都行）</li>
+</ul>
+<div class="danger">凡是让你转账、缴费、提供验证码的陌生人，一律先核实！所有缴费走学校官方渠道！</div>
 `,
 
 '军训':`
@@ -3195,7 +3250,7 @@ const DETAILS={
 `
 };// 搜索索引：提取所有DETAILS的纯文本
 const SEARCH_INDEX=[];
-const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'🛡️','军训':'🎖️','入学须知':'📋','奖学金':'🏆','选课查询':'📅','校园VPN':'🔐','转专业':'🔄','专业软件':'💾','编程学习':'⌨️'};
+const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'📶','军训':'🎖️','入学须知':'📋','奖学金':'🏆','选课查询':'📅','校园VPN':'🔐','转专业':'🔄','专业软件':'💾','编程学习':'⌨️'};
 for(const[key,val]of Object.entries(DETAILS)){
   const tmp=document.createElement('div');
   tmp.innerHTML=val;
@@ -3225,7 +3280,7 @@ function showHotSearch(){
     +'<div class="search-hot-tag" onclick="quickSearch(\'选课\')">选课</div>'
     +'<div class="search-hot-tag" onclick="quickSearch(\'食堂\')">食堂</div>'
     +'<div class="search-hot-tag" onclick="quickSearch(\'军训\')">军训</div>'
-    +'<div class="search-hot-tag" onclick="quickSearch(\'避坑\')">避坑</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'校园网\')">校园网</div>'
     +'<div class="search-hot-tag" onclick="quickSearch(\'四级\')">四级</div>'
     +'<div class="search-hot-tag" onclick="quickSearch(\'交通\')">交通</div>'
     +'</div></div>';
