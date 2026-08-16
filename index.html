@@ -522,14 +522,6 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <div class="nearby-cat-title">🏃 运动场馆</div>
       <div class="nearby-place-grid" id="nearbySport"></div>
     </div>
-    <div class="nearby-platform-title">🔎 到社交平台搜索更多</div>
-    <div class="nearby-platforms">
-      <a class="nearby-platform nearby-platform-meituan" id="plMeituan" target="_blank">🍔 美团</a>
-      <a class="nearby-platform nearby-platform-douyin" id="plDouyin" target="_blank">🎵 抖音</a>
-      <a class="nearby-platform nearby-platform-xiaohongshu" id="plXiaohongshu" target="_blank">📕 小红书</a>
-      <a class="nearby-platform nearby-platform-kuaishou" id="plKuaishou" target="_blank">🎬 快手</a>
-      <a class="nearby-platform nearby-platform-zhiwang" id="plZhiwang" target="_blank">📖 知网</a>
-    </div>
   </div>
 </div>
 
@@ -3843,8 +3835,7 @@ function doNearbySearch(q){
     return p.name.toLowerCase().indexOf(q)>=0||p.desc.toLowerCase().indexOf(q)>=0||p.tags.some(function(t){return t.toLowerCase().indexOf(q)>=0});
   });
   if(!hits.length){
-    resultsDiv.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:14px">未找到相关地点，试试用社交平台搜索👇</div>';
-    updatePlatformLinks(q);
+    resultsDiv.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:14px">未找到相关地点，换个关键词试试<br>或点击下方地点分类浏览校内各区域</div>';
     return;
   }
   resultsDiv.innerHTML='<div class="nearby-cat-title">📍 搜索结果（'+hits.length+'个）</div>'+hits.map(function(p){
@@ -3853,23 +3844,80 @@ function doNearbySearch(q){
     var imgHtml=p.img?'<img class="nearby-place-img" src="'+p.img+'" loading="lazy" onerror="this.style.display=\'none\'">':'';
     return '<div class="nearby-place-result" onclick="nearbyPlaceClick(\''+p.name.replace(/'/g,"\\'")+'\')">'+imgHtml+'<div class="nearby-place-result-name">'+NEARBY_CAT_MAP[p.cat].icon+' '+p.name+hotHtml+' <span class="nearby-place-rating">⭐'+p.rating+'</span></div><div class="nearby-place-result-desc">'+p.desc+'</div><div class="nearby-place-result-tags">'+tagsHtml+'</div><div class="nearby-place-distance">📍 '+p.dist_text+' · 🕐 '+p.hours+'</div></div>';
   }).join('');
-  updatePlatformLinks(q);
 }
 
 function updatePlatformLinks(q){
-  var keyword=q||'电子科技大学清水河校区';
-  var full_kw=keyword+' 电子科技大学清水河校区';
-  // 美团：直接搜索清水河校区附近美食，优先推送高排名商家
-  var meituanUrl='https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(keyword)+'&latitude=30.7456&longitude=103.9327';
-  var douyinUrl='https://www.douyin.com/search/'+encodeURIComponent(full_kw);
-  var xiaohongshuUrl='https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(full_kw);
-  var kuaishouUrl='https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(full_kw);
-  var zhiwangUrl='https://kns.cnki.net/kns8/defaultresult/index?korder=SU&kw='+encodeURIComponent(keyword+' 电子科技大学');
-  document.getElementById('plMeituan').href=meituanUrl;
-  document.getElementById('plDouyin').href=douyinUrl;
-  document.getElementById('plXiaohongshu').href=xiaohongshuUrl;
-  document.getElementById('plKuaishou').href=kuaishouUrl;
-  if(document.getElementById('plZhiwang'))document.getElementById('plZhiwang').href=zhiwangUrl;
+  // 底部社交平台按钮已删除，此函数保留兼容但不再操作DOM
+}
+
+// === 智能搜索词生成：按地点类别生成分层搜索词 ===
+// 优先级：校内 → 3公里内 → 最近
+var SEARCH_LAYERS={
+  food:{
+    school_kw:['电子科技大学清水河校区 美食','清水河校区 食堂','成电 美食推荐'],
+    nearby_kw:['电子科技大学清水河 附近美食','清水河校区附近 餐厅推荐','电子科技大学周边3公里 美食'],
+    fallback_kw:['电子科技大学附近 美食推荐','成都高新区西区 美食','犀浦 美食推荐']
+  },
+  service:{
+    school_kw:['电子科技大学清水河校区 生活服务','清水河校区 快递超市打印','成电 生活便利'],
+    nearby_kw:['电子科技大学清水河 附近生活服务','清水河校区附近 快递超市','电子科技大学周边3公里 生活服务'],
+    fallback_kw:['电子科技大学附近 生活服务','成都高新区西区 便民服务','犀浦 便利店快递']
+  },
+  study:{
+    school_kw:['电子科技大学清水河校区 学习','清水河校区 图书馆自习','成电 学习攻略'],
+    nearby_kw:['电子科技大学清水河 附近自习','清水河校区附近 图书馆咖啡馆','电子科技大学周边3公里 学习场所'],
+    fallback_kw:['电子科技大学附近 自习室','成都高新区西区 图书馆','犀浦 咖啡馆自习']
+  },
+  building:{
+    school_kw:['电子科技大学清水河校区 建筑','清水河校区 校园导览','成电 校园风光'],
+    nearby_kw:['电子科技大学清水河 附近商圈','清水河校区附近 商场超市','电子科技大学周边3公里 购物'],
+    fallback_kw:['电子科技大学附近 商圈','成都高新区西区 购物','犀浦 商场']
+  },
+  sport:{
+    school_kw:['电子科技大学清水河校区 体育馆','清水河校区 运动健身','成电 体育馆'],
+    nearby_kw:['电子科技大学清水河 附近体育馆','清水河校区附近3公里 健身房','电子科技大学周边3公里 运动场'],
+    fallback_kw:['电子科技大学附近 体育馆健身房','成都高新区西区 健身房','犀浦 运动场健身房']
+  }
+};
+
+// 为每个平台生成分层搜索链接
+function buildPlatformLinks(place){
+  var cat=place.cat;
+  var layers=SEARCH_LAYERS[cat]||SEARCH_LAYERS.food;
+  // 校内精确搜索词
+  var schoolSearch=place.name+' 电子科技大学清水河校区';
+  // 3公里内搜索词
+  var nearbySearch=place.name+' 电子科技大学清水河校区附近';
+  // 最远兜底搜索词
+  var fallbackSearch=place.name+' 成都高新区西区';
+  
+  var links='';
+  
+  // 美团：校内美食直接定位推送，带经纬度
+  if(cat==='food'){
+    links+='<a class="nearby-detail-platform-link nearby-platform-meituan" href="https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(place.name)+'&latitude=30.7456&longitude=103.9327" target="_blank">🍔 美团外卖（校内'+place.name+'）</a>';
+  }else{
+    links+='<a class="nearby-detail-platform-link nearby-platform-meituan" href="https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(layers.school_kw[0])+'&latitude=30.7456&longitude=103.9327" target="_blank">🍔 美团（清水河附近）</a>';
+  }
+  
+  // 抖音：优先校内打卡 → 3公里内 → 最近
+  links+='<a class="nearby-detail-platform-link nearby-platform-douyin" href="https://www.douyin.com/search/'+encodeURIComponent(schoolSearch)+'" target="_blank">🎵 抖音（校内打卡）</a>';
+  links+='<a class="nearby-detail-platform-link nearby-platform-douyin" href="https://www.douyin.com/search/'+encodeURIComponent(nearbySearch)+'" target="_blank" style="font-size:11px;opacity:0.85">🎵 抖音（3公里内）</a>';
+  links+='<a class="nearby-detail-platform-link nearby-platform-douyin" href="https://www.douyin.com/search/'+encodeURIComponent(fallbackSearch)+'" target="_blank" style="font-size:11px;opacity:0.7">🎵 抖音（更远）</a>';
+  
+  // 小红书：优先校内攻略 → 3公里内 → 最近
+  links+='<a class="nearby-detail-platform-link nearby-platform-xiaohongshu" href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(schoolSearch)+'" target="_blank">📕 小红书（校内攻略）</a>';
+  links+='<a class="nearby-detail-platform-link nearby-platform-xiaohongshu" href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(nearbySearch)+'" target="_blank" style="font-size:11px;opacity:0.85">📕 小红书（3公里内）</a>';
+  links+='<a class="nearby-detail-platform-link nearby-platform-xiaohongshu" href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(fallbackSearch)+'" target="_blank" style="font-size:11px;opacity:0.7">📕 小红书（更远）</a>';
+  
+  // 快手：优先校内 → 3公里内 → 最近
+  links+='<a class="nearby-detail-platform-link nearby-platform-kuaishou" href="https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(schoolSearch)+'" target="_blank">🎬 快手（校内视频）</a>';
+  links+='<a class="nearby-detail-platform-link nearby-platform-kuaishou" href="https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(nearbySearch)+'" target="_blank" style="font-size:11px;opacity:0.85">🎬 快手（3公里内）</a>';
+  
+  // 知网：学术搜索
+  links+='<a class="nearby-detail-platform-link nearby-platform-zhiwang" href="https://kns.cnki.net/kns8/defaultresult/index?korder=SU&kw='+encodeURIComponent(place.name+' 电子科技大学')+'" target="_blank">📖 知网学术</a>';
+  
+  return links;
 }
 
 function nearbyPlaceClick(name){
@@ -3893,14 +3941,8 @@ function openNearbyDetail(p){
   }else{
     commentsHtml='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">暂无评论，去社交平台看看更多打卡吧👇</div>';
   }
-  // 社交平台链接
-  var full_kw=p.name+' 电子科技大学清水河校区';
-  var platformLinks=
-    '<a class="nearby-detail-platform-link nearby-platform-meituan" href="https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(p.name)+'&latitude=30.7456&longitude=103.9327" target="_blank">🍔 美团外卖</a>'+
-    '<a class="nearby-detail-platform-link nearby-platform-douyin" href="https://www.douyin.com/search/'+encodeURIComponent(full_kw)+'" target="_blank">🎵 抖音打卡</a>'+
-    '<a class="nearby-detail-platform-link nearby-platform-xiaohongshu" href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(full_kw)+'" target="_blank">📕 小红书攻略</a>'+
-    '<a class="nearby-detail-platform-link nearby-platform-kuaishou" href="https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(full_kw)+'" target="_blank">🎬 快手视频</a>'+
-    '<a class="nearby-detail-platform-link nearby-platform-zhiwang" href="https://kns.cnki.net/kns8/defaultresult/index?korder=SU&kw='+encodeURIComponent(p.name+' 电子科技大学')+'" target="_blank">📖 知网学术</a>';
+  // 社交平台链接 - 按类别智能分层搜索
+  var platformLinks=buildPlatformLinks(p);
   // GIS地图链接
   var mapLink='https://gis.uestc.edu.cn/cmipsh5/#/';
   // 热门标签
@@ -3931,7 +3973,7 @@ function openNearbyDetail(p){
       '</div>'+
       '<div class="nearby-detail-section">'+
         '<div class="nearby-detail-section-title">🔎 社交平台搜索</div>'+
-        '<p style="font-size:12px;color:var(--text2);margin-bottom:8px">点击以下按钮，在社交平台搜索该地点的打卡视频/攻略/评价</p>'+
+        '<p style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6">优先搜索<b style="color:var(--gold)">校内打卡</b> → 3公里内同类场所 → 更远区域。点击对应按钮直达各平台搜索结果。</p>'+
         '<div class="nearby-detail-platform-links">'+platformLinks+'</div>'+
       '</div>'+
     '</div>';
@@ -4073,6 +4115,7 @@ window.closeNearbyDetail=closeNearbyDetail;
 window.doNearbySearch=doNearbySearch;
 window.renderNearbyPlaces=renderNearbyPlaces;
 window.updatePlatformLinks=updatePlatformLinks;
+window.buildPlatformLinks=buildPlatformLinks;
 </script>
 </body>
 </html>
