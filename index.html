@@ -26,9 +26,11 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .tabbar-icon{font-size:22px;line-height:1}
 .tabbar-label{font-size:10px}
 
-/* === 首页英雄区 === */
-.hero{text-align:center;padding:40px 20px 24px;position:relative}
-.hero::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,215,0,0.2),transparent)}
+/* === 首页英雄区（含背景视频） === */
+.hero{text-align:center;padding:40px 20px 24px;position:relative;overflow:hidden;min-height:200px}
+.hero-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.25;z-index:0}
+.hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(10,14,39,0.3) 0%,rgba(10,14,39,0.9) 100%);z-index:1}
+.hero-content{position:relative;z-index:2}
 .hero-logo{font-size:52px;margin-bottom:8px}
 .hero-title{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px}
 .hero-sub{font-size:13px;color:var(--text2);margin-top:6px;letter-spacing:2px}
@@ -56,12 +58,17 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .func-desc{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .func-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
 
-/* === 详情页 === */
-.detail-header{padding:20px 16px 12px;display:flex;align-items:center;gap:10px}
-.detail-back{width:36px;height:36px;border-radius:50%;background:rgba(255,215,0,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;flex-shrink:0;color:var(--gold);border:1px solid rgba(255,215,0,0.3)}
-.detail-back:active{background:rgba(255,215,0,0.3);transform:scale(.9)}
-.detail-title{font-size:18px;font-weight:700;color:var(--gold)}
-.detail-body{padding:0 16px 80px}
+/* === 详情页（全屏覆盖，z-index高于tabbar） === */
+#detailPanel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--dark);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+#detailPanel.open{transform:translateX(0)}
+#detailPanel.swiping{transition:none}
+.detail-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(10,14,39,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,0.08);flex-shrink:0}
+.detail-back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,170,0,0.1));border:1px solid rgba(255,215,0,0.3);border-radius:24px;cursor:pointer;color:var(--gold);font-size:15px;font-weight:700;transition:all .2s;-webkit-user-select:none;user-select:none}
+.detail-back-btn:active{background:rgba(255,215,0,0.3);transform:scale(.95)}
+.detail-back-btn .arrow{font-size:20px;line-height:1}
+.detail-back-btn .label{font-size:14px}
+.detail-title{font-size:17px;font-weight:700;color:var(--gold);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.detail-body{padding:0 16px 80px;flex:1}
 .detail-body h3{font-size:15px;color:var(--gold);margin:18px 0 8px;padding-left:10px;border-left:3px solid var(--gold)}
 .detail-body p,.detail-body li{font-size:14px;color:var(--text);line-height:1.8}
 .detail-body ul{padding-left:18px;margin:6px 0}
@@ -74,11 +81,37 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .detail-body td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .tag{display:inline-block;background:rgba(255,215,0,0.1);color:var(--gold);padding:1px 8px;border-radius:4px;font-size:12px;font-weight:600}
 
+/* === 侧滑返回视觉提示 === */
+.swipe-indicator{position:fixed;left:0;top:50%;transform:translateY(-50%);width:4px;height:60px;background:linear-gradient(180deg,transparent,var(--gold),transparent);border-radius:2px;z-index:310;opacity:0;transition:opacity .3s;pointer-events:none}
+#detailPanel.open .swipe-indicator{opacity:0.5;animation:swipeHint 2s ease-in-out 1s 2}
+@keyframes swipeHint{0%,100%{opacity:0.5;transform:translateY(-50%)}50%{opacity:1;transform:translateY(-50%) translateX(4px)}}
+
 /* === 搜索框 === */
-.search-box{margin:0 16px 8px;padding:10px 14px;background:rgba(20,30,60,0.6);border:1px solid rgba(255,215,0,0.08);border-radius:12px;display:flex;align-items:center;gap:8px}
+.search-box{margin:0 16px 8px;padding:10px 14px;background:rgba(20,30,60,0.6);border:1px solid rgba(255,215,0,0.08);border-radius:12px;display:flex;align-items:center;gap:8px;cursor:pointer;position:relative}
 .search-box input{flex:1;border:none;background:none;color:var(--text);font-size:14px;outline:none}
 .search-box input::placeholder{color:var(--text3)}
 .search-icon{font-size:16px;color:var(--text3)}
+
+/* === 搜索面板 === */
+.search-panel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:350;background:var(--dark);display:none;flex-direction:column}
+.search-panel.open{display:flex}
+.search-panel-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(10,14,39,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,0.08)}
+.search-panel-input{flex:1;padding:10px 14px;background:rgba(20,30,60,0.6);border:1px solid rgba(255,215,0,0.15);border-radius:12px;color:var(--text);font-size:15px;outline:none}
+.search-panel-input::placeholder{color:var(--text3)}
+.search-panel-cancel{color:var(--gold);font-size:15px;font-weight:600;cursor:pointer;padding:8px 4px;white-space:nowrap}
+.search-results{flex:1;overflow-y:auto;padding:8px 16px 80px;-webkit-overflow-scrolling:touch}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:12px;cursor:pointer;transition:all .2s}
+.search-result-item:active{border-color:rgba(255,215,0,0.2);transform:scale(.98)}
+.search-result-icon{font-size:24px;flex-shrink:0}
+.search-result-info{flex:1;min-width:0}
+.search-result-name{font-size:14px;font-weight:600;color:var(--gold)}
+.search-result-preview{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.search-empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px}
+.search-hot{padding:16px}
+.search-hot-title{font-size:14px;color:var(--text2);margin-bottom:10px}
+.search-hot-tags{display:flex;flex-wrap:wrap;gap:8px}
+.search-hot-tag{padding:6px 14px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.12);border-radius:20px;font-size:13px;color:var(--text);cursor:pointer;transition:all .2s}
+.search-hot-tag:active{background:rgba(255,215,0,0.15)}
 
 /* === 外部链接卡片 === */
 .link-card{display:flex;align-items:center;gap:10px;padding:12px 14px;margin:6px 16px;background:var(--card);border:1px solid rgba(0,180,220,0.1);border-radius:12px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
@@ -107,13 +140,19 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 <!-- ============ TAB1 首页 ============ -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hero-logo">🎓</div>
-    <div class="hero-title">成电圈主全能版</div>
-    <div class="hero-sub">电子科技大学 · 清水河校区</div>
-    <div class="hero-badge">2026新生入学全能指南</div>
+    <video class="hero-video" autoplay loop muted playsinline webkit-playsinline>
+      <source src="bg_video.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-logo">🎓</div>
+      <div class="hero-title">成电圈主全能版</div>
+      <div class="hero-sub">电子科技大学 · 清水河校区</div>
+      <div class="hero-badge">2026新生入学全能指南</div>
+    </div>
   </div>
 
-  <div class="search-box" onclick="switchTab(1)">
+  <div class="search-box" onclick="openSearch()">
     <span class="search-icon">🔍</span>
     <input placeholder="搜索报到、宿舍、选课…" readonly>
   </div>
@@ -245,27 +284,54 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <p>版权说明</p>
     <p style="margin-top:4px">本指南由星辰智能体整理制作</p>
     <p>内容来源于电子科技大学官方渠道</p>
-    </div>
-</div>
-
-<!-- ============ 详情面板（覆盖层） ============ -->
-<div id="detailPanel" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;transform:translateY(100%);transition:transform .3s ease;background:var(--dark);overflow-y:auto;-webkit-overflow-scrolling:touch">
-  <div class="detail-header">
-    <div class="detail-back" onclick="closeDetail()">←</div>
-    <div class="detail-title" id="detailTitle"></div>
   </div>
-  <div class="detail-body" id="detailBody"></div>
 </div>
 
 </div><!-- pages -->
 
 <!-- 底部导航 -->
-<div class="tabbar">
+<div class="tabbar" id="tabbar">
   <div class="tabbar-item active" onclick="switchTab(0)"><div class="tabbar-icon">🏠</div><div class="tabbar-label">首页</div></div>
   <div class="tabbar-item" onclick="switchTab(1)"><div class="tabbar-icon">📝</div><div class="tabbar-label">报到</div></div>
   <div class="tabbar-item" onclick="switchTab(2)"><div class="tabbar-icon">🍜</div><div class="tabbar-label">生活</div></div>
   <div class="tabbar-item" onclick="switchTab(3)"><div class="tabbar-icon">📚</div><div class="tabbar-label">学业</div></div>
   <div class="tabbar-item" onclick="switchTab(4)"><div class="tabbar-icon">⋯</div><div class="tabbar-label">更多</div></div>
+</div>
+
+<!-- ============ 搜索面板（全屏覆盖） ============ -->
+<div class="search-panel" id="searchPanel">
+  <div class="search-panel-header">
+    <input class="search-panel-input" id="searchInput" placeholder="搜索报到、宿舍、选课、食堂…" oninput="doSearch(this.value)">
+    <div class="search-panel-cancel" onclick="closeSearch()">取消</div>
+  </div>
+  <div class="search-results" id="searchResults">
+    <div class="search-hot">
+      <div class="search-hot-title">热门搜索</div>
+      <div class="search-hot-tags">
+        <div class="search-hot-tag" onclick="quickSearch('报到')">报到</div>
+        <div class="search-hot-tag" onclick="quickSearch('宿舍')">宿舍</div>
+        <div class="search-hot-tag" onclick="quickSearch('选课')">选课</div>
+        <div class="search-hot-tag" onclick="quickSearch('食堂')">食堂</div>
+        <div class="search-hot-tag" onclick="quickSearch('军训')">军训</div>
+        <div class="search-hot-tag" onclick="quickSearch('避坑')">避坑</div>
+        <div class="search-hot-tag" onclick="quickSearch('四级')">四级</div>
+        <div class="search-hot-tag" onclick="quickSearch('交通')">交通</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 详情面板（全屏覆盖，z-index=300 > tabbar=100） ============ -->
+<div id="detailPanel">
+  <div class="swipe-indicator"></div>
+  <div class="detail-nav">
+    <div class="detail-back-btn" onclick="closeDetail()">
+      <span class="arrow">←</span>
+      <span class="label">返回</span>
+    </div>
+    <div class="detail-title" id="detailTitle"></div>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
 </div>
 
 <script>
@@ -286,13 +352,14 @@ function switchTab(i){
 history.replaceState({tab:0},'','#tab-home');
 // 监听浏览器返回
 window.addEventListener('popstate',function(e){
-  // 优先关闭详情
   if(detailOpen){
-    document.getElementById('detailPanel').style.transform='translateY(100%)';
-    detailOpen=false;
+    closeDetailImmediate();
     return;
   }
-  // 然后返回上一个Tab
+  if(searchOpen){
+    closeSearch();
+    return;
+  }
   if(e.state && typeof e.state.tab==='number'){
     const i=e.state.tab;
     document.querySelectorAll('.page')[curTab]?.classList.remove('active');
@@ -470,10 +537,8 @@ const DETAILS={
 `,
 
 '一卡通':`
-<h3>校园一卡通</h3>
 <h3>功能</h3>
 <p>食堂消费、超市、宿舍淋浴（1分钟0.1元）、门禁、校园巴士、图书馆</p>
-<h3>重点</h3>
 <div class="info">支付宝/微信可绑定校园卡，手机直接支付！只有洗澡必须用实体卡</div>
 <h3>充值方式</h3>
 <ol>
@@ -648,26 +713,152 @@ const DETAILS={
 `
 };
 
-// === 打开/关闭详情 ===
+// 搜索索引：提取所有DETAILS的纯文本
+const SEARCH_INDEX=[];
+const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'🛡️','军训':'🎖️','入学须知':'📋'};
+for(const[key,val]of Object.entries(DETAILS)){
+  const tmp=document.createElement('div');
+  tmp.innerHTML=val;
+  const text=tmp.textContent||tmp.innerText;
+  SEARCH_INDEX.push({key,icon:ICON_MAP[key]||'📄',text:text.substring(0,200),fullText:text});
+}
+
+// === 搜索功能 ===
+let searchOpen=false;
+function openSearch(){
+  searchOpen=true;
+  document.getElementById('searchPanel').classList.add('open');
+  document.getElementById('searchInput').value='';
+  showHotSearch();
+  setTimeout(()=>document.getElementById('searchInput').focus(),100);
+  history.pushState({search:true},'','#search');
+}
+function closeSearch(){
+  searchOpen=false;
+  document.getElementById('searchPanel').classList.remove('open');
+}
+function showHotSearch(){
+  const r=document.getElementById('searchResults');
+  r.innerHTML='<div class="search-hot"><div class="search-hot-title">热门搜索</div><div class="search-hot-tags">'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'报到\')">报到</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'宿舍\')">宿舍</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'选课\')">选课</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'食堂\')">食堂</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'军训\')">军训</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'避坑\')">避坑</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'四级\')">四级</div>'
+    +'<div class="search-hot-tag" onclick="quickSearch(\'交通\')">交通</div>'
+    +'</div></div>';
+}
+function quickSearch(q){
+  document.getElementById('searchInput').value=q;
+  doSearch(q);
+}
+let searchTimer=null;
+function doSearch(q){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>_doSearch(q),150);
+}
+function _doSearch(q){
+  const r=document.getElementById('searchResults');
+  if(!q||!q.trim()){showHotSearch();return}
+  q=q.trim().toLowerCase();
+  const hits=SEARCH_INDEX.filter(item=>item.fullText.toLowerCase().includes(q)||item.key.toLowerCase().includes(q));
+  if(!hits.length){
+    r.innerHTML='<div class="search-empty">未找到相关内容，换个关键词试试</div>';
+    return;
+  }
+  let html='';
+  hits.forEach(item=>{
+    const idx=item.fullText.toLowerCase().indexOf(q);
+    const start=Math.max(0,idx-20);
+    const end=Math.min(item.fullText.length,idx+q.length+40);
+    let preview=(start>0?'...':'')+item.fullText.substring(start,end)+(end<item.fullText.length?'...':'');
+    html+=`<div class="search-result-item" onclick="closeSearch();openDetail('${item.key}')">
+      <div class="search-result-icon">${item.icon}</div>
+      <div class="search-result-info">
+        <div class="search-result-name">${item.key}</div>
+        <div class="search-result-preview">${preview}</div>
+      </div>
+    </div>`;
+  });
+  r.innerHTML=html;
+}
+
+// === 打开/关闭详情（全屏覆盖，z-index=300 > tabbar=100） ===
 let detailOpen=false;
+const panel=document.getElementById('detailPanel');
+
 function openDetail(key){
   const d=DETAILS[key];
   if(!d){alert('该模块内容待补充，请联系圈主添加');return}
   document.getElementById('detailTitle').textContent=key;
   document.getElementById('detailBody').innerHTML=d;
-  document.getElementById('detailPanel').style.transform='translateY(0)';
+  panel.classList.add('open');
   if(!detailOpen){
     detailOpen=true;
     history.pushState({detail:true},'','#detail');
   }
 }
 function closeDetail(){
-  document.getElementById('detailPanel').style.transform='translateY(100%)';
+  panel.classList.remove('open');
   if(detailOpen){
     detailOpen=false;
     history.back();
   }
 }
+function closeDetailImmediate(){
+  panel.classList.remove('open');
+  detailOpen=false;
+}
+
+// === 侧滑返回手势 ===
+let touchStartX=0,touchStartY=0,touchCurrentX=0,isSwiping=false,swipeStarted=false;
+const SWIPE_THRESHOLD=50; // 左边缘50px区域
+
+panel.addEventListener('touchstart',function(e){
+  const touch=e.touches[0];
+  touchStartX=touch.clientX;
+  touchStartY=touch.clientY;
+  touchCurrentX=0;
+  swipeStarted=false;
+  // 只在左边缘区域启动侧滑
+  if(touch.clientX<SWIPE_THRESHOLD && detailOpen){
+    isSwiping=true;
+    panel.classList.add('swiping');
+  }
+},{passive:true});
+
+panel.addEventListener('touchmove',function(e){
+  if(!isSwiping)return;
+  const touch=e.touches[0];
+  const dx=touch.clientX-touchStartX;
+  const dy=Math.abs(touch.clientY-touchStartY);
+  // 水平移动大于垂直时才触发
+  if(!swipeStarted && dx>10 && dy<30){
+    swipeStarted=true;
+  }
+  if(swipeStarted && dx>0){
+    touchCurrentX=dx;
+    panel.style.transform='translateX('+dx+'px)';
+  }
+},{passive:true});
+
+panel.addEventListener('touchend',function(e){
+  if(!isSwiping){
+    return;
+  }
+  isSwiping=false;
+  panel.classList.remove('swiping');
+  panel.style.transform='';
+  if(touchCurrentX>80){
+    closeDetail();
+  }else{
+    panel.classList.add('open');
+  }
+  touchCurrentX=0;
+  swipeStarted=false;
+},{passive:true});
 </script>
 </body>
 </html>
