@@ -228,6 +228,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('奖学金')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">奖学金细则</div><div class="func-desc">国奖/国励/校奖/企业奖 · 评选规则</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('转专业')"><div class="func-icon">🔄</div><div class="func-info"><div class="func-name">转专业指南</div><div class="func-desc">16学院细则 · 流程 · 考核方式</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('专业软件')"><div class="func-icon">💾</div><div class="func-info"><div class="func-name">专业软件安装教程</div><div class="func-desc">16学院专业软件 · 安装步骤 · 开源替代</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('编程学习')"><div class="func-icon">⌨️</div><div class="func-info"><div class="func-name">编程学习指南</div><div class="func-desc">C/C++/Python/Java/JS/Verilog · 学习路线</div></div><div class="func-arrow">›</div></div>
   </div>
 
   <!-- 外部链接 -->
@@ -281,6 +282,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('选课查询')"><div class="func-icon">📅</div><div class="func-info"><div class="func-name">提前查看选课</div><div class="func-desc">选课日志 · 课表查询 · 确认结果</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('转专业')"><div class="func-icon">🔄</div><div class="func-info"><div class="func-name">转专业指南</div><div class="func-desc">16学院细则 · 流程 · 考核方式</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('专业软件')"><div class="func-icon">💾</div><div class="func-info"><div class="func-name">专业软件安装教程</div><div class="func-desc">16学院专业软件 · 安装步骤 · 开源替代</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('编程学习')"><div class="func-icon">⌨️</div><div class="func-info"><div class="func-name">编程学习指南</div><div class="func-desc">C/C++/Python/Java/JS/Verilog · 学习路线</div></div><div class="func-arrow">›</div></div>
   </div>
 </div>
 
@@ -2794,11 +2796,406 @@ const DETAILS={
 </details>
 
 `
-};
+,
 
-// 搜索索引：提取所有DETAILS的纯文本
+'编程学习':`<h3>成电全能版编程学习指南</h3>
+<p>涵盖6门核心编程语言的完整学习路线：从零基础到项目实战。每门语言包含学习阶段、推荐资源（书籍/视频/刷题平台）、实战建议。</p>
+<div class="info">学习编程最重要的是"写代码"而不是"看视频"。每学一个知识点，立刻动手写3-5道练习题。坚持每天至少30分钟编码，3个月就能入门一门语言。</div>
+<div class="warn">不要同时学2门以上语言！建议按 C → C++ → Python/Java/JS → Verilog 的顺序，先精通一门再学下一门。</div>
+
+<details open>
+<summary>🔵 C语言 — 一切编程的根基，成电电子类专业的必修第一语言</summary>
+<p><b>为什么学：</b>操作系统、嵌入式、驱动、算法底层全靠C。成电的C语言课程（或C++）是大一必修，期末考试+考研核心科目。</p>
+<h4>入门期（0-4周）</h4>
+<p>目标：掌握语法、流程控制、函数、数组</p>
+<ol>
+<li>安装开发环境：Windows用 Dev-C++（小巧免配）或 VS Code + MinGW；macOS用 clang</li>
+<li>学习变量、数据类型、运算符、if/else、for/while</li>
+<li>掌握函数定义与调用、参数传递（值传递）、返回值</li>
+<li>理解数组与字符串的基本操作</li>
+<li>完成50+基础练习题（见下方题库推荐）</li>
+</ol>
+<h4>进阶期（4-8周）</h4>
+<p>目标：指针、结构体、文件操作、动态内存</p>
+<ol>
+<li>攻克指针：指针变量、指针运算、指针与数组、多级指针、函数指针</li>
+<li>掌握结构体与联合体，理解内存对齐</li>
+<li>学习动态内存分配：malloc/calloc/realloc/free</li>
+<li>文件操作：fopen/fread/fwrite/fclose</li>
+<li>用C实现链表、栈、队列等基础数据结构</li>
+</ol>
+<h4>实战期（8-16周）</h4>
+<p>目标：项目实战+算法入门</p>
+<ol>
+<li>实现一个学生信息管理系统（文件存储）</li>
+<li>实现一个简易命令行计算器</li>
+<li>刷PTA基础题集（成电用PTA判题）</li>
+<li>学习基本排序算法：冒泡、选择、插入</li>
+<li>学习基本查找算法：顺序、二分</li>
+</ol>
+<h4>学习资源推荐</h4>
+<p><b>书籍：</b></p>
+<ul>
+<li>《C Primer Plus》（第6版）— 最推荐入门书，讲解细致</li>
+<li>《C程序设计语言》（K&R）— C语言发明者写的经典，薄而精</li>
+<li>《C和指针》— 指针专题，成电学生必读</li>
+<li>《C陷阱与缺陷》— 避坑指南，面试常考</li>
+</ul>
+<p><b>视频：</b></p>
+<ul>
+<li>浙江大学翁恺老师《C语言程序设计》— B站免费，公认最好的C语言中文课</li>
+<li>北京大学李戈老师《计算概论》— 成电学生也推荐</li>
+<li>B站"黑马程序员C语言"— 适合零基础快速入门</li>
+</ul>
+<p><b>刷题：</b></p>
+<ul>
+<li>PTA（pintia.cn）— 成电官方判题平台，期末真题来源</li>
+<li>洛谷（luogu.com.cn）— 中文OJ，入门友好</li>
+<li>LeetCode（leetcode.cn）— 算法题库，面试必备</li>
+</ul>
+<p><b>文档：</b></p>
+<ul>
+<li>C语言中文网（c.biancheng.net）— 中文教程齐全</li>
+<li>cppreference.com — C/C++标准库权威参考</li>
+</ul>
+<div class="info">成电期末C语言考试难度中等，但挂科率不低。建议：①每天至少写30分钟代码；②PTA每章习题全部AC；③考前刷历年真题3套以上。</div>
+</details>
+
+<details>
+<summary>🟣 C++ — C的进阶版，面向对象+STL+模板，竞赛与系统开发核心</summary>
+<p><b>为什么学：</b>电赛/蓝桥杯/ACM竞赛全部用C++，STL大幅简化代码。成电的C++课程是大一下或大二必修。</p>
+<h4>入门期（0-3周）</h4>
+<p>目标：从C过渡到C++，掌握面向对象</p>
+<ol>
+<li>安装VS Code + MinGW 或 CLion（学生版免费）</li>
+<li>理解C++与C的区别：引用、bool类型、string类、namespace</li>
+<li>掌握类与对象：构造/析构、封装、this指针</li>
+<li>学习继承与多态：虚函数、纯虚函数、抽象类</li>
+<li>理解运算符重载</li>
+</ol>
+<h4>进阶期（3-8周）</h4>
+<p>目标：STL容器+算法+模板</p>
+<ol>
+<li>掌握STL容器：vector、map、set、queue、stack、priority_queue</li>
+<li>掌握STL算法：sort、lower_bound、unique、next_permutation</li>
+<li>学习模板编程：函数模板、类模板</li>
+<li>理解智能指针：unique_ptr、shared_ptr</li>
+<li>学习C++11/14新特性：auto、范围for、lambda表达式</li>
+</ol>
+<h4>竞赛期（8-16周）</h4>
+<p>目标：竞赛算法+工程实战</p>
+<ol>
+<li>刷蓝桥杯/电赛历年真题（C++组）</li>
+<li>学习竞赛常用算法：DFS/BFS、DP、贪心、图论</li>
+<li>学习时间复杂度分析与优化</li>
+<li>实现一个简易STL（理解底层原理）</li>
+<li>参与校内ACM选拔赛或蓝桥杯校选</li>
+</ol>
+<h4>学习资源推荐</h4>
+<p><b>书籍：</b></p>
+<ul>
+<li>《C++ Primer》（第5版）— C++入门圣经，800页大厚书但必读</li>
+<li>《Effective C++》— 55条改善编程的法则，面试必问</li>
+<li>《STL源码剖析》— 侯捷著，理解STL底层实现</li>
+<li>《算法竞赛入门经典》（刘汝佳）— 竞赛必备紫书</li>
+</ul>
+<p><b>视频：</b></p>
+<ul>
+<li>侯捷老师C++系列课程— B站免费，业界公认最好的C++进阶课</li>
+<li>黑马程序员《C++从入门到精通》— 适合初学者系统学习</li>
+<li>B站"董晓算法"— 竞赛算法讲解清晰</li>
+</ul>
+<p><b>刷题：</b></p>
+<ul>
+<li>LeetCode C++题解— 每日1-2题，面试+竞赛双赢</li>
+<li>蓝桥杯练习系统（lx.lanqiao.cn）— 官方题库</li>
+<li>Codeforces（codeforces.com）— 全球顶级算法竞赛平台</li>
+</ul>
+<p><b>文档：</b></p>
+<ul>
+<li>cppreference.com — C++标准库权威参考（英文）</li>
+<li>cplusplus.com — 教程+参考手册</li>
+<li>C++ Core Guidelines（isocpp.github.io）— C++之父的编码规范</li>
+</ul>
+<div class="info">C++学习曲线陡，但回报最大。建议：①先学C再学C++更顺畅；②STL是竞赛核心，vector+sort+map解决80%的题；③蓝桥杯省赛拿奖对保研和简历都很有帮助。</div>
+</details>
+
+<details>
+<summary>🐍 Python — 最易上手的万能语言，数据分析/机器学习/爬虫/自动化全包</summary>
+<p><b>为什么学：</b>Python是科研和工程的胶水语言。无论什么专业，Python都是加分项。数据科学、AI方向更是必备。</p>
+<h4>入门期（0-3周）</h4>
+<p>目标：基础语法+数据结构</p>
+<ol>
+<li>安装Anaconda（含Python+Jupyter+常用库）</li>
+<li>学习变量、数据类型、字符串格式化</li>
+<li>掌握列表/字典/元组/集合的操作方法</li>
+<li>学习if/elif/else、for/while、列表推导式</li>
+<li>掌握函数定义、参数类型（位置/关键字/默认/可变）</li>
+<li>理解模块导入、包管理（pip）</li>
+</ol>
+<h4>进阶期（3-8周）</h4>
+<p>目标：面向对象+常用库+文件操作</p>
+<ol>
+<li>学习类与对象、继承、魔术方法（__init__等）</li>
+<li>掌握NumPy数组操作：创建、切片、运算、广播</li>
+<li>掌握Pandas数据处理：DataFrame读写CSV/Excel、筛选、分组</li>
+<li>掌握Matplotlib绑图：折线、柱状、散点、子图</li>
+<li>学习正则表达式（re模块）</li>
+<li>掌握文件读写与异常处理</li>
+</ol>
+<h4>方向期（8-16周）</h4>
+<p>目标：选择方向深入</p>
+<ol>
+<li>【数据分析方向】学习Seaborn/Plotly高级可视化、Scipy科学计算</li>
+<li>【机器学习方向】学习Scikit-learn：分类/回归/聚类/特征工程</li>
+<li>【爬虫方向】学习Requests+BeautifulSoup+Selenium</li>
+<li>【自动化方向】学习OS模块、定时任务、批量处理文件</li>
+<li>完成1个方向项目（如数据分析报告/简单推荐系统/爬虫项目）</li>
+<li>学习Git版本控制，把项目上传GitHub</li>
+</ol>
+<h4>学习资源推荐</h4>
+<p><b>书籍：</b></p>
+<ul>
+<li>《Python编程：从入门到实践》（第3版）— 最推荐入门书，有项目实战</li>
+<li>《流畅的Python》— 进阶必读，理解Python设计哲学</li>
+<li>《利用Python进行数据分析》— Pandas作者写的，数据分析必读</li>
+<li>《机器学习实战》— 基于Scikit-learn，适合入门ML</li>
+</ul>
+<p><b>视频：</b></p>
+<ul>
+<li>B站"黑马程序员Python"— 零基础友好，项目驱动</li>
+<li>B站"小甲鱼Python"— 轻松幽默，适合初学者</li>
+<li>Coursera《Python for Everybody》— 密歇根大学经典课</li>
+<li>Kaggle Learn（kaggle.com/learn）— 交互式免费课程</li>
+</ul>
+<p><b>刷题/项目：</b></p>
+<ul>
+<li>LeetCode Python题解— 算法练习</li>
+<li>Kaggle竞赛— 数据科学实战平台，有大量免费数据集</li>
+<li>GitHub trending— 每周浏览热门Python项目学习</li>
+</ul>
+<p><b>文档：</b></p>
+<ul>
+<li>Python官方文档（docs.python.org/3/）— 最权威</li>
+<li>菜鸟教程Python（runoob.com/python）— 中文快速查询</li>
+<li>Real Python（realpython.com）— 高质量英文教程</li>
+</ul>
+<div class="info">Python是"学得快、用得多"的语言。建议：①用Jupyter Notebook交互式学习，所见即所得；②学完基础立刻做小项目（如爬天气、分析成绩）；③数据方向的同学，NumPy+Pandas是基本功，必须熟练。</div>
+</details>
+
+<details>
+<summary>☕ Java — 企业开发之王，互联网大厂+Android+大数据的首选</summary>
+<p><b>为什么学：</b>计算机学院核心课程。互联网大厂后端几乎全用Java/Spring Boot。大数据生态（Hadoop/Spark）也基于JVM。</p>
+<h4>入门期（0-4周）</h4>
+<p>目标：语法基础+面向对象</p>
+<ol>
+<li>安装JDK 21（adoptium.net）+ IntelliJ IDEA Community</li>
+<li>学习基本语法：变量、数据类型、运算符、流程控制</li>
+<li>掌握面向对象核心：类/对象、封装/继承/多态</li>
+<li>理解接口与抽象类的区别</li>
+<li>掌握异常处理：try-catch-finally、自定义异常</li>
+<li>学习集合框架：ArrayList、HashMap、HashSet</li>
+</ol>
+<h4>进阶期（4-10周）</h4>
+<p>目标：Java核心+工程基础</p>
+<ol>
+<li>深入理解JVM内存模型：堆/栈/方法区</li>
+<li>掌握多线程编程：Thread/Runnable/线程池/synchronized</li>
+<li>学习I/O流：字节流/字符流/NIO</li>
+<li>掌握泛型与集合高级用法</li>
+<li>学习Lambda表达式与Stream API（Java 8+）</li>
+<li>了解设计模式：单例、工厂、观察者、策略</li>
+</ol>
+<h4>工程期（10-20周）</h4>
+<p>目标：框架+项目实战</p>
+<ol>
+<li>学习Maven/Gradle项目构建</li>
+<li>学习Spring Boot框架（最主流的Java后端框架）</li>
+<li>学习MySQL + MyBatis/JPA数据库操作</li>
+<li>学习RESTful API设计</li>
+<li>完成一个完整的Web项目（如博客系统/电商后端）</li>
+<li>学习Git + Docker部署</li>
+</ol>
+<h4>学习资源推荐</h4>
+<p><b>书籍：</b></p>
+<ul>
+<li>《Java核心技术》（Core Java）— Java入门经典，分卷I/II</li>
+<li>《Effective Java》（第3版）— Java最佳实践，面试必问</li>
+<li>《Spring Boot实战》— 后端框架入门</li>
+<li>《深入理解Java虚拟机》— JVM调优必读</li>
+</ul>
+<p><b>视频：</b></p>
+<ul>
+<li>B站"黑马程序员Java"— 项目驱动，Spring Boot全覆盖</li>
+<li>B站"尚硅谷Java"— 体系完整，适合系统学习</li>
+<li>Coursera《Java Programming and Software Engineering》— 杜克大学</li>
+</ul>
+<p><b>刷题/项目：</b></p>
+<ul>
+<li>LeetCode Java题解— 大厂面试必刷</li>
+<li>牛客网（nowcoder.com）— 国内互联网求职题库</li>
+<li>GitHub上awesome-java项目— 优秀Java开源项目集合</li>
+</ul>
+<p><b>文档：</b></p>
+<ul>
+<li>Oracle Java官方文档（docs.oracle.com/javase）</li>
+<li>Baeldung（baeldung.com）— Spring/Java高质量英文教程</li>
+<li>菜鸟教程Java（runoob.com/java）— 中文快速查询</li>
+</ul>
+<div class="info">Java学习路线长但回报大。建议：①先扎实学SE（标准版），再学Spring Boot；②面试重点：集合框架底层实现、多线程、JVM内存模型；③大厂校招Java岗需求量大，薪资高。</div>
+</details>
+
+<details>
+<summary>🟨 JavaScript — Web全栈语言，前端必学+Node.js后端，互联网产品开发核心</summary>
+<p><b>为什么学：</b>任何有网页的地方就有JavaScript。前端开发、全栈开发、小程序开发都离不开它。成电很多实验室项目也涉及前端。</p>
+<h4>入门期（0-3周）</h4>
+<p>目标：语法基础+DOM操作</p>
+<ol>
+<li>安装VS Code + Live Server插件（浏览器实时预览）</li>
+<li>学习变量（let/const）、数据类型、运算符</li>
+<li>掌握函数、箭头函数、模板字符串</li>
+<li>理解数组方法：map/filter/reduce/find/forEach</li>
+<li>学习DOM操作：选择元素、修改内容/样式、事件监听</li>
+<li>用JS实现简单的网页交互（点击切换、表单验证）</li>
+</ol>
+<h4>进阶期（3-8周）</h4>
+<p>目标：ES6+异步编程+API</p>
+<ol>
+<li>深入ES6+：解构赋值、展开运算符、Promise、async/await</li>
+<li>理解异步编程：回调地狱→Promise链→async/await</li>
+<li>学习Fetch API调用后端接口</li>
+<li>掌握JSON数据格式处理</li>
+<li>学习模块化：ES Module（import/export）</li>
+<li>了解闭包、原型链、事件循环（面试常考）</li>
+</ol>
+<h4>框架期（8-16周）</h4>
+<p>目标：前端框架+项目实战</p>
+<ol>
+<li>学习React或Vue.js（推荐React，大厂使用更多）</li>
+<li>掌握组件化开发思想</li>
+<li>学习状态管理（Redux/Pinia）</li>
+<li>学习Node.js + Express基础后端</li>
+<li>完成一个全栈小项目（如Todo应用/个人主页）</li>
+<li>了解TypeScript（类型安全的JS超集）</li>
+</ol>
+<h4>学习资源推荐</h4>
+<p><b>书籍：</b></p>
+<ul>
+<li>《JavaScript高级程序设计》（红宝书）— JS经典必读</li>
+<li>《ES6标准入门》（阮一峰）— ES6语法最全中文参考</li>
+<li>《你不知道的JavaScript》— JS进阶必读，理解底层机制</li>
+<li>《React设计原理》— 前端框架深度理解</li>
+</ul>
+<p><b>视频：</b></p>
+<ul>
+<li>B站"尚硅谷前端"— React/Vue系统课</li>
+<li>freeCodeCamp（freecodecamp.org）— 免费交互式前端课程</li>
+<li>MDN Web教程（developer.mozilla.org）— 官方权威教程</li>
+</ul>
+<p><b>刷题/项目：</b></p>
+<ul>
+<li>Frontend Mentor（frontendmentor.io）— 真实项目练手</li>
+<li>LeetCode JS题解— 算法练习</li>
+<li>CodePen（codepen.io）— 在线代码实验场</li>
+</ul>
+<p><b>文档：</b></p>
+<ul>
+<li>MDN Web Docs（developer.mozilla.org）— JS权威文档</li>
+<li>现代JavaScript教程（zh.javascript.info）— 优质中文教程</li>
+<li>阮一峰ES6入门（es6.ruanyifeng.com）— 在线免费</li>
+</ul>
+<div class="info">JS是"学得快、做得快"的语言。建议：①先学纯JS（Vanilla JS）打基础，再学框架；②前端面试重点：闭包、原型链、事件循环、手写API；③React/Vue选一个深入即可，不要同时学两个。</div>
+</details>
+
+<details>
+<summary>🟢 Verilog / VHDL — 硬件描述语言，FPGA/数字芯片设计必备，成电电子类核心技能</summary>
+<p><b>为什么学：</b>成电是电子类强校，数字电路设计/芯片设计方向的核心语言。Vivado/ModelSim等工具都用Verilog或VHDL。</p>
+<h4>入门期（0-4周）</h4>
+<p>目标：理解硬件思维+基础语法</p>
+<ol>
+<li>安装Vivado WebPACK（免费版）或 iverilog + GTKWave（开源轻量）</li>
+<li>理解关键区别：Verilog是描述硬件，不是写软件程序！并发执行，不是顺序执行</li>
+<li>学习模块定义、端口声明、wire/reg类型</li>
+<li>掌握组合逻辑：assign语句、门级建模</li>
+<li>掌握时序逻辑：always块、时钟边沿触发</li>
+<li>学习基本语句：if-else、case、for（仅限仿真）</li>
+</ol>
+<h4>进阶期（4-10周）</h4>
+<p>目标：常用电路模块设计</p>
+<ol>
+<li>实现基本组合逻辑：编码器、译码器、多路选择器、比较器</li>
+<li>实现基本时序逻辑：D触发器、计数器、分频器</li>
+<li>设计存储器：ROM、RAM、FIFO</li>
+<li>实现状态机（FSM）：Moore型与Mealy型</li>
+<li>学习参数化设计（parameter）</li>
+<li>编写Testbench仿真验证</li>
+</ol>
+<h4>实战期（10-20周）</h4>
+<p>目标：综合项目+FPGA实践</p>
+<ol>
+<li>设计一个完整的数字系统：如数字时钟、计算器、UART通信</li>
+<li>学习FPGA开发流程：编写→仿真→综合→实现→比特流下载</li>
+<li>在FPGA开发板上验证（学校实验室通常有开发板）</li>
+<li>学习IP核使用（Vivado IP Catalog）</li>
+<li>了解时序约束与STA基础概念</li>
+<li>参与电赛或实验室FPGA项目</li>
+</ol>
+<h4>学习资源推荐</h4>
+<p><b>书籍：</b></p>
+<ul>
+<li>《Verilog数字系统设计教程》（夏宇闻）— 国内最常用的教材</li>
+<li>《数字电路与逻辑设计》— 配套理论课教材</li>
+<li>《FPGA设计实战》— 侧重工程实践</li>
+<li>《CMOS VLSI Design》— 芯片设计进阶参考</li>
+</ul>
+<p><b>视频：</b></p>
+<ul>
+<li>B站"Verilog入门到精通"— 适合配合教材使用</li>
+<li>B站"野火FPGA开发"— 配套开发板的完整教学</li>
+<li>Xilinx官方培训视频（xilinx.com）— Vivado使用教程</li>
+</ul>
+<p><b>工具/实践：</b></p>
+<ul>
+<li>HDLBits（hdlbits.01xz.net）— 在线Verilog练习平台，强烈推荐！</li>
+<li>EDA Playground（edaplayground.com）— 在线仿真环境</li>
+<li>Digilent Inc. — FPGA开发板厂商，有大量示例项目</li>
+</ul>
+<p><b>文档：</b></p>
+<ul>
+<li>Verilog IEEE 1364-2001标准 — 语法权威参考</li>
+<li>ASIC World（asic-world.com）— 数字设计教程合集</li>
+<li>F4PGA开源工具链（f4pga.org）— 开源FPGA开发</li>
+</ul>
+<div class="info">Verilog最大的坑是"用软件思维写硬件"。建议：①画电路图再写代码，先想清楚硬件连线；②仿真（Testbench）比编码更重要，每写一个模块必须仿真；③HDLBits在线刷题，从入门到进阶全覆盖。成电电赛FPGA方向是拿奖大户。</div>
+</details>
+
+<h4>成电编程学习路线图（推荐顺序）</h4>
+<table>
+<tr><th>阶段</th><th>语言</th><th>建议时长</th><th>对应课程</th></tr>
+<tr><td>大一上</td><td>C语言</td><td>1学期</td><td>C语言程序设计</td></tr>
+<tr><td>大一下</td><td>C++</td><td>1学期</td><td>C++面向对象程序设计</td></tr>
+<tr><td>大一暑假</td><td>Python</td><td>4-6周</td><td>自学/选修课</td></tr>
+<tr><td>大二上</td><td>Java 或 JavaScript</td><td>1学期</td><td>Java程序设计/前端开发</td></tr>
+<tr><td>大二下</td><td>Verilog/HDL</td><td>1学期</td><td>数字逻辑设计/EDA</td></tr>
+</table>
+
+<h4>通用学习工具</h4>
+<table>
+<tr><th>工具</th><th>用途</th><th>链接</th></tr>
+<tr><td>VS Code</td><td>万能代码编辑器</td><td><a href="https://code.visualstudio.com" target="_blank" class="sw-link">code.visualstudio.com</a></td></tr>
+<tr><td>GitHub</td><td>代码托管+协作</td><td><a href="https://github.com" target="_blank" class="sw-link">github.com</a></td></tr>
+<tr><td>Gitee</td><td>国内代码托管（速度快）</td><td><a href="https://gitee.com" target="_blank" class="sw-link">gitee.com</a></td></tr>
+<tr><td>LeetCode</td><td>算法刷题（面试必备）</td><td><a href="https://leetcode.cn" target="_blank" class="sw-link">leetcode.cn</a></td></tr>
+<tr><td>PTA</td><td>成电官方判题平台</td><td><a href="https://pintia.cn" target="_blank" class="sw-link">pintia.cn</a></td></tr>
+<tr><td>洛谷</td><td>中文算法竞赛平台</td><td><a href="https://www.luogu.com.cn" target="_blank" class="sw-link">luogu.com.cn</a></td></tr>
+<tr><td>Codeforces</td><td>全球算法竞赛</td><td><a href="https://codeforces.com" target="_blank" class="sw-link">codeforces.com</a></td></tr>
+<tr><td>Jupyter Notebook</td><td>Python交互式编程</td><td><a href="https://jupyter.org" target="_blank" class="sw-link">jupyter.org</a></td></tr>
+<tr><td>Overleaf</td><td>在线LaTeX编辑器</td><td><a href="https://www.overleaf.com" target="_blank" class="sw-link">overleaf.com</a></td></tr>
+</table>
+`
+};// 搜索索引：提取所有DETAILS的纯文本
 const SEARCH_INDEX=[];
-const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'🛡️','军训':'🎖️','入学须知':'📋','奖学金':'🏆','选课查询':'📅','校园VPN':'🔐','转专业':'🔄','专业软件':'💾'};
+const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'🛡️','军训':'🎖️','入学须知':'📋','奖学金':'🏆','选课查询':'📅','校园VPN':'🔐','转专业':'🔄','专业软件':'💾','编程学习':'⌨️'};
 for(const[key,val]of Object.entries(DETAILS)){
   const tmp=document.createElement('div');
   tmp.innerHTML=val;
