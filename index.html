@@ -3823,11 +3823,120 @@ var AI_MODELS={
 };
 var AI_ENGINE='glm';
 
+// 高德地图周边搜索配置
+var AMAP_CONFIG={
+  key:'d2229d4e4fbea3807f3fb29a0ae5843b',
+  location:'103.935,30.758', // 清水河校区坐标
+  radius:3000, // 搜索半径3km
+  baseUrl:'https://restapi.amap.com/v3/place/around'
+};
+
+// 检测是否为"周边/附近"类问题
+function isNearbyQuery(q){
+  var kw=['附近','周边','旁边','周围','就近','离学校近','学校外','校外','清水河附近','清水河周边','附近有','周边有','学校附近','学校周边'];
+  var types=['酒店','住宿','宾馆','旅馆','美食','餐厅','吃饭','小吃','火锅','烧烤','奶茶','咖啡','超市','药店','理发','打印','快递','医院','银行','ATM','KTV','影院','电影院','健身房','游泳','网吧','书店','水果','面包','蛋糕','洗衣服','干洗','修手机','修电脑','配眼镜','驾校','瑜伽','台球','电玩','棋牌','足浴','按摩'];
+  var ql=q.toLowerCase();
+  var hasKw=false,hasType=false;
+  kw.forEach(function(k){if(ql.indexOf(k)>=0)hasKw=true;});
+  types.forEach(function(t){if(ql.indexOf(t)>=0)hasType=true;});
+  return hasKw||hasType;
+}
+
+// 从问题中提取搜索类型关键词
+function extractNearbyKeyword(q){
+  var typeMap={
+    '酒店':['住宿服务;宾馆酒店;宾馆酒店','酒店'],
+    '住宿':['住宿服务;宾馆酒店;宾馆酒店','住宿'],
+    '宾馆':['住宿服务;宾馆酒店;宾馆酒店','宾馆'],
+    '旅馆':['住宿服务;旅馆招待所;旅馆招待所','旅馆'],
+    '美食':['餐饮服务;餐饮相关场所','美食'],
+    '餐厅':['餐饮服务;餐饮相关场所','餐厅'],
+    '吃饭':['餐饮服务;餐饮相关场所','吃饭'],
+    '小吃':['餐饮服务;餐饮相关场所','小吃'],
+    '火锅':['餐饮服务;餐饮相关场所','火锅'],
+    '烧烤':['餐饮服务;餐饮相关场所','烧烤'],
+    '奶茶':['餐饮服务;冷饮店','奶茶'],
+    '咖啡':['餐饮服务;咖啡馆','咖啡'],
+    '超市':['购物服务;超级市场','超市'],
+    '药店':['医疗保健服务;药店','药店'],
+    '理发':['体育休闲服务;美容美发店','理发'],
+    '打印':['购物服务;文印店','打印'],
+    '快递':['购物服务;物流速递','快递'],
+    '医院':['医疗保健服务;综合医院','医院'],
+    '银行':['金融服务;银行','银行'],
+    'ATM':['金融服务;自动提款机','ATM'],
+    'KTV':['体育休闲服务;KTV','KTV'],
+    '影院':['体育休闲服务;电影院','影院'],
+    '电影院':['体育休闲服务;电影院','电影院'],
+    '健身房':['体育休闲服务;健身房','健身房'],
+    '网吧':['体育休闲服务;网吧','网吧'],
+    '书店':['购物服务;书店','书店'],
+    '水果':['购物服务;水果店','水果'],
+    '面包':['餐饮服务;面包店','面包'],
+    '蛋糕':['餐饮服务;蛋糕店','蛋糕'],
+    '驾校':['教育服务;驾校','驾校']
+  };
+  var ql=q.toLowerCase();
+  for(var k in typeMap){
+    if(ql.indexOf(k)>=0) return {types:typeMap[k][0],keyword:typeMap[k][1]};
+  }
+  return {types:'',keyword:q.replace(/附近|周边|旁边|周围|就近|有没有|有没有/g,'').trim()};
+}
+
+// 调用高德地图周边搜索API
+function searchAmapNearby(query,callback){
+  var extracted=extractNearbyKeyword(query);
+  var params=[
+    'key='+AMAP_CONFIG.key,
+    'location='+AMAP_CONFIG.location,
+    'radius='+AMAP_CONFIG.radius,
+    'offset=10',
+    'sortrule=distance',
+    'output=json'
+  ];
+  if(extracted.types) params.push('types='+encodeURIComponent(extracted.types));
+  else params.push('keywords='+encodeURIComponent(extracted.keyword));
+  var url=AMAP_CONFIG.baseUrl+'?'+params.join('&');
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',url,true);
+  xhr.timeout=10000;
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4){
+      if(xhr.status===200){
+        try{
+          var resp=JSON.parse(xhr.responseText);
+          if(resp.status==='1'&&resp.pois&&resp.pois.length>0){
+            callback({success:true,pois:resp.pois,keyword:extracted.keyword});
+          }else{
+            callback({success:false,keyword:extracted.keyword});
+          }
+        }catch(e){callback({success:false,keyword:extracted.keyword});}
+      }else{callback({success:false,keyword:extracted.keyword});}
+    }
+  };
+  xhr.onerror=function(){callback({success:false,keyword:extracted.keyword});};
+  xhr.ontimeout=function(){callback({success:false,keyword:extracted.keyword});};
+  try{xhr.send();}catch(e){callback({success:false,keyword:extracted.keyword});}
+}
+
+// 生成多平台搜索链接
+function buildPlatformLinks(query){
+  var q=encodeURIComponent(query);
+  var links=[
+    {name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q},
+    {name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q},
+    {name:'B站',icon:'📺',url:'https://search.bilibili.com/all?keyword='+q},
+    {name:'百度',icon:'🔍',url:'https://www.baidu.com/s?wd='+q},
+    {name:'知乎',icon:'💡',url:'https://www.zhihu.com/search?q='+q}
+  ];
+  return links;
+}
+
 // 调用大模型
 function callAIModel(query,localAnswer,callback){
   var engine=AI_MODELS[AI_ENGINE];
   if(!engine||!engine.apiKey){callback(null);return;}
-  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的回答应该：\n1. 优先参考本地知识库的答案\n2. 如果本地知识库没有答案，你可以基于对成电的了解回答\n3. 回答要简洁、实用、口语化\n4. 如果不确定，请诚实说明\n5. 回答格式用纯文本，不要用markdown';
+  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的回答应该：\n1. 优先参考本地知识库的答案\n2. 如果本地知识库没有答案或答案不完整，你可以基于对成电的了解补充回答\n3. 回答要简洁、实用、口语化\n4. 如果不确定，请诚实说明\n5. 回答格式用纯文本，不要用markdown\n6. 如果用户问的是周边/附近/吃喝玩乐等生活问题，请结合你对成都高新西区/郫都区的了解推荐';
   var userContent='本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query;
   var body=JSON.stringify({
     model:engine.model,
@@ -3881,14 +3990,95 @@ function aiSend(){
   typing.innerHTML='<span></span><span></span><span></span>';
   chat.appendChild(typing);
   chat.scrollTop=chat.scrollHeight;
-  // 先用本地知识库回答
-  var delay=600+Math.random()*400;
+
+  // 1. 校园网/校园卡关键词拦截
+  if(isCampusNetQuery(q)){
+    setTimeout(function(){
+      typing.remove();
+      renderAiMsg(campusNetAnswer(q));
+    },400);
+    return;
+  }
+
+  // 2. 检测是否为"周边/附近"类问题 → 走高德地图
+  if(isNearbyQuery(q)){
+    setTimeout(function(){
+      typing.remove();
+      // 先调用高德地图
+      searchAmapNearby(q,function(amapResult){
+        if(amapResult.success&&amapResult.pois.length>0){
+          // 高德有结果：格式化为卡片
+          var answerLines=['【高德地图 · 清水河校区周边'+amapResult.keyword+'】'];
+          amapResult.pois.forEach(function(poi,idx){
+            if(idx>=8) return;
+            var dist=poi.distance?poi.distance+'m':'';
+            var rating=(poi.biz_ext&&poi.biz_ext.rating&&poi.biz_ext.rating.length>0)?poi.biz_ext.rating:'';
+            var tag=poi.keytag||'';
+            var addr=poi.address||'';
+            var line='🏨 '+(idx+1)+'. '+poi.name;
+            if(rating) line+=' ⭐'+rating;
+            if(dist) line+=' 📍'+dist;
+            line+='\n   '+addr;
+            if(tag) line+=' | '+tag.split(';').slice(-1)[0];
+            answerLines.push(line);
+          });
+          renderAiMsg({answer:answerLines.join('\n'),sources:['高德地图'],isQA:false,isAmap:true});
+          // 同时调大模型补充建议
+          if(AI_MODELS.glm.apiKey){
+            var dsTyping=document.createElement('div');
+            dsTyping.className='ai-typing';
+            dsTyping.id='aiDsTyping';
+            dsTyping.innerHTML='<span></span><span></span><span></span>';
+            chat.appendChild(dsTyping);
+            chat.scrollTop=chat.scrollHeight;
+            callAIModel(q,'已展示高德地图搜索结果，请补充一些生活建议',function(dsText){
+              var dsTypingEl=document.getElementById('aiDsTyping');
+              if(dsTypingEl)dsTypingEl.remove();
+              if(dsText){
+                renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
+              }
+              // 多平台搜索链接
+              renderPlatformLinks(q);
+            });
+          }else{
+            renderPlatformLinks(q);
+          }
+        }else{
+          // 高德无结果：走大模型
+          if(AI_MODELS.glm.apiKey){
+            var dsTyping2=document.createElement('div');
+            dsTyping2.className='ai-typing';
+            dsTyping2.id='aiDsTyping';
+            dsTyping2.innerHTML='<span></span><span></span><span></span>';
+            chat.appendChild(dsTyping2);
+            chat.scrollTop=chat.scrollHeight;
+            callAIModel(q,null,function(dsText){
+              var dsTypingEl=document.getElementById('aiDsTyping');
+              if(dsTypingEl)dsTypingEl.remove();
+              if(dsText){
+                renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
+              }
+              renderPlatformLinks(q);
+            });
+          }else{
+            renderAiMsg({answer:'抱歉，暂未找到周边相关信息，请尝试换关键词搜索',sources:[],isQA:false});
+            renderPlatformLinks(q);
+          }
+        }
+      });
+    },400);
+    return;
+  }
+
+  // 3. 普通问题：本地知识库 + 大模型补充
   setTimeout(function(){
     typing.remove();
     var result=aiGenerateAnswer(q);
-    var isLocalStrong=result.isQA||result.detailKey; // 本地知识库有强匹配
+    var isLocalStrong=result.isQA||result.detailKey;
+    var hasGoodLocalResult=result.sources.length>0;
+    // 本地有结果就先展示
     renderAiMsg(result);
-    // 如果本地回答不够好，尝试大模型联网补充
+    // 无论本地强弱，只要没有强匹配就调大模型补充
     if(!isLocalStrong && AI_MODELS.glm.apiKey){
       var dsTyping=document.createElement('div');
       dsTyping.className='ai-typing';
@@ -3896,16 +4086,34 @@ function aiSend(){
       dsTyping.innerHTML='<span></span><span></span><span></span>';
       chat.appendChild(dsTyping);
       chat.scrollTop=chat.scrollHeight;
-      callAIModel(q,result.answer,function(dsText){
+      callAIModel(q,hasGoodLocalResult?result.answer:null,function(dsText){
         var dsTypingEl=document.getElementById('aiDsTyping');
         if(dsTypingEl)dsTypingEl.remove();
         if(dsText){
-          var dsResult={answer:dsText,sources:['AI大模型(联网)'],isQA:false};
-          renderAiMsg(dsResult);
+          renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
         }
+        renderPlatformLinks(q);
       });
+    }else if(!hasGoodLocalResult && AI_MODELS.glm.apiKey){
+      // 本地完全无结果，调大模型
+      var dsTyping3=document.createElement('div');
+      dsTyping3.className='ai-typing';
+      dsTyping3.id='aiDsTyping';
+      dsTyping3.innerHTML='<span></span><span></span><span></span>';
+      chat.appendChild(dsTyping3);
+      chat.scrollTop=chat.scrollHeight;
+      callAIModel(q,null,function(dsText){
+        var dsTypingEl=document.getElementById('aiDsTyping');
+        if(dsTypingEl)dsTypingEl.remove();
+        if(dsText){
+          renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
+        }
+        renderPlatformLinks(q);
+      });
+    }else{
+      renderPlatformLinks(q);
     }
-  },delay);
+  },600+Math.random()*400);
 }
 
 // 渲染AI消息
@@ -3920,9 +4128,13 @@ function renderAiMsg(result){
       var tagText=line.replace(/[【】]/g,'');
       if(tagText.indexOf('学长学姐问答')>=0){
         html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.08));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
+      }else if(tagText.indexOf('高德地图')>=0){
+        html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,180,100,0.15),rgba(0,150,80,0.08));border:1px solid rgba(0,180,100,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:#4cff9f;">🗺️ '+tagText+'</div>';
       }else{
         html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
       }
+    }else if(line.startsWith('🏨')){
+      html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.6;margin:3px 0;padding:6px 10px;background:rgba(0,180,100,0.06);border-left:3px solid rgba(0,180,100,0.4);border-radius:4px">'+line.replace('🏨 ','')+'</div>';
     }else if(line.startsWith('❓')){
       html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
     }else if(line.startsWith('💡')){
@@ -3943,6 +4155,9 @@ function renderAiMsg(result){
       if(s==='AI大模型(联网)'){
         return '<span style="color:var(--gold)">AI大模型(联网)</span>';
       }
+      if(s==='高德地图'){
+        return '<span style="color:#4cff9f">高德地图</span>';
+      }
       return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
     }).join('、')+'</div>';
   }
@@ -3952,6 +4167,24 @@ function renderAiMsg(result){
   }
   botMsg.innerHTML=html;
   chat.appendChild(botMsg);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// 渲染多平台搜索链接
+function renderPlatformLinks(query){
+  var chat=document.getElementById('aiChat');
+  var links=buildPlatformLinks(query);
+  var html='<div style="margin:8px 0 4px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">';
+  html+='<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px">🔗 相关搜索</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+  links.forEach(function(link){
+    html+='<a href="'+link.url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:3px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:4px 10px;font-size:11px;color:var(--gold);text-decoration:none;transition:background 0.2s" onmouseover="this.style.background=\'rgba(255,215,0,0.2)\'" onmouseout="this.style.background=\'rgba(255,215,0,0.1)\'">'+link.icon+' '+link.name+'</a>';
+  });
+  html+='</div></div>';
+  var linkDiv=document.createElement('div');
+  linkDiv.className='ai-msg bot';
+  linkDiv.innerHTML=html;
+  chat.appendChild(linkDiv);
   chat.scrollTop=chat.scrollHeight;
 }
 
