@@ -3628,8 +3628,6 @@ function buildAIKB(){
     {q:'校园很大需要买电动车吗？',a:'校园很大，校内有共享单车和共享电动车，很多，但上课前楼下的单车先到先得手慢无。校园里面可以骑自行车。',from:'一条龟尾巴回答',views:5139,comments:50},
     {q:'校门离公交站远不远？去市区方便吗？',a:'打车到最近的地铁站十块多。校门口打车好打。学校附近有大型商场和电影院。去市区出行方便。',from:'一条龟尾巴回答',views:5139,comments:50},
     {q:'社团什么时候统一招新？',a:'社团什么时候统一招新看学校通知。大一可以参加竞赛。社团退社不麻烦。',from:'一条龟尾巴回答',views:5139,comments:50},
-    {q:'宿舍宽带需要单独办理吗？',a:'校园网不覆盖宿舍区域，宿舍宽带需要单独办理。建议办一张校园流量卡，电信校园卡挺划算的，39元/月翼支付返20元实际19元，全区覆盖。',from:'里暮、一条龟尾巴回答',views:5139,comments:50},
-    {q:'校园卡流量套餐划算吗？可以不开通吗？',a:'校园流量卡挺划算的。校园卡（一卡通）是学校发放的，校园流量卡不强制。不要搞混校园卡和校园流量卡。不办校园卡日常上网可能麻烦。',from:'里暮回答',views:5139,comments:50},
     {q:'大一每月多少生活费够用？校内有什么靠谱兼职？',a:'生活费因人而异。校内兼职薪资大概一小时30元起，学院群里会有兼职信息。节假日可以留校兼职。',from:'一条龟尾巴回答',views:5139,comments:50},
     {q:'饭卡在哪里办理和充值？丢了怎么挂失？',a:'一卡通集学生证、图书证、就餐卡于一体。充值方式：圈存机、支付宝（搜电子科技大学生活号→电子校园卡→充校园卡）、后勤服务中心现场。',from:'官方信息',views:5139,comments:50},
     {q:'学生证什么时候发放？景区打折能用吗？',a:'学生证开学一两周发放。学生证景区打折能用。',from:'一条龟尾巴回答',views:5139,comments:50},
@@ -3689,14 +3687,42 @@ function expandQuery(q){
   return Array.from(new Set(expanded));
 }
 
-// 中文bigram提取：从连续中文字符串中提取所有2字窗口
-function chineseBigrams(str){
-  var clean=str.replace(/[^\u4e00-\u9fa5]/g,'');
-  var result=[];
-  for(var i=0;i<clean.length-1;i++){
-    result.push(clean[i]+clean[i+1]);
+// 校园网/校园卡专用数据库
+var CAMPUS_NET_DB={
+  keywords:['校园网','校园卡','电信','移动','宽带','套餐','流量卡','选网','办卡','上网','芒果卡','翼支付','运营商','wifi','网络'],
+  triggers:['校园网','校园卡','电信','移动','宽带','选网','办卡','上网','运营商'],
+  title:'🛡️ 校园网选择与避坑',
+  detailKey:'避坑',
+  intro:'校园网/校园卡的问题，详情页有完整的电信vs移动对比、套餐价格、覆盖范围、常见误解等，比Q&A更全面！',
+  quickFacts:[
+    '🔑 电信校园卡 = 校园网，办卡即开通，无需单独办理',
+    '📡 电信覆盖全校（教室/宿舍/图书馆/食堂/操场），移动仅寝室可用',
+    '💰 电信39元/月翼支付返20元实际19元，710G流量',
+    '✅ 电信灵活无违约金随时可退，移动1年合约有违约金',
+    '📱 双卡手机可同时用电信+移动'
+  ]
+};
+
+// 校园网/校园卡关键词拦截：命中后直接引导详情页
+function isCampusNetQuery(query){
+  var q=query.toLowerCase();
+  for(var i=0;i<CAMPUS_NET_DB.triggers.length;i++){
+    if(q.indexOf(CAMPUS_NET_DB.triggers[i])>=0) return true;
   }
-  return result;
+  return false;
+}
+
+function campusNetAnswer(query){
+  var lines=[];
+  lines.push('【'+CAMPUS_NET_DB.title+'】');
+  lines.push('');
+  lines.push(CAMPUS_NET_DB.intro);
+  lines.push('');
+  lines.push('📋 快速了解：');
+  CAMPUS_NET_DB.quickFacts.forEach(function(f){lines.push('  '+f);});
+  lines.push('');
+  lines.push('👉 点击下方「查看详情」可看完整对比（套餐价格/覆盖范围/避坑指南/常见误解）');
+  return {answer:lines.join('\n'),sources:['校园网详情页'],isQA:false,detailKey:CAMPUS_NET_DB.detailKey};
 }
 
 // 检索：计算每个知识块的相关度评分
@@ -3704,88 +3730,36 @@ function aiSearch(query){
   buildAIKB();
   var qTokens=expandQuery(query);
   var qLower=query.toLowerCase();
-  // 提取核心概念词（中文bigram + tokenize结果，去除语气词）
-  var STOP_CHARS='吗呢的了啊吧呀嘛';
-  var STOP_WORDS=['怎么','什么','如何','能否','可以','要不要','需不需要'];
-  var qClean=query.replace(/[，？？！!、]/g,'').replace(new RegExp('['+STOP_CHARS+']','g'),'');
-  // 去除停用词
-  STOP_WORDS.forEach(function(sw){qClean=qClean.replace(sw,'')});
-  var qCoreWords=chineseBigrams(qClean); // 得到["校园","园网"]
-  // 对Q&A做直接核心bigram匹配，多个bigram同时命中说明语义高度匹配
-  var qaBoostTitles={};
-  // 直接从AI_KB中找isQA的条目计算boost
-  AI_KB.forEach(function(block){
-    if(!block.isQA) return;
-    var tContent=(block.title+' '+block.content).toLowerCase();
-    var hitCount=0;
-    var hitBigrams=[];
-    qCoreWords.forEach(function(w){
-      if(w.length>=2 && tContent.indexOf(w)>=0){ hitCount++; hitBigrams.push(w); }
-    });
-    // 2个以上bigram命中：语义高度匹配，大幅加分
-    if(hitCount>=2) qaBoostTitles[block.title]=20+hitCount*6;
-    // 只有1个bigram命中时，如果该bigram不是太通用的（如"校园"），才加分
-    else if(hitCount===1){
-      var hitWord=hitBigrams[0];
-      // 过于通用的bigram不给boost
-      var genericBigrams=['校园','什么','怎么','可以','需要'];
-      if(genericBigrams.indexOf(hitWord)<0) qaBoostTitles[block.title]=8;
-    }
-  });
-  window._debugQaBoost=qaBoostTitles;
   var scored=[];
   AI_KB.forEach(function(block){
     var blockTokens=tokenize(block.title+' '+block.content);
     var score=0;
-    // Q&A标题全句子串匹配：用户输入包含在标题中，或标题包含用户输入
     if(block.isQA){
       var tLower=block.title.toLowerCase();
-      // 原始query直接子串匹配
+      // 全句子串匹配
       if(tLower.indexOf(qLower)>=0||qLower.indexOf(tLower.substring(0,8))>=0) score+=10;
-      // Q&A标题逐字符匹配（去除无意义语气词）
-      var qChars=qClean.split('');
+      // 逐字符匹配
+      var qChars=qLower.replace(/[，？？！!、的吗呢吧了呀怎么]/g,'').split('');
       var titleHitCount=0;
       qChars.forEach(function(c){
         if(c.trim().length>0 && block.title.indexOf(c)>=0) titleHitCount++;
       });
-      // 至少3个字符命中才加分，比例越高分越高
       var hitRatio=titleHitCount/Math.max(qChars.filter(function(c){return c.trim().length>0}).length,1);
       if(hitRatio>=0.5) score+=Math.round(hitRatio*8);
-      // 如果query中的核心bigram完整出现在标题中，额外加分
-      qCoreWords.forEach(function(w){
-        if(w.length>=2 && block.title.toLowerCase().indexOf(w)>=0) score+=6;
-      });
     }
-    // 核心bigram在内容中的匹配加分（通用bigram降权）
-    var genericBigrams=['校园','什么','怎么','可以','需要','什么'];
-    qCoreWords.forEach(function(w){
-      if(w.length>=2){
-        var combined=(block.title+' '+block.content).toLowerCase();
-        if(combined.indexOf(w)>=0){
-          // 通用bigram得分低，具体bigram得分高
-          score+=(genericBigrams.indexOf(w)>=0)?1:4;
-        }
-      }
-    });
-    // Q&A核心bigram组合Boost
-    if(block.isQA && qaBoostTitles[block.title]) score+=qaBoostTitles[block.title];
     qTokens.forEach(function(qt){
-      // 标题中命中权重更高
       var titleTokens=tokenize(block.title);
       if(titleTokens.indexOf(qt)>=0)score+=3;
       if(block.key.toLowerCase().indexOf(qt)>=0)score+=2;
-      // 内容命中
       var count=0;
       blockTokens.forEach(function(bt){if(bt===qt)count++});
       score+=count*2;
-      // 部分匹配
       if(qt.length>=2){
         blockTokens.forEach(function(bt){
           if(bt.indexOf(qt)>=0||qt.indexOf(bt)>=0)score+=0.5;
         });
       }
     });
-    // QQ频道Q&A加权：精准问答优先
     if(block.isQA && score>=3) score+=5;
     if(score>0)scored.push({block:block,score:score});
   });
@@ -3795,6 +3769,10 @@ function aiSearch(query){
 
 // 生成回答
 function aiGenerateAnswer(query){
+  // 校园网/校园卡关键词拦截：直接走专用数据库
+  if(isCampusNetQuery(query)){
+    return campusNetAnswer(query);
+  }
   var results=aiSearch(query);
   if(results.length===0){
     return {answer:'抱歉，我在本指南的知识库中没有找到与「'+query+'」相关的内容。\n\n你可以尝试：\n• 换个关键词提问（如"报到"、"宿舍"、"选课"）\n• 或直接浏览首页各功能模块查看全部内容',sources:[],isQA:false};
@@ -3889,6 +3867,10 @@ function aiSend(){
         }
         return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
       }).join('、')+'</div>';
+    }
+    // 校园网/校园卡专用"查看详情"按钮
+    if(result.detailKey){
+      html+='<div style="margin-top:10px"><button style="background:linear-gradient(135deg,var(--gold),#ff9800);color:#1a1a2e;border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;width:100%" onclick="closeSearch();openDetail(\''+result.detailKey+'\')">👉 查看校园网完整对比详情</button></div>';
     }
     botMsg.innerHTML=html;
     chat.appendChild(botMsg);
