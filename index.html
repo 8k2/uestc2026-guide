@@ -207,7 +207,8 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('交通')"><div class="func-icon">🚄</div><div class="func-info"><div class="func-name">交通指南</div><div class="func-desc">机场/火车站到校 · 地铁 · 有轨电车</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('避坑')"><div class="func-icon">🛡️</div><div class="func-info"><div class="func-name">新生避坑专栏</div><div class="func-desc">校园卡 · 对对卡 · 诈骗提醒</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('军训')"><div class="func-icon">🎖️</div><div class="func-info"><div class="func-name">军训/新骨营</div><div class="func-desc">军训安排 · 新骨营报名 · 体测</div></div><div class="func-arrow">›</div></div>
-    <div class="func-card" onclick="openDetail('入学须知')"><div class="func-icon">📋</div><div class="func-info"><div class="func-name">入学须知（官方）</div><div class="func-desc">户口 · 缴费 · 安全考试 · 部门电话</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('奖学金')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">奖学金细则</div><div class="func-desc">国奖/国励/校奖/企业奖 · 评选规则</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('转专业')"><div class="func-icon">🔄</div><div class="func-info"><div class="func-name">转专业指南</div><div class="func-desc">16学院细则 · 流程 · 考核方式</div></div><div class="func-arrow">›</div></div>
   </div>
 
   <!-- 外部链接 -->
@@ -245,6 +246,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('校园网络')"><div class="func-icon">📶</div><div class="func-info"><div class="func-name">UESTC-WiFi</div><div class="func-desc">免费校园网 · VPN · CARSI</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('打印')"><div class="func-icon">🖨️</div><div class="func-info"><div class="func-name">打印</div><div class="func-desc">文印中心 · 品学楼打印机</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('场馆')"><div class="func-icon">🏊</div><div class="func-info"><div class="func-name">场馆预约</div><div class="func-desc">游泳 · 健身 · 羽毛球 · 篮球</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('校园VPN')"><div class="func-icon">🔐</div><div class="func-info"><div class="func-name">校园VPN使用</div><div class="func-desc">校外访问校内资源 · EasyConnect</div></div><div class="func-arrow">›</div></div>
   </div>
 </div>
 
@@ -256,6 +258,9 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('英语')"><div class="func-icon">📖</div><div class="func-info"><div class="func-name">英语入学考试</div><div class="func-desc">8月29日 · 分级教学 · 耳机</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">英才班/转专业</div><div class="func-desc">拔尖班选拔 · 转专业 · 大类分流</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">🥇</div><div class="func-info"><div class="func-name">竞赛指南</div><div class="func-desc">电赛 · 蓝桥杯 · 工创赛</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('奖学金')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">奖学金细则</div><div class="func-desc">国奖8000/国励5000/校奖 · 评选规则</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('选课查询')"><div class="func-icon">📅</div><div class="func-info"><div class="func-name">提前查看选课</div><div class="func-desc">选课日志 · 课表查询 · 确认结果</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('转专业')"><div class="func-icon">🔄</div><div class="func-info"><div class="func-name">转专业指南</div><div class="func-desc">16学院细则 · 流程 · 考核方式</div></div><div class="func-arrow">›</div></div>
   </div>
 </div>
 
@@ -871,12 +876,181 @@ const DETAILS={
 <li><b>通用英语（基础）</b>：听说读写综合夯实，信息化辅助教学</li>
 </ul>
 <div class="warn">每位同学必须配备能接收84兆赫调频广播+音频广播的耳机！入学报到时学校提供选购（24.5元/副）</div>
+`,
+
+'奖学金':`
+<h3>奖学金体系概览</h3>
+<p>成电奖学金体系涵盖国家奖学金、国家励志奖学金、校级奖学金和企业奖学金，评选依据为综合成绩排名和综合素质评价。</p>
+
+<h3>国家奖学金</h3>
+<table>
+<tr><th>奖项</th><th>金额</th><th>评选条件</th></tr>
+<tr><td>国家奖学金</td><td>8000元/年</td><td>成绩排名前10%</td></tr>
+<tr><td>国家励志奖学金</td><td>5000元/年</td><td>成绩排名前30%，家庭经济困难</td></tr>
+</table>
+
+<h3>校级奖学金</h3>
+<table>
+<tr><th>奖项</th><th>金额</th><th>评选条件</th></tr>
+<tr><td>优秀学生一等奖</td><td>2000元/年</td><td>成绩排名前10%</td></tr>
+<tr><td>优秀学生二等奖</td><td>1500元/年</td><td>成绩排名前20%</td></tr>
+<tr><td>优秀学生标兵</td><td>1000元/年</td><td>综合表现突出</td></tr>
+</table>
+
+<h3>企业奖学金</h3>
+<ul>
+<li>成电之友奖学金</li>
+<li>筑梦奖学金</li>
+<li>小米奖学金</li>
+<li>国防科技奖学金</li>
+<li>其他企业专项奖学金（关注学院通知）</li>
+</ul>
+
+<h3>综合成绩构成</h3>
+<p>综合成绩 = 专业成绩 + 基础性素质分 + 发展性素质分</p>
+
+<h3>基础性素质分</h3>
+<ul>
+<li>辅导员评分</li>
+<li>同学互评</li>
+</ul>
+
+<h3>发展性素质分（加分项）</h3>
+<ul>
+<li><b>组织管理</b>：担任班委、学生会干部等</li>
+<li><b>道德风尚</b>：志愿服务、见义勇为等</li>
+<li><b>科技创新</b>：竞赛获奖、论文发表、专利等</li>
+<li><b>体育竞技</b>：校运会、体育比赛获奖</li>
+<li><b>文化艺术</b>：文艺演出、比赛获奖</li>
+<li><b>劳动实践</b>：社会实践、勤工助学等</li>
+</ul>
+
+<div class="info">奖学金评选一般在每学年开学后进行，关注"成电学工"公众号和学院通知，及时提交申请材料。</div>
+`,
+
+'选课查询':`
+<h3>提前查看选课情况</h3>
+<p>选课期间可以通过教务系统链接提前查看选课日志和课表，确认选课结果。</p>
+
+<h3>查看退课记录/选课日志</h3>
+<div class="info">链接：http://eams.uestc.edu.cn/eams/stdElectLog!search.action</div>
+<p>在选课日志中可以看到每门课的操作记录：</p>
+<ul>
+<li><b>system退课</b> = 系统自动掉课（权重不足）</li>
+<li>课表上出现的课 = 已选成功</li>
+</ul>
+
+<h3>查看课表</h3>
+<div class="info">链接：http://eams.uestc.edu.cn/eams/courseTableForStd.action</div>
+<p>打开后可直接查看当前课表，确认最终选课结果。</p>
+
+<h3>使用方式</h3>
+<ol>
+<li>打开<b>网上服务大厅</b>（wf.uestc.edu.cn）</li>
+<li>进入<b>教务系统</b></li>
+<li>将上方链接复制到浏览器网址栏打开</li>
+<li>即可查看选课日志或课表</li>
+</ol>
+
+<div class="warn">注意：以上链接需在登录教务系统后使用，直接打开可能跳转到登录页。</div>
+`,
+
+'校园VPN':`
+<h3>校园VPN简介</h3>
+<p>校园VPN用于在校外访问校内受限资源，如图书馆数据库、教务系统等。</p>
+<div class="info">入口地址：https://vpn.uestc.edu.cn</div>
+
+<h3>两种登录方式</h3>
+<table>
+<tr><th>方式</th><th>适用范围</th><th>说明</th></tr>
+<tr><td>Web登录</td><td>仅访问受限校内Web资源</td><td>浏览器直接登录，无需安装客户端</td></tr>
+<tr><td>客户端登录</td><td>访问校内所有资源</td><td>需安装EasyConnect客户端</td></tr>
+</table>
+
+<h3>Web登录方式</h3>
+<ol>
+<li>浏览器打开 https://vpn.uestc.edu.cn</li>
+<li>输入学号和密码登录</li>
+<li>登录后只能访问图书馆等受限Web资源</li>
+</ol>
+
+<h3>客户端登录方式（EasyConnect）</h3>
+<ol>
+<li>打开VPN入口页面，下载EasyConnect客户端</li>
+<li>安装后运行，服务器地址填 vpn.uestc.edu.cn</li>
+<li>输入学号和密码登录</li>
+<li>连接后可访问校内所有资源</li>
+</ol>
+
+<h3>常见问题</h3>
+<ul>
+<li><b>杀毒软件拦截</b>：将EasyConnect加入白名单或暂时关闭杀毒软件</li>
+<li><b>连接失败</b>：使用VPN故障诊断工具检测</li>
+<li><b>忘记密码</b>：通过网上服务大厅重置</li>
+</ul>
+
+<div class="info">VPN服务热线：028-61831184（信息中心）</div>
+`,
+
+'转专业':`
+<h3>成电全能版转专业指南细则</h3>
+<p>清水河校区转专业实施细则，涵盖16个学院2025年转专业方案。</p>
+
+<h3>参与学院</h3>
+<ul>
+<li>信通学院、电子学院、材料学院、机电学院</li>
+<li>光电学院、自动化学院、资环学院、计算机学院</li>
+<li>航空航天学院、数学学院、物理学院、生科学院</li>
+<li>经管学院、公管学院、外语学院、集成电路学院</li>
+</ul>
+
+<h3>通用流程</h3>
+<ol>
+<li><b>4月7日前</b>：网上报名（教务系统提交申请）</li>
+<li>资格审查：学院审核申请资格</li>
+<li>综合考核：面试/上机考试/笔试（各学院不同）</li>
+<li>按综合成绩排序录取</li>
+</ol>
+
+<h3>各学院考核方式（部分）</h3>
+<table>
+<tr><th>学院</th><th>考核方式</th><th>特殊要求</th></tr>
+<tr><td>信通学院</td><td>英语面试+综合面试</td><td>英语能力要求较高</td></tr>
+<tr><td>计算机学院</td><td>C语言上机考试+面试</td><td>编程能力考查</td></tr>
+<tr><td>经管学院</td><td>综合面试</td><td>综合素质考查</td></tr>
+</table>
+
+<h3>信通学院转专业细则</h3>
+<ul>
+<li>考核方式：英语面试 + 综合面试</li>
+<li>英语面试考查听说读写能力</li>
+<li>综合面试考查专业知识、逻辑思维和综合素质</li>
+<li>按面试总成绩排序录取</li>
+</ul>
+
+<h3>计算机学院转专业细则</h3>
+<ul>
+<li>考核方式：C语言上机考试 + 面试</li>
+<li>上机考试考查编程基础和算法能力</li>
+<li>面试考查专业认知、学习能力和综合素质</li>
+<li>按综合成绩（上机+面试）排序录取</li>
+</ul>
+
+<h3>经管学院转专业细则</h3>
+<ul>
+<li>考核方式：综合面试</li>
+<li>面试考查数理基础、逻辑分析、沟通表达和综合素质</li>
+<li>按面试成绩排序录取</li>
+</ul>
+
+<div class="info">各学院具体细则可能有调整，以当年教务处和学院通知为准。建议提前关注目标学院官网和教务处公告。</div>
+<div class="warn">转专业一般在大一下学期进行，名额有限，竞争激烈。建议大一上学期保持优秀成绩，提前了解目标学院要求。</div>
 `
 };
 
 // 搜索索引：提取所有DETAILS的纯文本
 const SEARCH_INDEX=[];
-const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'🛡️','军训':'🎖️','入学须知':'📋'};
+const ICON_MAP={'报到':'📝','宿舍':'🏠','学业':'📚','英语':'📖','校园生活':'🍜','一卡通':'💳','校园网络':'📶','打印':'🖨️','场馆':'🏊','交通':'🚄','避坑':'🛡️','军训':'🎖️','入学须知':'📋','奖学金':'🏆','选课查询':'📅','校园VPN':'🔐','转专业':'🔄'};
 for(const[key,val]of Object.entries(DETAILS)){
   const tmp=document.createElement('div');
   tmp.innerHTML=val;
