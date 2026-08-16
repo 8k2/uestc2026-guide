@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>成电26新生入学全能指南</title>
+<style>
+:root{--b:#165DFF;--bl:#E8F3FF;--bg:#F2F3F5;--w:#fff;--t:#1D2129;--t2:#4E5969;--t3:#C9CDD4;--bd:#E5E6EB;--me:#165DFF;--ai:#fff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--t);font-size:15px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* 顶栏 */
+.topbar{background:var(--w);border-bottom:1px solid var(--bd);height:52px;display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+.topbar .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#165DFF,#7B61FF);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}
+.topbar .info{flex:1}
+.topbar .info h1{font-size:16px;line-height:1.3}
+.topbar .info p{font-size:11px;color:var(--t3)}
+.topbar .menu-btn{border:none;background:none;font-size:20px;cursor:pointer;color:var(--t2)}
+
+/* 聊天区 */
+.chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;-webkit-overflow-scrolling:touch}
+.msg{display:flex;gap:8px;max-width:88%;animation:fadeIn .25s}
+.msg.user{margin-left:auto;flex-direction:row-reverse}
+.msg .avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.msg.ai .avatar{background:linear-gradient(135deg,#165DFF,#7B61FF);color:#fff}
+.msg.user .avatar{background:var(--bl);color:var(--b)}
+.msg .bubble{border-radius:14px;padding:10px 14px;font-size:14px;line-height:1.7;word-break:break-word}
+.msg.ai .bubble{background:var(--w);color:var(--t);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.msg.user .bubble{background:var(--me);color:#fff}
+.msg .bubble b{color:var(--b)}
+.msg.user .bubble b{color:#fff;font-weight:700}
+.msg .bubble .tag{display:inline-block;background:var(--bl);color:var(--b);padding:1px 6px;border-radius:4px;font-size:12px;font-weight:600;margin:0 2px}
+.msg .bubble .warn{background:#FFF7E8;border-left:3px solid #FF7D00;border-radius:6px;padding:8px 10px;margin:6px 0;font-size:13px}
+.msg .bubble .danger{background:#FFF0F0;border-left:3px solid #F53F3F;border-radius:6px;padding:8px 10px;margin:6px 0;font-size:13px}
+.msg .bubble table{width:100%;border-collapse:collapse;margin:6px 0;font-size:12px}
+.msg .bubble th{background:var(--bg);text-align:left;padding:4px 6px;font-weight:600;border-bottom:1px solid var(--bd)}
+.msg .bubble td{padding:4px 6px;border-bottom:1px solid var(--bd)}
+.msg .bubble ul{padding-left:16px;margin:4px 0}
+.msg .bubble li{margin-bottom:2px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* 快捷问题 */
+.quick-btns{display:flex;gap:8px;flex-wrap:wrap;padding:8px 16px 4px}
+.quick-btn{border:1px solid var(--bd);background:var(--w);border-radius:20px;padding:6px 12px;font-size:13px;color:var(--t2);cursor:pointer;white-space:nowrap}
+.quick-btn:active{background:var(--bl);color:var(--b);border-color:var(--b)}
+
+/* 输入区 */
+.input-bar{background:var(--w);border-top:1px solid var(--bd);padding:10px 16px 20px;display:flex;gap:10px;flex-shrink:0}
+.input-bar input{flex:1;border:1px solid var(--bd);border-radius:22px;padding:10px 16px;font-size:15px;font-family:inherit;outline:none;background:var(--bg)}
+.input-bar input:focus{border-color:var(--b);background:var(--w)}
+.input-bar button{width:44px;height:44px;border-radius:50%;background:var(--b);color:#fff;border:none;font-size:18px;cursor:pointer;flex-shrink:0}
+.input-bar button:active{background:var(--b);opacity:.8}
+
+/* 引导横幅 */
+.guide-bar{background:linear-gradient(135deg,#165DFF,#4080FF);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer}
+.guide-bar:active{opacity:.9}
+.guide-bar .gb-icon{font-size:22px;flex-shrink:0}
+.guide-bar .gb-text{flex:1;font-size:13px;line-height:1.4}
+.guide-bar .gb-text b{font-weight:700}
+.guide-bar .gb-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:4px 12px;font-size:12px;color:#fff;font-weight:600;white-space:nowrap}
+.guide-bar .gb-close{border:none;background:none;color:rgba(255,255,255,.6);font-size:16px;cursor:pointer;padding:0 0 0 4px}
+
+/* 侧边菜单 */
+.side-mask{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:200;display:none}
+.side-mask.show{display:block}
+.side-panel{position:fixed;top:0;right:-280px;width:280px;height:100%;background:var(--w);z-index:201;transition:right .25s;overflow-y:auto;padding:20px 16px}
+.side-panel.show{right:0}
+.side-panel h3{font-size:16px;margin-bottom:12px}
+.side-panel .side-item{padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--t2);margin-bottom:4px}
+.side-panel .side-item:active{background:var(--bg)}
+.side-panel .side-section{font-size:12px;color:var(--t3);font-weight:600;margin:16px 0 8px;text-transform:uppercase}
+.side-panel .method-card{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:10px}
+.side-panel .method-card h4{font-size:14px;margin-bottom:4px}
+.side-panel .method-card p{font-size:12px;color:var(--t2);line-height:1.6}
+.side-panel .method-card .step{font-size:12px;color:var(--t2);margin:4px 0;line-height:1.5}
+.side-panel .method-card .step b{color:var(--b)}
+</style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<div class="topbar">
+  <div class="logo">成</div>
+  <div class="info">
+    <h1>成电26新生入学全能指南</h1>
+    <p>智能问答 · 输入问题即出答案</p>
+  </div>
+  <button class="menu-btn" onclick="toggleSide()">☰</button>
+</div>
+
+<!-- 引导横幅 -->
+<div class="guide-bar" id="gbar" onclick="openGuide()">
+  <div class="gb-icon">☁️</div>
+  <div class="gb-text"><b>想用完整AI问答？</b>装天翼AI云电脑，手机也能跑TeleAgent，技能自动同步电脑端</div>
+  <div class="gb-btn">去下载</div>
+  <button class="gb-close" onclick="event.stopPropagation();closeBar()">✕</button>
+</div>
+
+<!-- 聊天区 -->
+<div class="chat" id="chat">
+  <div class="msg ai">
+    <div class="avatar">AI</div>
+    <div class="bubble">
+      同学你好！我是<b>成电26新生入学全能指南</b>助手，涵盖官方入学须知全部内容。输入问题即可获得答案，比如：
+      <br><br>
+      <b>官方须知</b>：报到时间/收费/户口/缴费方式<br>
+      <b>交通类</b>：从天府机场怎么去学校最省钱？<br>
+      <b>生活类</b>：宿舍有空调吗？能选房间吗？<br>
+      <b>防骗类</b>：开学季常见的骗局有哪些？<br>
+      <b>选课类</b>：大一选课有什么技巧？<br>
+      <b>缴费类</b>：学费多少？怎么缴费？
+    </div>
+  </div>
+</div>
+
+<!-- 快捷问题 -->
+<div class="quick-btns" id="qbtns">
+  <div class="quick-btn" onclick="ask('报到时间和流程')">📝 报到须知</div>
+  <div class="quick-btn" onclick="ask('怎么去学校最省钱')">🚄 交通路线</div>
+  <div class="quick-btn" onclick="ask('学费收费一览')">💰 收费标准</div>
+  <div class="quick-btn" onclick="ask('防诈骗必看')">🛡️ 防骗必看</div>
+  <div class="quick-btn" onclick="ask('缴费方式指南')">💳 缴费方式</div>
+  <div class="quick-btn" onclick="ask('宿舍选房攻略')">🏠 选宿舍</div>
+</div>
+
+<!-- 输入区 -->
+<div class="input-bar">
+  <input id="input" placeholder="输入你想了解的问题…" onkeydown="if(event.key==='Enter')send()">
+  <button onclick="send()">➤</button>
+</div>
+
+<!-- 侧边菜单 -->
+<div class="side-mask" id="smask" onclick="toggleSide()"></div>
+<div class="side-panel" id="spanel">
+  <h3>📱 成电26新生入学全能指南</h3>
+
+  <div class="side-section">方式一：天翼AI云电脑（推荐）</div>
+  <div class="method-card">
+    <h4>☁️ 手机 → 云电脑 → TeleAgent</h4>
+    <p>手机装天翼AI云电脑APP/微信小程序，云端运行TeleAgent，数据和技能自动同步电脑端</p>
+    <div class="step"><b>1</b> 微信搜"天翼AI云电脑"小程序，或下载APP</div>
+    <div class="step"><b>2</b> 选择 <b>TeleAgent公众版</b> 镜像登录</div>
+    <div class="step"><b>3</b> 导入技能包 → 直接问入学问题</div>
+    <div class="step"><b>4</b> 电脑端装TeleAgent，同一账号登录，技能数据自动同步</div>
+  </div>
+
+  <div class="side-section">方式二：本网页（轻量版）</div>
+  <div class="method-card">
+    <h4>💬 当前页面就是轻量问答</h4>
+    <p>直接在下方输入框提问，内置知识库智能匹配答案，无需安装任何APP</p>
+    <div class="step">✅ 手机浏览器直接打开</div>
+    <div class="step">✅ 离线也能用（全部数据内嵌）</div>
+    <div class="step">⚠️ 仅覆盖入学指南内容，不是完整AI</div>
+  </div>
+
+  <div class="side-section">技能包下载</div>
+  <div class="method-card">
+    <h4>📦 成电新生指南技能.zip</h4>
+    <p>导入TeleAgent即可获得完整AI问答能力，支持云电脑和本地电脑</p>
+  </div>
+
+  <div class="side-section">快速问题</div>
+  <div class="side-item" onclick="ask('报到时间和流程');toggleSide()">📝 报到须知</div>
+  <div class="side-item" onclick="ask('交通路线');toggleSide()">🚄 交通路线</div>
+  <div class="side-item" onclick="ask('宿舍选房');toggleSide()">🏠 宿舍选房</div>
+  <div class="side-item" onclick="ask('食堂推荐');toggleSide()">🍜 食堂推荐</div>
+  <div class="side-item" onclick="ask('防诈骗');toggleSide()">🛡️ 防诈骗</div>
+  <div class="side-item" onclick="ask('学费收费一览');toggleSide()">💰 收费标准</div>
+  <div class="side-item" onclick="ask('缴费方式指南');toggleSide()">💳 缴费方式</div>
+  <div class="side-item" onclick="ask('户口迁移');toggleSide()">📋 户口迁移</div>
+  <div class="side-item" onclick="ask('党团组织关系');toggleSide()">🤝 党团关系</div>
+  <div class="side-item" onclick="ask('英语入学考试');toggleSide()">📖 英语考试</div>
+  <div class="side-item" onclick="ask('安全教育与考试');toggleSide()">🔒 安全考试</div>
+  <div class="side-item" onclick="ask('军训新骨营');toggleSide()">🏃 军训新骨营</div>
+  <div class="side-item" onclick="ask('医疗健康');toggleSide()">🏥 医疗健康</div>
+  <div class="side-item" onclick="ask('部门电话');toggleSide()">📞 部门电话</div>
+  <div class="side-item" onclick="ask('选课攻略');toggleSide()">📚 选课攻略</div>
+  <div class="side-item" onclick="ask('行前必带清单');toggleSide()">📋 行前清单</div>
+</div>
+
+<script>
+// 知识库 - 关键词匹配问答对
+var KB = [
+{
+  q:["报到","注册","入学","材料","证件","流程","报到时间","报到地点","入学须知","资格审查"],
+  a:"<b>报到须知（2026官方）</b><br><br>"+
+    "<b>报到时间</b>：<span class='tag'>2026年8月27日至8月28日</span><br>"+
+    "<b>报到地点</b>：<br>"+
+    "• 信息与软件工程学院、医学院 → <b>沙河校区</b>（建设北路二段4号）<br>"+
+    "• 格拉斯哥海南学院 → <b>海南校区</b>（海南陵水黎安国际教育创新试验区）<br>"+
+    "• 其他学院 → <b>清水河校区</b>（西源大道2006号）<br><br>"+
+    "<b>必带材料</b>：<br>"+
+    "• 录取通知书原件<br>"+
+    "• 身份证原件+正反面复印件3份<br>"+
+    "• 1寸免冠彩色证件照4张<br>"+
+    "• 本人姓名开户的银行储蓄卡（已满18岁可到校后办）<br>"+
+    "• 新生档案（未统一邮寄者，不得拆封。邮寄地址见迎新网freshman.uestc.edu.cn）<br>"+
+    "• 户口迁移证（自愿）<br><br>"+
+    "<b>报到事项</b>：<br>"+
+    "1. 8月20日后登录<b>迎新网</b>（freshman.uestc.edu.cn）激活账号查学号<br>"+
+    "2. 8月25日-27日完成<b>网上缴费</b>（详见缴费指南）<br>"+
+    "3. 关注\"<b>平安成电</b>\"公众号绑定信息，扫个人二维码进校<br>"+
+    "4. 到校后先到报到点或先入住宿舍均可<br>"+
+    "5. 领取军训服装、体检等<br>"+
+    "6. 完成入学资格审查（学校统一核查）<br>"+
+    "<div class='warn'>⚠️ 学校不会通过非官方方式收缴学费，也不会委托任何个人收取学费！</div>"
+},
+{
+  q:["交通","路线","怎么去","地铁","飞机","机场","高铁","火车","打车","公交","双流","天府","成都东","成都西","成都南","成都北","接站","省钱","费用","犀浦"],
+  a:"<b>交通指南</b>（每条路线两个方案：最省钱 vs 最省事）<br><br>"+
+    "<b>双流机场→学校</b><br>"+
+    "• <span class='tag'>最省钱</span> 地铁10号线→华兴换9号线→成都西站→有轨电车蓉2号线→合作路站，约10元/90分钟<br>"+
+    "• <span class='tag'>最省事</span> 打车约60—80元/30—40分钟<br><br>"+
+    "<b>天府机场→学校</b><br>"+
+    "• <span class='tag'>最省钱</span> 18号线→孵化园换9号线→成都西站→蓉2号线→合作路站，约13元/2—2.5小时<br>"+
+    "• <span class='tag'>最省事</span> 打车约150—200元/1—1.5小时<br><br>"+
+    "<b>高铁/火车</b><br>"+
+    "• <b>成都西站</b>（最近！首选）：有轨电车蓉2号线3元/25分钟；打车25—35元/20分钟<br>"+
+    "• <b>成都东站</b>：2号线→犀浦→116路公交，7元/60分钟；打车约80元/45分钟<br>"+
+    "• <b>成都南站/北站</b>：7号线→6号线→301路公交，约8元/70分钟；打车约70—90元<br><br>"+
+    "<b>迎新接站</b>：地铁2号线犀浦站，免费班车直达校区南二门<br>"+
+    "<div class='danger'>⚠️ 防骗：其他站点均无接站，不要轻信自称\"学校接站\"的陌生人！</div>"+
+    "<b>省钱小贴士</b>：火车票学生票七五折；天府通APP地铁公交9折；蓉2号线认准\"郫县西站方向\"别坐反"
+},
+{
+  q:["宿舍","住宿","寝室","室友","选宿舍","选房","微宿舍","空调","热水","淋浴","门禁","电费","床","加长床","晚归","卫生","违章电器"],
+  a:"<b>宿舍生活</b><br><br>"+
+    "<b>选宿舍（2026官方）</b>：<br>"+
+    "• <span class='tag'>8月22日-23日</span> 登录新生选房网站或微信小程序选房<br>"+
+    "• 电脑端：后勤保障部网站（hq.uestc.edu.cn）→服务导览→宿舍选房<br>"+
+    "• 手机端：微信小程序\"<b>成电微后勤</b>\"→【微宿舍】<br>"+
+    "• 关注\"<b>成电宿舍</b>\"公众号获取时间安排和选房流程<br>"+
+    "• 身高≥1.9米可选 <span class='tag'>加长床</span>（2.2m×1m），普通床1.95m×0.8m<br>"+
+    "• 格拉斯哥海南学院床垫尺寸：2m×1m<br>"+
+    "• 床上用品可自行准备或到校选购<br>"+
+    "<div class='warn'>⚠️ 8月23日后未选房→学校统一安排！禁止携带违章电器！</div><br>"+
+    "<b>本科生（学知苑）</b>：四人间上床下桌+独卫热水空调+刷一卡通/NFC/人脸门禁<br>"+
+    "<b>研究生（硕丰苑）</b>：两人间为主+独卫热水空调<br><br>"+
+    "<b>日常须知</b>：<br>"+
+    "• 开门6:30/关门23:30，晚归需填登记表<br>"+
+    "• 每周四中午大扫除，下午检查，有奖洗衣液<br>"+
+    "• 淋浴1分钟0.1元（一卡通），宿舍不断电<br>"+
+    "• 电费：每人每月免费5度+寝室每月免费20度，充值方式：网上服务大厅或支付宝搜\"电子科技大学\"生活号"
+},
+{
+  q:["食堂","吃饭","餐厅","美食","海底捞","瑞幸","肯德基","麦当劳","哪个好吃","推荐吃"],
+  a:"<b>食堂攻略</b><br><br>"+
+    "• <b>科创餐厅</b>：最新建成，评价最高，餐品种类多，里面有瑞幸 ☕<br>"+
+    "• <b>朝阳餐厅</b>：价格便宜份量大，老麻抄手出名；二楼有校园海底捞🔥+肯德基<br>"+
+    "• <b>芙蓉餐厅</b>：聚餐首选，和外面餐馆差不多（价格最贵）<br>"+
+    "• <b>家园餐厅</b>：自选菜多，自由度高<br>"+
+    "• <b>学子餐厅</b>：离教学区最近，出餐快，旁边有麦当劳+水果店<br>"+
+    "• <b>思源餐厅</b>：川菜居多<br>"+
+    "• <b>银桦/紫荆</b>：一组团旁，餐品类型丰富<br>"+
+    "• <b>西北餐厅</b>：面食为主，清真<br>"+
+    "• <b>桃园餐厅</b>：南门体育场下，2025年翻新<br>"+
+    "• <b>布蕾德西点屋</b>：糕点烘焙<br><br>"+
+    "<b>商业街</b>：餐饮、超市、理发、洗衣、快递、数码维修一应俱全"
+},
+{
+  q:["一卡通","校园卡","充值","圈存","支付宝","绑定","消费"],
+  a:"<b>校园一卡通</b><br><br>"+
+    "<b>功能</b>：食堂消费、超市、宿舍淋浴（1分钟0.1元）、门禁、校园巴士、图书馆<br><br>"+
+    "<b>重点</b>：<span class='tag'>支付宝/微信可绑定校园卡</span>，手机直接支付！只有洗澡必须用实体卡<br><br>"+
+    "<b>充值方式</b>：<br>"+
+    "1. 支付宝搜\"电子科技大学生活号\"→绑定校园卡→选择金额充值<br>"+
+    "2. 微信绑定：参考学校公众号教程<br>"+
+    "3. 充值后约2分钟到账，需在食堂/超市/宿舍楼底 <b>圈存机</b> 圈存<br>"+
+    "4. 圈存操作：卡放识别区→点\"支付宝\"→确认圈存余额→点圈存"
+},
+{
+  q:["防骗","防诈骗","骗局","推销","校园卡推销","诈骗","安全","骗子","培训班","英语班","扫码","钓鱼","移动","中国移动","运营商","校园网办理"],
+  a:"<div class='danger'><b>⚠️ 防诈骗必看！开学季是诈骗高发期！</b></div><br>"+
+    "<b>1）校园卡（手机卡）：大学刚需，大部分同学可以备一张</b><br>"+
+    "校园网（UESTC-WIFI）用学号密码免费登录，但室外和宿舍覆盖差。校园卡是流量+宽带+通话的刚需。中国电信在全校覆盖最大，推荐：<br>"+
+    "• <span class='tag'>月租39元</span>（原71元档，凭学生证优惠）<br>"+
+    "• <span class='tag'>翼支付每月返20元</span>话费券（1/2/7/8月无），4年累计省640元<br>"+
+    "• 流量每月合计 <b>710G</b>（170G全国+80G定向+100G省内+360G校园），寒暑假额外+20G<br>"+
+    "• 宽带 <b>300M</b>起步，组团可优惠升级 <b>500M</b> + 通话1000分钟+ + 月月领会员<br>"+
+    "• 每月可选1个会员（爱奇艺/B站/腾讯视频/QQ音乐/网易云/美团等20+平台），4年省千元<br>"+
+    "• 全寝室/教学楼/图书馆/操场无信号死角，换寝室不用迁移<br>"+
+    "• 优惠期4年，到期免费续约再享4年<br>"+
+    "→ 电信营业厅：清水河校区商业街1楼菜鸟驿站旁<br>"+
+    "<br><b>中国移动26年校园网套餐</b>（同为39元/月）：<br>"+
+    "• <span class='tag'>月租39元</span>（原59元，勾选融合优惠包→39元，四年不涨价）<br>"+
+    "• 宽带 <b>300M</b> + 流量 <b>600G</b> + 预存网费100元<br>"+
+    "• 月度会员：商超代金券（校内近10家）或自选会员<b>36选1</b>，连续领48个月<br>"+
+    "• 每月必领10元购物代金券（抖音/微信/支付宝）<br>"+
+    "• 芒果会员+咪咕体育直播+4T移动云盘（登录即享）<br>"+
+    "• 入网赠：免费理发、四六级耳机、驾校优惠、健身房优惠、三人成团、新生抽奖<br>"+
+    "• 办理年龄：16-30岁（比电信更宽）<br>"+
+    "→ 移动营业厅：清水河校区商业街1楼16号瑞幸咖啡对面<br>"+
+    "<br><b>电信 vs 移动 一眼对比</b>：<br>"+
+    "• 流量：电信710G vs 移动600G（电信多110G）<br>"+
+    "• 宽带：电信300M起步（组团可升500M） vs 移动300M<br>"+
+    "• 年龄：电信18-27岁 vs 移动16-30岁<br>"+
+    "• 会员：电信20+平台任选1 vs 移动36选1+商超券<br>"+
+    "• 电信独有：翼支付每周5元消费券、家教兼职、数码优惠、无需安装全校即用<br>"+
+    "• 移动独有：芒果/咪咕会员、4T云盘、健身房优惠、三人成团/新生抽奖<br>"+
+    "• 两家共同：同为39元/月、四年不涨价、7/8月免费用、预存100元、免费理发、四六级耳机、驾校优惠<br>"+
+    "<div class='warn'>⚠️ 不要信\"办了校园卡才能选课、订教材\"——校园卡和选课无关。建议到校后去商业街1楼两家营业厅现场对比后选择。</div><br>"+
+    "<b>2）推销床单被子</b>：新生群里加好友推销的，品质售后无保证。自己带或寄快递到菜鸟驿站。<br><br>"+
+    "<b>3）\"学长学姐\"上门推销英语培训班</b>：大一刚开学很猖獗，大部分甚至不是本校学生，卷钱跑路多！<br><br>"+
+    "<b>4）扫码领奖品</b>：盗取个人信息，不要贪小利。<br><br>"+
+    "<b>5）邮箱钓鱼</b>：冒充\"老师\"的邮件让你确认成绩/报名竞赛，不要信不要点链接！老师不会通过邮箱通知任务。<br><br>"+
+    "<b>6）钓鱼网站</b>：写个人信息时反复确认网站真实性，不要轻易上传证件照。<br><br>"+
+    "<div class='danger'>核心原则：凡是让你<b>转账、缴费、提供验证码</b>的，一律先核实！所有缴费走学校官方渠道！</div>"
+},
+{
+  q:["选课","抢课","教务","课表","成绩","绩点","GPA","权重","学分","评教","英语分班","体育课"],
+  a:"<b>选课攻略</b><br><br>"+
+    "<b>大一上</b>：主课系统自动选好，你只需选：<br>"+
+    "• <span class='tag'>体育课</span>（必选）<br>"+
+    "• <span class='tag'>新生研讨课</span>（部分专业代选）<br>"+
+    "• <span class='tag'>人类文明经典赏析</span>（强烈建议大一上就抢掉！）<br><br>"+
+    "<b>权重选课法</b>：每人100分权重，不是先到先得<br>"+
+    "• <b>A平台</b>（专业课）：两门课狠砸确保最满意老师<br>"+
+    "• <b>B平台</b>（体育&美育）：热门课砸100分！投99分都是浪费<br>"+
+    "• <b>C平台</b>（跨专业）：除非特别感兴趣，不要选<br><br>"+
+    "<b>选课Tips</b>：<br>"+
+    "• 投分别投5的整数倍，加1—2分（如11、47）<br>"+
+    "• 讲师比教授平时分更高，挂科率也低<br>"+
+    "• 选修课一定为了兴趣，不是学分<br>"+
+    "• 入学后有英语分班考试，分A/B/C班<br>"+
+    "• 两次转专业机会：大一入学拔尖班选拔、大一下转专业"
+},
+{
+  q:["老师","教师","评价","微积分","大物","物理","电路","电子电路","英语","选修","推荐老师","避坑"],
+  a:"<b>热门推荐教师</b>（仅供参考，以实际为准）<br><br>"+
+    "<b>微积分</b>：李莉（认真细致给分不错）、雷雨（大热门给分高）、朱钦圣（幽默不点名期末捞人）<br><br>"+
+    "<b>大学物理</b>：吴明和（不点名给分高）、李莉（细致给分挺高）、雷雨（大热门）<br><br>"+
+    "<b>电路分析</b>：钟洪声（认真负责）、董爱军（不点名捞人）、王静（人美心善）、孔谋夫（讲得好）<br>"+
+    "避坑：何松柏（不会讲课）、陈晓行（不清晰给分低）、范录宏（节奏慢）<br><br>"+
+    "<b>电子电路</b>：游长江（人好清晰）、谢建志（\"谢不挂\"YYDS）、王玉兰（细致负责）、陈骏莲（亲妈级）<br>"+
+    "避坑：汪玲（给分低事多）<br><br>"+
+    "<b>体育</b>：马强（羽毛球，轻松给分高，强烈推荐）、彭福栋（篮球大水）、李长江（足球90+）、游泳课（抢不到）、无线电测向（无脑冲）<br>"+
+    "避坑：周鹏（足球给分低）、向红（瑜伽点名严）、谢蓉（乒乓签到严）<br><br>"+
+    "<b>选修推荐</b>：数学建模（90+）、信息科技与社会发展（从不点名）、帮你上头条、经典音乐会鉴赏<br>"+
+    "<b>选修避坑</b>：电影鉴赏（蔡晓鸥期末出微电影）、文化与思维（很难）<br>"+
+    "<div class='warn'>⚠️ 以上信息有主观性，部分可能因教师变动而不同，仅供参考</div>"
+},
+{
+  q:["军训","新骨营","骨干","入学教育","体测","新骨营","军事训练","开训","兵役登记"],
+  a:"<b>新生骨干训练营</b><br>"+
+    "• 选拔100-120名新生，<b>8月23日</b>提前到校<br>"+
+    "• 关注\"<b>成电学工</b>\"公众号，输入\"新生骨干训练营\"报名<br>"+
+    "• 8届历史，培养信念坚定、敢担当的后备力量<br>"+
+    "<span class='tag'>强烈推荐</span> 提前来校熟悉环境+认识辅导员学长学姐<br><br>"+
+    "<b>军训</b>：<br>"+
+    "• <span class='tag'>8月31日</span>下午开训典礼<br>"+
+    "• <b>8月31日至9月12日</b>军事技能训练<br>"+
+    "• 服装报到时领取<br>"+
+    "• 身体原因不能参加需医院证明办免训<br><br>"+
+    "<b>兵役登记</b>：<br>"+
+    "• 年满18周岁男性公民，入学前<b>必须</b>兵役登记<br>"+
+    "• 登录\"全国征兵网\"（gfbzb.gov.cn）<br>"+
+    "• 开学报到时打开网站查验登记结果<br>"+
+    "• 港澳台侨学生和留学生除外<br><br>"+
+    "<b>体测</b>：大学期间共四次，关注\"成电第三空间\"公众号"
+},
+{
+  q:["住宿","酒店","宾馆","民宿","家长","提前到","周边住宿"],
+  a:"<b>周边住宿方案</b>（龙湖时代天街片区，步行5—15分钟到校区）<br><br>"+
+    "<b>经济型 80—150元/晚</b>：<br>"+
+    "• 7天酒店（电子科大店）—连锁评分4.8，性价比最高<br>"+
+    "• 西西里投影公寓 —民宿风格有投影仪<br>"+
+    "• 泓涵酒店 —楼下美食街<br><br>"+
+    "<b>舒适型 150—250元/晚</b>：<br>"+
+    "• 维利亚酒店 —大运会接待酒店，免费停车洗衣<br>"+
+    "• 好记优享酒店 —距西门600米，高楼安静<br><br>"+
+    "<b>品质型 250—350元/晚</b>：<br>"+
+    "• 全季酒店 —2025年新开，免费洗衣健身停车<br>"+
+    "• 朴舍酒店 —设计感强，自助早餐<br><br>"+
+    "<b>省钱建议</b>：提前2—3周预订；多平台比价（携程/美团/飞猪）；家长拼双床房人均减半；民宿2—3人更划算"
+},
+{
+  q:["行前","必带","物品","准备","行李","清单","证件"],
+  a:"<b>行前必带清单</b><br><br>"+
+    "<b>必带证件</b>：<br>"+
+    "• 录取通知书原件<br>"+
+    "• 身份证原件+复印件3份<br>"+
+    "• 1寸免冠证件照4张<br>"+
+    "• 本人银行卡<br>"+
+    "• 新生档案（未统一邮寄者）<br>"+
+    "• 团组织关系材料<br>"+
+    "• 户口迁移证（自愿）<br><br>"+
+    "<b>生活用品</b>：<br>"+
+    "• 床上：被褥床单枕头（也可到校购买/选房时订购配送）<br>"+
+    "• 洗漱：牙刷毛巾沐浴露洗发水<br>"+
+    "• 衣物：当季衣物+外套（成都多雨）+拖鞋<br>"+
+    "• 电子：手机电脑充电器排插<br>"+
+    "• 学习：笔笔记本书包<br>"+
+    "• 药品：感冒药肠胃药创可贴<br>"+
+    "• 其他：<span class='tag'>雨伞</span>（成都经常下雨）、水杯、衣架<br><br>"+
+    "<div class='warn'>⚠️ 成都8月底约30°C且多雨，防暑+带雨具；报到后尽快支付宝绑定充值一卡通</div>"
+},
+{
+  q:["校园","概况","校史","历史","建筑","图书馆","银杏","校区","简介","地址"],
+  a:"<b>校区概况</b><br><br>"+
+    "电子科技大学清水河校区——<br>"+
+    "• 1956年建校，原名成都电讯工程学院（\"成电\"）<br>"+
+    "• 国防七子之一、211/985/双一流A类<br>"+
+    "• <span class='tag'>2026年是建校七十周年</span><br>"+
+    "• 地址：成都市高新区（西区）西源大道2006号<br>"+
+    "• 占地4000余亩，数字化绿色校园<br><br>"+
+    "<b>标志性建筑</b>：<br>"+
+    "• <b>图书馆（八角书斋）</b>：五层+研讨室+免费电影院<br>"+
+    "• <b>品学楼</b>：\"品\"字形，大一上课主战场<br>"+
+    "• <b>银杏大道</b>：秋天金黄时超美，游客专门来拍照<br>"+
+    "• <b>东湖/西湖</b>：可找到黑天鹅<br>"+
+    "• <b>钢琴小屋</b>：南门体育馆旁，线上预约免费弹"
+},
+{
+  q:["打印","复印","文印"],
+  a:"<b>打印文件</b><br><br>"+
+    "• 文印中心：0.12元/张<br>"+
+    "• 品学楼/宿舍楼底打印机：黑白单面0.2元/页，彩色单面0.8元/页<br>"+
+    "• 使用方式：文件发微信文件传输助手→扫码进入小程序→选文件支付即可打印"
+},
+{
+  q:["体育","场馆","游泳","健身","篮球","网球","羽毛球","乒乓球","预约"],
+  a:"<b>体育场馆</b><br><br>"+
+    "<b>南门体育馆</b>：田径场、室内篮球、游泳馆、健身房、台球室等<br>"+
+    "<b>综合训练馆</b>：羽毛球、乒乓球、篮球、网球、排球、五人足球等<br><br>"+
+    "<b>使用方式</b>：<br>"+
+    "1. 关注\"<b>成电第三空间</b>\"公众号<br>"+
+    "2. 南门体育馆窗口办卡（带学生证）<br>"+
+    "3. 公众号→功能→场馆预约（绑定体育卡后手机操作）"
+},
+{
+  q:["社团","活动","百团大战","论坛","公众号","学生组织"],
+  a:"<b>校园组织与活动</b><br><br>"+
+    "• 社团招新\"百团大战\"：开学后，涵盖思想政治/体育/志愿/文化/学术五大类<br>"+
+    "• 新生杯歌手大赛、电竞之星、成电舞台/讲坛/辩坛<br>"+
+    "• 清水河畔论坛（bbs.uestc.edu.cn）：官方学生论坛<br>"+
+    "• 成电在线（企业微信）：官方移动服务平台<br><br>"+
+    "<b>必关注公众号</b>：<br>"+
+    "• 成电学工 —学生工作/奖助学金/就业<br>"+
+    "• 电子科技大学教务处 —选课通知<br>"+
+    "• 成电后勤 —食堂信息/后勤服务<br>"+
+    "• 成电第三空间 —体育/体测<br>"+
+    "• 成电微后勤 —微宿舍选房"
+},
+{
+  q:["网络","WiFi","上网","VPN","校园网"],
+  a:"<b>校园网络</b><br><br>"+
+    "• 校园WiFi：<b>UESTC-WIFI</b>，用学号+密码免费登录<br>"+
+    "• 教学区和图书馆覆盖好，室外和宿舍区覆盖较差<br>"+
+    "• 数字资源24小时开放，校外通过VPN或CARSI认证访问<br>"+
+    "• 自助图书馆：行政主楼五楼及品悦吧外，24小时运行"
+},
+{
+  q:["转专业","拔尖","英才","珠峰","大类分流"],
+  a:"<b>转专业与拔尖班</b><br><br>"+
+    "<b>拔尖班选拔</b>（大一入学时）：<br>"+
+    "英才班、珠峰班、双A班、强芯铸魂班等，各学院通知不同<br><br>"+
+    "<b>转专业</b>（大一下学期）：<br>"+
+    "各学院有转专业通知和要求，一般需面试+成绩排名<br><br>"+
+    "<b>大类分流</b>（大二）：<br>"+
+    "部分学院按大类招生，大二按成绩和志愿分配专业"
+},
+{
+  q:["勤工助学","兼职","助学金","助学贷款","绿色通道"],
+  a:"<b>勤工助学与资助</b><br><br>"+
+    "• 学校提供勤工助学岗位，可申请校内兼职<br>"+
+    "• 家庭经济困难可关注：绿色通道、国家助学金、助学贷款<br>"+
+    "• 学生资助管理中心电话：<b>028-61831097</b><br>"+
+    "• 学校承诺：<b>决不让一个学生因家庭经济困难而失学</b><br>"+
+    "• 详见随录取通知书寄送的《电子科技大学本科学生资助政策简介》"
+},
+{
+  q:["学费","收费","费用","学费多少","收费一览","收费标准","住宿费","体检费"],
+  a:"<b>2026级新生收费标准（官方）</b><br><br>"+
+    "<b>一般理工科专业</b>：学费6500+住宿费1200+体检费153.03 = <span class='tag'>7853.03元</span><br>"+
+    "<b>文科/经管专业</b>：学费6000+住宿费1200+体检费153.03 = <span class='tag'>7353.03元</span><br>"+
+    "<b>软件工程</b>：学费9800+住宿费1000/1200+体检费153.03 = <span class='tag'>10953-11153元</span><br>"+
+    "<b>临床医学</b>：学费7200+住宿费1000/1200+体检费153.03 = <span class='tag'>8353-8553元</span><br>"+
+    "<b>中外合作办学</b>：学费100000+住宿费1200+体检费153.03/208 = <span class='tag'>约101353元</span><br><br>"+
+    "<div class='warn'>⚠️ 住宿费按实际住宿条件收取，以选房后缴费平台数据为准。详见 cwjj.uestc.edu.cn</div>"+
+    "<b>其他费用</b>：<br>"+
+    "• 英语耳机：24.5元/副（入学时选购）<br>"+
+    "• 城乡居民医保：按成都市最新标准执行，学校统一录入参保信息"
+},
+{
+  q:["缴费方式","怎么缴费","缴费指南","支付宝缴费","微信缴费","网银缴费","绿色通道","助学贷款缴费"],
+  a:"<b>缴费方式（2026官方）</b><br><br>"+
+    "<div class='warn'>建议8月25-27日完成网上缴费！</div><br>"+
+    "<b>登录方式</b>：用户名=学号，密码=身份证后6位+\"aA=\"（共9位，如123456aA=，X需大写）<br><br>"+
+    "<b>支付宝缴费</b>：<br>"+
+    "• 方式1：支付宝扫码→学杂费<br>"+
+    "• 方式2：支付宝搜\"电子科技大学\"→生活号→缴费大厅→学杂费<br><br>"+
+    "<b>微信缴费</b>：<br>"+
+    "• 方式1：微信扫码→电子科大计划财务处→师生缴费→马上缴费→微信缴费登录<br>"+
+    "• 方式2：微信搜\"电子科大计划财务处\"→师生缴费→马上缴费<br><br>"+
+    "<b>网银缴费</b>：访问电子科技大学缴费平台 <b>cwjf.uestc.edu.cn</b><br>"+
+    "<b>现场缴费</b>：自助缴费机/刷卡/现金<br><br>"+
+    "<b>助学贷款</b>：<br>"+
+    "• 生源地贷款：汇款至学校建行账户（5100 1908 6080 5900 0888），注明姓名学号<br>"+
+    "• 校园地贷款：无需到财务处，贷款到账后自动冲抵学费<br>"+
+    "• 计财处电话：<b>028-61830870</b>"
+},
+{
+  q:["户口","户口迁移","迁移证","落户","户口迁移地址"],
+  a:"<b>户口迁移（自愿）</b><br><br>"+
+    "<b>办理方式</b>：凭录取通知书+身份证到户口所在地公安机关办理<br><br>"+
+    "<b>迁移地址</b>：<br>"+
+    "• 信息与软件工程学院、医学院 → 四川省成都市建设北路二段4号<br>"+
+    "• 格拉斯哥海南学院 → 海南省陵水黎族自治县黎安镇博学大道23号<br>"+
+    "• 其他学院 → 四川省成都市高新区西源大道2006号<br>"+
+    "  （如当地无\"高新区\"代码，可用\"四川省成都市武侯区西源大道2006号\"）<br><br>"+
+    "<b>核对重点</b>：<br>"+
+    "• 姓名必须与录取通知书一致<br>"+
+    "• 出生日期、民族、出生地/籍贯（须到省市县）<br>"+
+    "• 身份证号码（18位）<br>"+
+    "• 骑缝处+右下角必须盖户口专用章，修改处也要盖章<br>"+
+    "• 入学后按学院通知提交资料<br><br>"+
+    "<div class='warn'>⚠️ 户口迁移需办理时间，急需用身份证的同学建议在迁出前先办好身份证！</div>"
+},
+{
+  q:["党团","团员","党员","组织关系","团组织","智慧团建","转接","入党","团支部"],
+  a:"<b>党团组织关系转接</b><br><br>"+
+    "<b>新生党员</b>：<br>"+
+    "• 到中学所在地党组织或党委组织部门办理<br>"+
+    "• 联系电子科技大学党委组织部（党校办公室）<br>"+
+    "• 电话：<b>028-61831251</b><br><br>"+
+    "<b>新生团员</b>：<br>"+
+    "• 入学报到后，在<b>智慧团建系统</b>（zhtj.youth.cn/zhtj/）中转接到所在团支部<br>"+
+    "• 团员资料随人事档案转入，或本人携带到校后交给辅导员<br>"+
+    "• 关注\\\"<b>成电青年</b>\\\"公众号，回复\"院级组织\"获取团组织名称，回复\"组织关系转接\"获取详细操作说明"
+},
+{
+  q:["英语","英语考试","英语分班","英语入学","大学英语","分级教学","听力","耳机"],
+  a:"<b>大学英语入学考试</b><br><br>"+
+    "<b>考试时间</b>：<span class='tag'>2026年8月29日 14:30-16:30</span><br>"+
+    "<b>考试对象</b>：英才实验学院、格拉斯哥学院、格拉斯哥海南学院<b>除外</b>的新生<br>"+
+    "<b>考试题型</b>：听力+完形+阅读+写作（客观+主观）<br><br>"+
+    "<b>分级教学</b>（根据考试成绩分班）：<br>"+
+    "• <b>通用英语（拓展）</b>：重点培养思辨和英语演讲能力<br>"+
+    "• <b>通用英语（提高）</b>：中高级阅读/写作/听说，项目式混合教学<br>"+
+    "• <b>通用英语（基础）</b>：听说读写综合夯实，信息化辅助教学<br><br>"+
+    "<div class='warn'>⚠️ 每位同学必须配备能接收84兆赫调频广播+音频广播的耳机！学校报到时提供选购（24.5元/副）</div>"
+},
+{
+  q:["安全","安全教育","安全考试","平安成电","防范诈骗","防骗考试","入学考试"],
+  a:"<b>新生安全教育及考试</b><br><br>"+
+    "<b>学习/考试时间</b>：<span class='tag'>2026年8月20日-26日</span><br>"+
+    "<b>重要性</b>：国家安全教育是<b>自主修读必修课，计1学分</b>！<br><br>"+
+    "<b>操作步骤</b>：<br>"+
+    "1. 搜索关注\\\"<b>平安成电</b>\\\"微信公众号<br>"+
+    "2. 进入【账号信息】→【个人信息】绑定本科生身份<br>"+
+    "3. 选择【综合服务】→【安全教育】统一身份认证后学习和考试<br>"+
+    "4. 满分100分，<b>≥80分合格</b>，答题时间2小时，不合格可补考3次<br>"+
+    "5. 开学报到时须向学院出示<b>考试合格截图</b><br><br>"+
+    "• 课程支持邮箱：zhian@uestc.edu.cn"
+},
+{
+  q:["医疗","健康","体检","医保","社保卡","医院","校医院","结核病"],
+  a:"<b>医疗健康须知</b><br><br>"+
+    "<b>入学体检</b>：<br>"+
+    "• 关注\\\"<b>电子科技大学医院</b>\\\"公众号下载体检表、查看流程<br>"+
+    "• 或登录 hospital.uestc.edu.cn 下载<br>"+
+    "• 新生入学体检含<b>结核病筛查</b>（四川省教育厅要求）<br><br>"+
+    "<b>成都市社保卡</b>：<br>"+
+    "• 参加成都市城乡居民医保的参保新生，本人前往成都市内银行网点办理<br>"+
+    "• 门诊/住院使用方法详见电子科技大学医院官方微信<br><br>"+
+    "<b>海南校区社保卡</b>：<br>"+
+    "• 前往陵水黎族自治县内银行网点办理<br>"+
+    "• 陵水县医保局咨询电话：<b>0898-83328230</b><br><br>"+
+    "<b>校医院电话</b>：<br>"+
+    "• 清水河：<b>028-61830397</b>（工作日9-12/13-17）<br>"+
+    "• 沙河：<b>028-83200228</b>（工作日8:30-12/14:30-18）<br>"+
+    "• 夜间/其他：<b>13518194790</b>（清水河/沙河）"
+},
+{
+  q:["电话","咨询电话","值班电话","联系学校","保卫处","教务处","学工部","信息中心","热线"],
+  a:"<b>相关部门值班电话</b><br><br>"+
+    "<b>学生工作部</b>（报到咨询）：<br>"+
+    "• <b>028-61830078</b>（工作日9-12/14-17；报到期间9-18）<br><br>"+
+    "<b>教务处</b>（招生咨询）：<br>"+
+    "• <b>028-61831137</b>（工作日9-12/14-17）<br><br>"+
+    "<b>后勤保障部</b>（住宿咨询）：<br>"+
+    "• 清水河：<b>028-61830144</b> / 沙河：<b>028-83201090</b> / 海南：<b>0898-83070777</b><br><br>"+
+    "<b>保卫处24小时</b>：<br>"+
+    "• 清水河：<b>028-61830110</b> / <b>028-61830119</b><br>"+
+    "• 沙河：<b>028-83200110</b> / <b>028-83202241</b><br>"+
+    "• 海南：<b>0898-83073110</b><br><br>"+
+    "<b>信息中心</b>：<b>028-61831184</b>（工作日9-12/13-17）<br>"+
+    "<b>学生资助管理中心</b>：<b>028-61831097</b><br>"+
+    "<b>计财处</b>：<b>028-61830870</b>"
+},
+{
+  q:["校友","校友会","加入校友会","欢送新生"],
+  a:"<b>校友会</b><br><br>"+
+    "• 搜索关注\\\"<b>电子科技大学校友会</b>\\\"官方微信<br>"+
+    "• 扫码获取各地校友会联络表，加入所在地校友会微信群<br>"+
+    "• 部分校友会7-8月举办\\\"欢送新生入学\\\"活动<br>"+
+    "• 校友们会分享经验心得资源，帮助新生解决学习生活问题"
+},
+{
+  q:["通勤","班车","清水河沙河","两校区","天府行"],
+  a:"<b>两校区通勤班车</b><br><br>"+
+    "• 关注\\\"<b>成电后勤</b>\\\"公众号<br>"+
+    "• 通过\\\"综合服务→天府行\\\"进入微信小程序<br>"+
+    "• 完成个人信息绑定后可预约清水河↔沙河校区通勤班车"
+}
+];
+
+// 搜索匹配
+function findAnswer(query){
+  var q = query.toLowerCase();
+  var hits = [];
+  KB.forEach(function(item){
+    var score = 0;
+    item.q.forEach(function(kw){
+      if(q.indexOf(kw)>=0) score += kw.length; // 关键词越长权重越高
+    });
+    // 也检查答案中是否包含查询词
+    if(item.a.toLowerCase().indexOf(q.substring(0,4))>=0) score += 1;
+    if(score > 0) hits.push({score:score, item:item});
+  });
+  hits.sort(function(a,b){return b.score-a.score});
+  if(hits.length > 0) return hits[0].item.a;
+  return null;
+}
+
+// 默认兜底回答
+var defaultReply = "这个问题我暂时没有收录，你可以试试换个关键词问我，比如：<br>"+
+  "• \"报到\" / \"报到时间\"<br>"+
+  "• \"交通\" / \"怎么去学校\"<br>"+
+  "• \"学费\" / \"收费标准\"<br>"+
+  "• \"缴费方式\" / \"怎么缴费\"<br>"+
+  "• \"户口迁移\"<br>"+
+  "• \"英语考试\" / \"英语分班\"<br>"+
+  "• \"安全教育\" / \"安全考试\"<br>"+
+  "• \"宿舍\" / \"选房\"<br>"+
+  "• \"防骗\" / \"防诈骗\"<br>"+
+  "• \"选课\" / \"老师评价\"<br>"+
+  "• \"食堂\" / \"一卡通\"<br>"+
+  "• \"部门电话\" / \"咨询电话\"<br><br>"+
+  "或者点击右上角 ☰ 查看全部话题目录";
+
+// 发送消息
+function send(){
+  var input = document.getElementById('input');
+  var text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  addMsg('user', text);
+
+  // 模拟AI思考延迟
+  setTimeout(function(){
+    var answer = findAnswer(text);
+    if(!answer) answer = defaultReply;
+    addMsg('ai', answer);
+  }, 300 + Math.random()*400);
+}
+
+function ask(text){
+  document.getElementById('input').value = text;
+  send();
+}
+
+function addMsg(type, html){
+  var chat = document.getElementById('chat');
+  var div = document.createElement('div');
+  div.className = 'msg ' + type;
+  div.innerHTML = '<div class="avatar">' + (type==='ai'?'AI':'Me') + '</div><div class="bubble">' + html + '</div>';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// 关闭引导横幅
+function closeBar(){
+  document.getElementById('gbar').style.display='none';
+}
+
+// 点击引导横幅
+function openGuide(){
+  window.open('https://www.ctyun.cn/document/10026992/11096630','_blank');
+}
+
+// 侧边栏
+function toggleSide(){
+  document.getElementById('smask').classList.toggle('show');
+  document.getElementById('spanel').classList.toggle('show');
+}
+</script>
+</body>
+</html>
