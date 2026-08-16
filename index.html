@@ -3663,8 +3663,13 @@ var SYNONYMS={
   '床':'宿舍 床铺 床位 床垫','网':'校园网 wifi 网络 宽带','饭':'食堂 吃饭 餐厅 美食',
   '卡':'校园卡 一卡通 银行卡 电话卡','钱':'费用 缴费 学费 费用','到校':'报到 交通 到校路线',
   '转专业':'转专业 换专业','选课':'选课 课程 课表','四级':'英语 四级 六级 考试',
-  '军训':'军训 体测','wifi':'校园网 无线 网络','电话':'联系电话 电话 联系方式',
-  '快递':'快递 邮寄 拿快递','取款':'取款 atm 银行','洗':'洗澡 热水 洗衣'
+  '军训':'军训 体测 训练','wifi':'校园网 无线 网络','电话':'联系电话 电话 联系方式',
+  '快递':'快递 邮寄 拿快递','取款':'取款 atm 银行','洗':'洗澡 热水 洗衣',
+  '手机':'手机 上课 收手机','体检':'体检 入学体检 检查','几人':'几人 四人 六人 人间',
+  '停电':'断电 停电 供电','热水':'热水 洗澡 供水','违禁':'违禁 电器 没收',
+  '校园网':'校园网 wifi 宽带 上网 流量','租房':'租房 房租 住宿','外卖':'外卖 送餐',
+  '自习':'自习 自习室 图书馆 学习','社团':'社团 组织 活动','兼职':'兼职 打工 赚钱',
+  '报到':'报到 入学 注册 新生','宿舍':'宿舍 寝室 住宿 床位 房间'
 };
 
 function expandQuery(q){
@@ -3696,14 +3701,17 @@ function aiSearch(query){
     // Q&A标题全句子串匹配：用户输入包含在标题中，或标题包含用户输入
     if(block.isQA){
       var tLower=block.title.toLowerCase();
-      if(tLower.indexOf(qLower)>=0||qLower.indexOf(tLower.substring(0,6))>=0) score+=10;
-      // Q&A标题关键词高权重匹配
-      var qChars=qLower.replace(/[，？？！!、]/g,'').split('');
+      // 原始query直接子串匹配
+      if(tLower.indexOf(qLower)>=0||qLower.indexOf(tLower.substring(0,8))>=0) score+=10;
+      // Q&A标题逐字符匹配
+      var qChars=qLower.replace(/[，？？！!、的吗呢吧了呀]/g,'').split('');
       var titleHitCount=0;
       qChars.forEach(function(c){
-        if(c.length===1 && block.title.indexOf(c)>=0) titleHitCount++;
+        if(c.trim().length>0 && block.title.indexOf(c)>=0) titleHitCount++;
       });
-      if(titleHitCount>=3) score+=6;
+      // 至少3个字符命中才加分，比例越高分越高
+      var hitRatio=titleHitCount/Math.max(qChars.filter(function(c){return c.trim().length>0}).length,1);
+      if(hitRatio>=0.5) score+=Math.round(hitRatio*8);
     }
     qTokens.forEach(function(qt){
       // 标题中命中权重更高
