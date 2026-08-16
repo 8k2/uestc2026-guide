@@ -10,8 +10,12 @@
 body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;background:var(--dark);color:var(--text);font-size:14px;line-height:1.6;overflow:hidden;height:100vh;height:100dvh}
 
 /* === 顶栏 === */
-.topbar{position:fixed;top:0;left:0;right:0;height:44px;z-index:100;display:flex;align-items:center;padding:0 16px;background:rgba(10,14,39,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,0.08)}
+.topbar{position:fixed;top:0;left:0;right:0;height:44px;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(10,14,39,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,0.08)}
+.topbar-left{display:flex;align-items:center;gap:8px}
 .topbar-title{font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.topbar-contact{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--gold);cursor:pointer;opacity:0.85;transition:opacity .2s;-webkit-user-select:none;user-select:none}
+.topbar-contact:active{opacity:1}
+.topbar-contact-icon{font-size:16px}
 
 /* === 页面容器 === */
 .pages{position:fixed;top:44px;left:0;right:0;bottom:50px;overflow:hidden}
@@ -155,7 +159,23 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 
 <!-- 顶栏 -->
 <div class="topbar">
-  <div class="topbar-title">BK成电圈主全能版</div>
+  <div class="topbar-left">
+    <div class="topbar-title">BK成电圈主全能版</div>
+  </div>
+  <div class="topbar-contact" onclick="openContactQR()">
+    <span class="topbar-contact-icon">📱</span>圈主联系方式
+  </div>
+</div>
+
+<!-- 圈主联系方式弹窗 -->
+<div id="contactModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:400;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center" onclick="closeContactQR(event)">
+  <div style="background:linear-gradient(135deg,#0a0e27,#0d1535);border:1px solid rgba(255,215,0,0.2);border-radius:18px;padding:24px 20px;max-width:300px;width:85%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5)" onclick="event.stopPropagation()">
+    <div style="font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px">圈主联系方式</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px">众友圈科技 · 新生服务负责人</div>
+    <img src="contact_qr.jpg" style="width:180px;height:180px;border-radius:12px;border:1px solid rgba(255,215,0,0.15);margin:0 auto 12px" alt="圈主企业微信二维码">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">扫描二维码，添加圈主企业微信<br>入学问题随时问，圈主全程帮你搞定</div>
+    <div onclick="closeContactQR(event)" style="display:inline-block;padding:8px 28px;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,170,0,0.1));border:1px solid rgba(255,215,0,0.3);border-radius:20px;color:var(--gold);font-size:14px;font-weight:600;cursor:pointer">关闭</div>
+  </div>
 </div>
 
 <!-- 页面容器 -->
@@ -177,30 +197,6 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <div class="hero-welcome">Welcome to UESTC</div>
     </div>
     <div class="hero-vol" id="heroVol" onclick="toggleVol()">🔇</div>
-  </div>
-
-  <!-- 圈主名片 -->
-  <div class="boss-card">
-    <div class="boss-banner"><img src="boss_avatar.jpg" alt="圈主形象"></div>
-    <div class="boss-body">
-      <div class="boss-avatar"><img src="boss_avatar.jpg" alt="圈主头像"></div>
-      <div class="boss-info">
-        <div class="boss-name"><span class="crown">👑</span>成电圈主</div>
-        <div class="boss-title">众友圈科技 · 新生服务负责人</div>
-        <div class="boss-tags">
-          <span>入学指南</span>
-          <span>校园生活</span>
-          <span>专业规划</span>
-        </div>
-      </div>
-      <div class="boss-qr">
-        <img src="contact_qr.jpg" alt="圈主企业微信二维码">
-        <div class="boss-qr-label">扫码添加</div>
-      </div>
-    </div>
-    <div class="boss-cta">
-      <div class="boss-cta-text">📱 <b>圈主联系方式</b> — 扫码添加圈主企业微信，入学问题随时问！<br>报到引导、选课避坑、校园生活、专业规划，圈主全程帮你搞定</div>
-    </div>
   </div>
 
   <div class="search-box" onclick="openSearch()">
@@ -3464,6 +3460,16 @@ panel.addEventListener('touchend',function(e){
     }
   };
 })();
+
+// 圈主联系方式弹窗
+window.openContactQR=function(){
+  var m=document.getElementById('contactModal');
+  m.style.display='flex';
+};
+window.closeContactQR=function(e){
+  if(e&&e.target&&e.target.id!=='contactModal'&&e.type==='click'){return}
+  document.getElementById('contactModal').style.display='none';
+};
 </script>
 </body>
 </html>
