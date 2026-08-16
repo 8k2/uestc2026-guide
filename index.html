@@ -3689,16 +3689,29 @@ function expandQuery(q){
   return Array.from(new Set(expanded));
 }
 
+// 中文bigram提取：从连续中文字符串中提取所有2字窗口
+function chineseBigrams(str){
+  var clean=str.replace(/[^\u4e00-\u9fa5]/g,'');
+  var result=[];
+  for(var i=0;i<clean.length-1;i++){
+    result.push(clean[i]+clean[i+1]);
+  }
+  return result;
+}
+
 // 检索：计算每个知识块的相关度评分
 function aiSearch(query){
   buildAIKB();
   var qTokens=expandQuery(query);
   var qLower=query.toLowerCase();
-  // 提取核心概念词（去除语气词、疑问词等）
-  var STOP_WORDS=['吗','呢','的','了','怎么','什么','如何','能否','可以','要不要','需不需要','啊','吧','呀','嘛','呢'];
-  var qCoreRaw=tokenize(qLower.replace(/[，？？！!、]/g,' '));
-  var qCoreWords=qCoreRaw.filter(function(w){return STOP_WORDS.indexOf(w)<0 && w.length>0});
-  // 对Q&A做直接核心词匹配，如果标题或内容同时包含多个核心词则大幅加分
+  // 提取核心概念词（中文bigram + tokenize结果，去除语气词）
+  var STOP_CHARS='吗呢的了啊吧呀嘛';
+  var STOP_WORDS=['怎么','什么','如何','能否','可以','要不要','需不需要'];
+  var qClean=query.replace(/[，？？！!、]/g,'').replace(new RegExp('['+STOP_CHARS+']','g'),'');
+  // 去除停用词
+  STOP_WORDS.forEach(function(sw){qClean=qClean.replace(sw,'')});
+  var qCoreWords=chineseBigrams(qClean); // 得到["校园","园网"]
+  // 对Q&A做直接核心词匹配，如果标题或内容同时包含多个核心bigram则大幅加分
   var qaBoostTitles={};
   if(typeof QQ_CHANNEL_QA!=='undefined'){
     QQ_CHANNEL_QA.forEach(function(item,idx){
@@ -3707,8 +3720,8 @@ function aiSearch(query){
       qCoreWords.forEach(function(w){
         if(w.length>=2 && tContent.indexOf(w)>=0) hitCount++;
       });
-      if(hitCount>=2) qaBoostTitles[item.q]=hitCount*8;
-      else if(hitCount===1 && qCoreWords.length<=2) qaBoostTitles[item.q]=hitCount*5;
+      if(hitCount>=2) qaBoostTitles[item.q]=hitCount*10;
+      else if(hitCount===1 && qCoreWords.length<=2) qaBoostTitles[item.q]=hitCount*6;
     });
   }
   var scored=[];
@@ -3721,29 +3734,27 @@ function aiSearch(query){
       // 原始query直接子串匹配
       if(tLower.indexOf(qLower)>=0||qLower.indexOf(tLower.substring(0,8))>=0) score+=10;
       // Q&A标题逐字符匹配（去除无意义语气词）
-      var qChars=qLower.replace(/[，？？！!、的吗呢吧了呀怎么]/g,'').split('');
+      var qChars=qClean.split('');
       var titleHitCount=0;
-      var meaningfulQChars=qChars.filter(function(c){return c.trim().length>0});
-      meaningfulQChars.forEach(function(c){
-        if(block.title.indexOf(c)>=0) titleHitCount++;
+      qChars.forEach(function(c){
+        if(c.trim().length>0 && block.title.indexOf(c)>=0) titleHitCount++;
       });
       // 至少3个字符命中才加分，比例越高分越高
-      var hitRatio=titleHitCount/Math.max(meaningfulQChars.length,1);
+      var hitRatio=titleHitCount/Math.max(qChars.filter(function(c){return c.trim().length>0}).length,1);
       if(hitRatio>=0.5) score+=Math.round(hitRatio*8);
-      // 如果query中的核心词组（2字以上）完整出现在标题中，额外加分
-      var qTitleWords=tokenize(qLower.replace(/[，？？！!、的吗呢吧了呀]/g,' '));
-      qTitleWords.forEach(function(w){
+      // 如果query中的核心bigram完整出现在标题中，额外加分
+      qCoreWords.forEach(function(w){
         if(w.length>=2 && block.title.toLowerCase().indexOf(w)>=0) score+=6;
       });
     }
-    // 核心概念词组合在内容中的匹配加分
+    // 核心bigram在内容中的匹配加分
     qCoreWords.forEach(function(w){
       if(w.length>=2){
         var combined=(block.title+' '+block.content).toLowerCase();
         if(combined.indexOf(w)>=0) score+=3;
       }
     });
-    // Q&A核心词组合Boost
+    // Q&A核心bigram组合Boost
     if(block.isQA && qaBoostTitles[block.title]) score+=qaBoostTitles[block.title];
     qTokens.forEach(function(qt){
       // 标题中命中权重更高
