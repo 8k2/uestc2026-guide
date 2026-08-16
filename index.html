@@ -3577,34 +3577,70 @@ function buildAIKB(){
   officialData.forEach(function(item){
     AI_KB.push(item);
   });
-  // 注入QQ频道校友问答（来源：电子科技大学丨成电频道，2.54万成员）
-  var qqChannelData=[
-    {key:'QQ频道',title:'宿舍几人间及独立卫生间',content:'清水河校区宿舍为四人间，沙河校区有三人间和六人间。宿舍均有独立卫生间。空调一年四季都能用。晚上不会断电断网。可以挂床帘。衣柜较小，28寸行李箱可能放不下，可以放在门和宿舍床之间的空地。'},
-    {key:'QQ频道',title:'宿舍违禁电器与检查',content:'卷发棒严格意义上算违禁电器但其实不怎么查。吹风机没有功率限制，宿舍不限功率，但明面上也是违禁电器，记得放好。小电锅也是违禁物，操作空间还是有的，记得和舍友协商好。宿舍可能会发潮，雨天开空调就好，暂时没发现发霉现象。不能养小动物，但能养小绿植。'},
-    {key:'QQ频道',title:'宿舍洗衣机与热水',content:'每层楼都有洗衣机，一次三四块钱，根据洗的衣服量自己决定档位。热水夏天半夜到早上会断，冬天全天供应。晚上不查寝。床位提前选，记得选好舍友，沟通好作息。外来人员进宿舍楼需要登记，不要擅自带入，异性不允许进入宿舍楼。'},
-    {key:'QQ频道',title:'宿舍桌子与充电',content:'宿舍桌子挺大的，归纳整理好就行，但光线一般，需要购买台灯。充电桩在宿舍楼外，要骑车去找，小程序上能看。宿舍可以贴墙纸装饰，贴公共区域记得和舍友商量。'},
-    {key:'QQ频道',title:'宿舍洗澡与澡堂',content:'宿舍有独立卫浴，每层楼也有澡堂，隔间带帘子。热水夏天半夜到早上会断，冬天全天供应。'},
-    {key:'QQ频道',title:'食堂概况与价格',content:'学校有好几个食堂，有贵的有便宜的。性价比不高，难吃（学长学姐评价）。辣菜比较多，清淡的也有。食堂可以用微信直接付款，需绑一下校园卡。附近小吃摊现在不多了，以前比较多，南门有。清真就餐窗口应该有。节假日食堂部分营业，看通知。'},
-    {key:'QQ频道',title:'食堂营业时间',content:'食堂早餐几点开始供应不知道（学长说没吃过起不来）。晚上食堂六点多就没啥吃的了。学校有蜜雪冰城、瑞幸咖啡，还有一个库迪咖啡。商业街有一个古茗正在建。'},
-    {key:'QQ频道',title:'外卖与超市',content:'外卖能送到宿舍楼下。学校超市物价一般，不算贵，但买零食不建议去超市。校内有水果店。'},
-    {key:'QQ频道',title:'快递地址与驿站',content:'快递地址填写：四川省成都市郫都区电子科技大学清水河校区。宿舍一楼有自助打印机，黑白2毛，彩色8毛。'},
-    {key:'QQ频道',title:'学习与选课',content:'大一需要上早自习，晚自习看学院，每个学院不一样，有的上有的不上。早上第一节课八点半上课，早自习七点半。大一选课年级会有通知，到时候照着做就行。挂科看科目，必修就必须重修。补考不好说，天堂地狱各占一边。绩点对毕业影响不大。全校都要大一考四级。'},
-    {key:'QQ频道',title:'图书馆与自习',content:'图书馆不能占座，可以放下东西去吃饭，短期可以，长期不行。有充电插座，每个座位旁边都有。自习室只有图书馆有，需要提前预约。也可以去空教室学习。教室上课可以提前去，后排得抢。上课迟到一般不会记名，旷课可能会，看老师。'},
-    {key:'QQ频道',title:'上课收手机吗',content:'上课不收手机。部分教学楼（如品C教学楼）放了收手机袋，但大部分老师是不会收手机的。选水课的时候多注意就好。上课玩手机不会被抓也不会被枪毙（频道里学长学姐都是在搞笑），正常上课就行。'},
-    {key:'QQ频道',title:'军训安排',content:'军训一共持续两周（约14天）。前几天可能不太适应，腰酸背痛脚底痛，后面几天也不是很累。军训服装统一发放，不需要自己购买。身体不舒服可以申请缓训。军训期间要注意防晒和补水。'},
-    {key:'QQ频道',title:'入学体检',content:'入学体检不需要脱衣服。19年入学的学长说他们用脱衣服，后来就不用了。又不是军检，正常体检就行。'},
-    {key:'QQ频道',title:'社团与活动',content:'大一可以参加竞赛。社团什么时候统一招新看学校通知。社团退社不麻烦。学校会举办漫展这类活动。周末学校会组织集体活动。社团会费一般要交多少看具体社团。学生会日常事情多不多看部门。'},
-    {key:'QQ频道',title:'校园交通与出行',content:'校园很大，校内有共享单车和共享电动车，很多，但上课前楼下的单车先到先得手慢无。校园里面可以骑自行车。打车到最近的地铁站十块多。校门口打车好打。学校附近有大型商场和电影院。去市区出行方便。'},
-    {key:'QQ频道',title:'校园网与校园卡',content:'校园网不覆盖宿舍区域。宿舍宽带需要单独办理。校园流量卡不强制，校园卡（一卡通）学校发放，不要搞混。手机热点能连电脑上网但不建议。不办校园卡日常上网可能麻烦，建议办一张校园流量卡。电信校园卡挺划算的，39元/月翼支付返20元实际19元，全区覆盖。'},
-    {key:'QQ频道',title:'生活费与兼职',content:'大一每月生活费因人而异。校内兼职薪资大概一小时30元起。学院群里会有兼职信息。兼职会不会耽误上课看个人安排。节假日可以留校兼职。'},
-    {key:'QQ频道',title:'学生证与门禁',content:'学生证开学一两周发放。学生证景区打折能用。校园门禁刷脸和刷卡都行。身份证丢了学校能帮忙开证明。'},
-    {key:'QQ频道',title:'宿舍室友分配',content:'室友是不是同班同学看你们班同学人数。提前和同班同学组好宿舍就可以避免和不认识的人住。床位是提前选的，记得选好舍友，沟通好作息。'},
-    {key:'QQ频道',title:'避雷选课老师',content:'选课要慎重，有些老师给分很低。比如新生项目课有老师第一节课说是水课，结果验收时要求很严格，把所有实验当面做一遍才给分。选课前多打听老师口碑，看课程评价。保研大部分学院不看新生项目课成绩，但有些学院是算的，看自己学院的规则。'},
-    {key:'QQ频道',title:'洗澡与理发',content:'宿舍有独立卫浴可以洗澡。每层楼也有公共澡堂，隔间带帘子。校内理发店有，靠不靠谱看个人体验。'},
-    {key:'QQ频道',title:'校园卡套',content:'有学长自制成电卡套，开学时可以在频道或商业街关注一下。也可以自己购买喜欢的卡套。'}
+  // === QQ频道独立问答数据库（来源：电子科技大学丨成电频道，2.54万成员） ===
+  var QQ_CHANNEL_QA=[
+    {q:'宿舍是几人间？有独立卫生间吗？空调一年四季都能用吗？',a:'清水河校区宿舍为四人间，沙河校区有三人间和六人间。宿舍均有独立卫生间，空调一年四季都能用。',from:'海阔天空提问，语鸢、一条龟尾巴等回答',views:5139,comments:50},
+    {q:'晚上几点断电断网？',a:'晚上不会断电断网，全天24小时供电供网。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'宿舍可以挂床帘吗？',a:'可以挂床帘，很多同学都挂。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'衣柜大不大，28寸行李箱放得下吗？',a:'衣柜蛮小的，28寸行李箱估计放不下。门和宿舍床之间有一块儿空地，可以放那里。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'卷发棒算违禁电器吗？',a:'卷发棒严格意义上算违禁电器，但其实不怎么查。吹风机没有功率限制，宿舍不限功率，但明面上也是违禁电器，记得放好。小电锅也是违禁物，但是操作空间还是很大的，记得和舍友协商好。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'每层楼都有洗衣机吗？洗一次多少钱？',a:'每层楼都有洗衣机，一次三四块钱，根据你洗的衣服量自己决定档位。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'宿舍可以贴墙纸装饰吗？',a:'宿舍可以贴墙纸装饰，贴公共区域记得和舍友商量。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'热水供应是全天都有吗？',a:'热水夏天半夜到早上会断，冬天全天供应。',from:'一条龟尾巴、里暮回答',views:5139,comments:50},
+    {q:'宿舍晚上会查寝吗？',a:'晚上不查寝。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'床位是提前选还是随机分配？',a:'床位是提前选的，记得选好舍友，沟通好作息。',from:'一条龟尾巴、里暮回答',views:5139,comments:50},
+    {q:'宿舍能养小绿植吗？',a:'能养小绿植，不能养小动物。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'吹风机限制多少瓦以内？',a:'吹风机没有功率限制，宿舍不限功率，但明面上是违禁电器，记得放好。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'宿舍楼下有充电桩吗？',a:'充电桩在宿舍楼外，要骑车去找，小程序上能看。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'下雨天宿舍会不会潮湿发霉？',a:'宿舍可能会发潮，雨天开开空调就好，暂时没发现发霉现象。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'室友是同班同学吗？',a:'室友是不是同班同学得看你们班同学人数，提前和同班同学组好宿舍就可以避免这种情况。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'宿舍桌子够大用来学习吗？',a:'宿舍桌子还行，挺大的，归纳整理好就行，但光线一般，需要购买台灯。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'外来人员可以进宿舍楼吗？',a:'外来人员进宿舍楼需要登记，不要擅自带入，异性不允许进入宿舍楼。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'学校一共有几个食堂？',a:'学校有好几个食堂（银桦、学子、朝阳、西北、紫荆、芙蓉、桃园、品悦吧等）。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'食堂一顿饭大概花多少钱？',a:'有贵的有便宜的，性价比不高，辣菜比较多，清淡的也有。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'外卖能送到宿舍楼下吗？',a:'外卖能送到宿舍楼下。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'学校超市物价贵不贵？',a:'学校超市物价一般，不算贵，但买零食不建议。校内有水果店。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'食堂早餐几点开始供应？',a:'食堂早餐6:35开始供应（学长说没吃过起不来）。',from:'一条龟尾巴、学子餐厅信息',views:5139,comments:50},
+    {q:'晚上食堂开到几点关门？',a:'晚上食堂六点多就没啥吃的了。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'学校有没有奶茶店咖啡店？',a:'学校有蜜雪冰城、瑞幸咖啡，还有一个库迪咖啡。商业街有一个古茗正在建。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'食堂可以用微信直接付款吗？',a:'食堂可以用微信直接付款，要绑一下校园卡。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'附近小吃摊多不多？清真窗口有吗？',a:'附近小吃摊现在不多了，以前比较多，南门有。清真就餐窗口应该有。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'能自己在宿舍简单煮东西吗？',a:'严格意义上不允许，小电锅也是违禁物，但是操作空间还是很大的，记得和舍友协商好。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'节假日食堂正常营业吗？',a:'节假日食堂部分营业，看通知。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'大一需要上早晚自习吗？',a:'大一需要上早自习，晚自习看学院，每个学院不一样，有的上有的不上。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'早上第一节课几点上课？',a:'早上第一节课八点半上课，早自习七点半。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'图书馆几点开门关门？',a:'图书馆开放时间07:00-22:30。不能占座，可以放下东西去吃饭，短期可以，长期不行。每个座位旁边都有充电插座。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'图书馆可以占座学习吗？',a:'图书馆不能占座，可以放下东西去吃饭，短期可以，长期不行。需要提前预约座位。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'图书馆里面有充电插座吗？',a:'有充电插座，每个座位旁边都有。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'大一怎么选选修课？',a:'大一选课年级会有通知，到时候照着做就行。选课机制：权重选课法和抢课制选课法，分三轮。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'挂科之后一定要重修吗？',a:'挂科看科目，必修就必须重修。补考不好说，天堂地狱各占一边。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'绩点对毕业影响大吗？',a:'绩点对毕业影响不大，但保研看绩点。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'大一可以考四级吗？',a:'全校都要大一考四级。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'自习室是全天开放的吗？',a:'自习室只有图书馆有，开放时间和图书馆一样，需要提前预约。也可以去空教室学习。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'上课迟到会被记名字吗？',a:'上课迟到一般不会，旷课可能会，看老师。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'上课期间要收手机吗？',a:'上课不收手机。部分教学楼（如品C教学楼）放了收手机袋，但大部分老师是不会收手机的。选水课的时候多注意就好。正常上课就行，不要当着老师面玩就好。',from:'720、一条龟尾巴等回答',views:5115,comments:48},
+    {q:'军训一共持续多少天？强度大不大？',a:'军训一共持续两周（约14天）。前几天可能不太适应，腰酸背痛脚底痛，后面几天也不是很累。身体不舒服可以申请缓训。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'军训服装需要自己购买吗？',a:'军训服装统一发放，不需要自己购买。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'身体不舒服能申请缓训吗？',a:'身体不舒服可以申请缓训。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'入学体检脱衣服吗？',a:'入学体检不需要脱衣服。19年入学的学长说他们用脱衣服，后来就不用了。又不是军检，正常体检就行。',from:'降温、"。"、"(ง`ω´)۶"等回答',views:3258,comments:14},
+    {q:'快递地址怎么填？',a:'快递地址：四川省成都市郫都区电子科技大学清水河校区。宿舍一楼有自助打印机，黑白2毛，彩色8毛。',from:'里暮回答',views:5139,comments:50},
+    {q:'校园门禁刷脸还是刷卡？',a:'校园门禁刷脸和刷卡都行。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'校园很大需要买电动车吗？',a:'校园很大，校内有共享单车和共享电动车，很多，但上课前楼下的单车先到先得手慢无。校园里面可以骑自行车。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'校门离公交站远不远？去市区方便吗？',a:'打车到最近的地铁站十块多。校门口打车好打。学校附近有大型商场和电影院。去市区出行方便。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'社团什么时候统一招新？',a:'社团什么时候统一招新看学校通知。大一可以参加竞赛。社团退社不麻烦。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'宿舍宽带需要单独办理吗？',a:'校园网不覆盖宿舍区域，宿舍宽带需要单独办理。建议办一张校园流量卡，电信校园卡挺划算的，39元/月翼支付返20元实际19元，全区覆盖。',from:'里暮、一条龟尾巴回答',views:5139,comments:50},
+    {q:'校园卡流量套餐划算吗？可以不开通吗？',a:'校园流量卡挺划算的。校园卡（一卡通）是学校发放的，校园流量卡不强制。不要搞混校园卡和校园流量卡。不办校园卡日常上网可能麻烦。',from:'里暮回答',views:5139,comments:50},
+    {q:'大一每月多少生活费够用？校内有什么靠谱兼职？',a:'生活费因人而异。校内兼职薪资大概一小时30元起，学院群里会有兼职信息。节假日可以留校兼职。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'饭卡在哪里办理和充值？丢了怎么挂失？',a:'一卡通集学生证、图书证、就餐卡于一体。充值方式：圈存机、支付宝（搜电子科技大学生活号→电子校园卡→充校园卡）、后勤服务中心现场。',from:'官方信息',views:5139,comments:50},
+    {q:'学生证什么时候发放？景区打折能用吗？',a:'学生证开学一两周发放。学生证景区打折能用。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'澡堂是隔间公共浴室吗？开放时间？',a:'宿舍有独立卫浴，每层楼也有澡堂，隔间带帘子。热水夏天半夜到早上会断，冬天全天供应。',from:'一条龟尾巴回答',views:5139,comments:50},
+    {q:'避雷选课老师',a:'选课要慎重，有些老师给分很低。比如有老师第一节课说是水课，结果验收时要求很严格，把所有实验当面做一遍才给分，总评只给了60分。选课前多打听老师口碑，看课程评价。保研大部分学院不看新生项目课成绩，但有些学院是算的，看自己学院的规则。',from:'凌波入我眸发帖，浏览4944',views:4944,comments:14},
+    {q:'宿舍有蟑螂吗？',a:'成都气候比较潮湿，宿舍偶尔可能会出现蟑螂，但注意卫生保持干燥一般不会有太大问题。',from:'一花一世界提问',views:500,comments:9},
+    {q:'作业多不多课余时间充裕吗？专业课难度大不大？',a:'作业量和课余时间看专业和老师，有的课多有的课少。专业课难度也看个人基础，一般大一基础课不会太难，多花时间都能跟上。',from:'一条龟尾巴回答',views:5139,comments:50}
   ];
-  qqChannelData.forEach(function(item){
-    AI_KB.push(item);
+  // 将QQ频道Q&A注入AI_KB，用question作为title，answer作为content
+  QQ_CHANNEL_QA.forEach(function(item){
+    AI_KB.push({key:'成电频道',title:item.q,content:item.a,from:item.from,views:item.views,qComments:item.comments,isQA:true});
   });
   // 注入地点数据
   NEARBY_PLACES.forEach(function(p){
@@ -3672,27 +3708,41 @@ function aiSearch(query){
         });
       }
     });
+    // QQ频道Q&A加权：精准问答优先
+    if(block.isQA && score>=2) score+=4;
     if(score>0)scored.push({block:block,score:score});
   });
   scored.sort(function(a,b){return b.score-a.score});
-  return scored.slice(0,3);
+  return scored.slice(0,5);
 }
 
 // 生成回答
 function aiGenerateAnswer(query){
   var results=aiSearch(query);
   if(results.length===0){
-    return {answer:'抱歉，我在本指南的知识库中没有找到与「'+query+'」相关的内容。\n\n你可以尝试：\n• 换个关键词提问（如"报到"、"宿舍"、"选课"）\n• 点击下方推荐问题快速提问\n• 或直接浏览首页各功能模块查看全部内容',sources:[]};
+    return {answer:'抱歉，我在本指南的知识库中没有找到与「'+query+'」相关的内容。\n\n你可以尝试：\n• 换个关键词提问（如"报到"、"宿舍"、"选课"）\n• 或直接浏览首页各功能模块查看全部内容',sources:[],isQA:false};
   }
   var answerParts=[];
   var sources=[];
+  var hasQA=false;
   results.forEach(function(r,idx){
     if(idx>0)answerParts.push('');
-    answerParts.push('【'+r.block.key+' · '+r.block.title+'】');
-    answerParts.push(r.block.content.substring(0,300));
-    sources.push(r.block.key);
+    if(r.block.isQA){
+      // QQ频道问答：直接展示问题+答案
+      hasQA=true;
+      answerParts.push('【'+r.block.key+' · 学长学姐问答】');
+      answerParts.push('❓ '+r.block.title);
+      answerParts.push('💡 '+r.block.content);
+      if(r.block.from) answerParts.push('👤 回答者：'+r.block.from);
+      sources.push(r.block.key);
+    }else{
+      // 其他来源：保持原格式
+      answerParts.push('【'+r.block.key+' · '+r.block.title+'】');
+      answerParts.push(r.block.content.substring(0,400));
+      sources.push(r.block.key);
+    }
   });
-  return {answer:answerParts.join('\n'),sources:sources};
+  return {answer:answerParts.join('\n'),sources:sources,isQA:hasQA};
 }
 
 // 对话历史
@@ -3732,20 +3782,34 @@ function aiSend(){
     var result=aiGenerateAnswer(q);
     var botMsg=document.createElement('div');
     botMsg.className='ai-msg bot';
-    // 将回答转为HTML（简单格式化）
+    // 将回答转为HTML（格式化展示）
     var html='';
     var lines=result.answer.split('\n');
     lines.forEach(function(line){
       if(line.startsWith('【')){
-        html+='<h3>'+line.replace(/[【】]/g,'')+'</h3>';
+        var tagText=line.replace(/[【】]/g,'');
+        if(tagText.indexOf('学长学姐问答')>=0){
+          html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.08));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
+        }else{
+          html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+        }
+      }else if(line.startsWith('❓')){
+        html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
+      }else if(line.startsWith('💡')){
+        html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px">'+line.replace('💡 ','')+'</div>';
+      }else if(line.startsWith('👤')){
+        html+='<div style="font-size:11px;color:rgba(255,215,0,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
       }else if(line.trim()===''){
         // skip empty
       }else{
-        html+='<p>'+line+'</p>';
+        html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(255,255,255,0.85)">'+line+'</p>';
       }
     });
     if(result.sources.length>0){
-      html+='<div class="ai-source">📎 来源：'+result.sources.map(function(s){
+      html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4)">📎 来源：'+result.sources.map(function(s){
+        if(s==='成电频道'){
+          return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
+        }
         return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
       }).join('、')+'</div>';
     }
