@@ -3473,6 +3473,12 @@ function switchMode(mode){
     tabAI.classList.add('active');
     results.style.display='none';aiChat.classList.add('active');aiBar.style.display='flex';
     searchInput.style.display='none';
+    // 如果没有聊天记录，重新显示欢迎页（校徽）
+    var welcome=document.getElementById('aiWelcome');
+    var chat=document.getElementById('aiChat');
+    if(welcome && chat && chat.children.length<=1){
+      welcome.style.display='block';
+    }
     setTimeout(()=>document.getElementById('aiInput').focus(),100);
   }else if(mode==='nearby'){
     tabNearby.classList.add('active');
