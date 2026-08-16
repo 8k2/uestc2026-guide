@@ -140,29 +140,61 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .nearby-cat-title{font-size:14px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:8px}
 .nearby-cat-title::before{content:'';width:3px;height:14px;background:var(--gold);border-radius:2px}
 .nearby-place-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.nearby-place{padding:12px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:12px;cursor:pointer;transition:all .2s}
+.nearby-place{padding:12px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
 .nearby-place:active{border-color:rgba(255,215,0,0.2);transform:scale(.97)}
-.nearby-place-name{font-size:14px;font-weight:600;color:var(--gold)}
+.nearby-place-img{width:100%;height:80px;border-radius:8px;object-fit:cover;margin-bottom:8px;background:rgba(255,215,0,0.05)}
+.nearby-place-name{font-size:14px;font-weight:600;color:var(--gold);display:flex;align-items:center;gap:6px}
+.nearby-place-rating{font-size:11px;color:#ffaa00;margin-left:auto}
 .nearby-place-desc{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.4}
+.nearby-place-distance{font-size:10px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px}
+.nearby-place-hot{font-size:10px;padding:1px 6px;border-radius:6px;background:rgba(255,50,80,0.15);color:#ff6b7a;margin-left:4px}
 .nearby-search-box{margin:0 0 4px;padding:10px 14px;background:rgba(20,30,60,0.6);border:1px solid rgba(255,215,0,0.15);border-radius:12px;display:flex;align-items:center;gap:10px}
 .nearby-search-box input{flex:1;border:none;background:none;color:var(--text);font-size:14px;outline:none}
 .nearby-search-box input::placeholder{color:var(--text3)}
 .nearby-platform-title{font-size:14px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:8px;margin-top:4px}
 .nearby-platform-title::before{content:'';width:3px;height:14px;background:var(--gold);border-radius:2px}
-.nearby-platforms{display:flex;gap:10px;flex-wrap:wrap}
-.nearby-platform{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;cursor:pointer;transition:all .2s;font-size:14px;font-weight:600;flex:1;min-width:100px;justify-content:center;text-decoration:none}
+.nearby-platforms{display:flex;gap:8px;flex-wrap:wrap}
+.nearby-platform{display:flex;align-items:center;gap:6px;padding:10px 14px;border-radius:12px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;flex:1;min-width:80px;justify-content:center;text-decoration:none}
 .nearby-platform:active{transform:scale(.95)}
-.nearby-platform-amap{background:rgba(0,140,255,0.12);border:1px solid rgba(0,140,255,0.2);color:#008cff}
 .nearby-platform-meituan{background:rgba(255,180,0,0.12);border:1px solid rgba(255,180,0,0.2);color:#ffb400}
-.nearby-platform-baidu{background:rgba(45,130,255,0.12);border:1px solid rgba(45,130,255,0.2);color:#2d82ff}
 .nearby-platform-douyin{background:rgba(255,50,80,0.12);border:1px solid rgba(255,50,80,0.2);color:#ff3250}
+.nearby-platform-xiaohongshu{background:rgba(255,0,68,0.12);border:1px solid rgba(255,0,68,0.2);color:#ff0044}
 .nearby-platform-kuaishou{background:rgba(255,120,0,0.12);border:1px solid rgba(255,120,0,0.2);color:#ff7800}
+.nearby-platform-zhiwang{background:rgba(0,130,200,0.12);border:1px solid rgba(0,130,200,0.2);color:#0082c8}
 .nearby-place-result{padding:12px 14px;margin-bottom:8px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:12px;cursor:pointer;transition:all .2s}
 .nearby-place-result:active{border-color:rgba(255,215,0,0.2);transform:scale(.98)}
 .nearby-place-result-name{font-size:14px;font-weight:600;color:var(--gold)}
 .nearby-place-result-desc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
 .nearby-place-result-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
 .nearby-place-result-tag{font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,215,0,0.08);color:var(--gold)}
+/* === 地点详情弹窗 === */
+.nearby-detail-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:400;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
+.nearby-detail-overlay.open{display:flex}
+.nearby-detail-card{width:100%;max-width:480px;max-height:85vh;background:linear-gradient(180deg,#0d1333,#0a0e27);border-top:2px solid var(--gold);border-radius:20px 20px 0 0;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:slideUp .35s cubic-bezier(.4,0,.2,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.nearby-detail-close{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:rgba(10,14,39,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,215,0,0.1)}
+.nearby-detail-close-name{font-size:17px;font-weight:700;color:var(--gold)}
+.nearby-detail-close-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--gold);-webkit-user-select:none;user-select:none}
+.nearby-detail-close-btn:active{background:rgba(255,215,0,0.2)}
+.nearby-detail-img{width:100%;height:180px;object-fit:cover}
+.nearby-detail-body{padding:16px}
+.nearby-detail-rating{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.nearby-detail-stars{color:#ffaa00;font-size:16px}
+.nearby-detail-score{font-size:24px;font-weight:800;color:var(--gold)}
+.nearby-detail-meta{display:flex;gap:16px;margin-bottom:16px;font-size:12px;color:var(--text2)}
+.nearby-detail-meta span{display:flex;align-items:center;gap:4px}
+.nearby-detail-map-link{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(0,140,255,0.12);border:1px solid rgba(0,140,255,0.2);border-radius:10px;color:#008cff;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;margin-bottom:16px}
+.nearby-detail-map-link:active{background:rgba(0,140,255,0.2)}
+.nearby-detail-section{margin-bottom:16px}
+.nearby-detail-section-title{font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.nearby-detail-section-title::before{content:'';width:3px;height:14px;background:var(--gold);border-radius:2px}
+.nearby-detail-comment{padding:10px 12px;margin-bottom:8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,215,0,0.04);border-radius:10px}
+.nearby-detail-comment-user{font-size:12px;font-weight:600;color:var(--gold);margin-bottom:4px}
+.nearby-detail-comment-text{font-size:13px;color:var(--text);line-height:1.6}
+.nearby-detail-comment-meta{font-size:11px;color:var(--text3);margin-top:4px}
+.nearby-detail-platform-links{display:flex;gap:8px;flex-wrap:wrap}
+.nearby-detail-platform-link{display:inline-flex;align-items:center;gap:4px;padding:8px 12px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s}
+.nearby-detail-platform-link:active{transform:scale(.95)}
 
 /* === AI 对话区 === */
 .ai-chat{flex:1;overflow-y:auto;padding:12px 16px 80px;-webkit-overflow-scrolling:touch;display:none;flex-direction:column;gap:12px}
@@ -490,15 +522,20 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <div class="nearby-cat-title">🏃 运动场馆</div>
       <div class="nearby-place-grid" id="nearbySport"></div>
     </div>
-    <div class="nearby-platform-title">🔎 到外部平台搜索更多</div>
+    <div class="nearby-platform-title">🔎 到社交平台搜索更多</div>
     <div class="nearby-platforms">
-      <a class="nearby-platform nearby-platform-amap" id="plAmap" target="_blank">📍 高德地图</a>
-      <a class="nearby-platform nearby-platform-meituan" id="plMeituan" target="_blank">🍔 美团外卖</a>
-      <a class="nearby-platform nearby-platform-baidu" id="plBaidu" target="_blank">🔍 百度</a>
+      <a class="nearby-platform nearby-platform-meituan" id="plMeituan" target="_blank">🍔 美团</a>
       <a class="nearby-platform nearby-platform-douyin" id="plDouyin" target="_blank">🎵 抖音</a>
+      <a class="nearby-platform nearby-platform-xiaohongshu" id="plXiaohongshu" target="_blank">📕 小红书</a>
       <a class="nearby-platform nearby-platform-kuaishou" id="plKuaishou" target="_blank">🎬 快手</a>
+      <a class="nearby-platform nearby-platform-zhiwang" id="plZhiwang" target="_blank">📖 知网</a>
     </div>
   </div>
+</div>
+
+<!-- 地点详情弹窗 -->
+<div class="nearby-detail-overlay" id="nearbyDetailOverlay" onclick="if(event.target===this)closeNearbyDetail()">
+  <div class="nearby-detail-card" id="nearbyDetailCard"></div>
 </div>
 
 <!-- ============ 详情面板（全屏覆盖，z-index=300 > tabbar=100） ============ -->
@@ -850,7 +887,7 @@ const DETAILS={
 <li><b>36选1会员</b>：会员选择比电信更多</li>
 </ul>
 <div class="warn">移动校园卡与校园网<b>不绑定</b>，且校园网仅寝室可用；<b>一年合约期，中途解约需赔违约金</b>；校园V网功能费3元/月另计。</div>
-<div class="info">移动营业厅：清水河校区商业街1楼16号瑞幸对面</div>
+<div class="info">移动营业厅位于商业街1楼，需单独办理校园网，校园网仅寝室可用。</div>
 
 <h3>电信 vs 移动 全面对比</h3>
 <table>
@@ -3574,7 +3611,8 @@ function buildAIKB(){
   });
   // 注入地点数据
   NEARBY_PLACES.forEach(function(p){
-    AI_KB.push({key:'附近搜索',title:p.name,content:p.desc+'，分类：'+p.cat+'，标签：'+p.tags.join('、')});
+    var commentStr=(p.comments||[]).map(function(c){return c.user+'：'+c.text}).join('；');
+    AI_KB.push({key:'附近搜索',title:p.name,content:p.desc+'，评分：'+p.rating+'，距离：'+p.dist_text+'，营业时间：'+p.hours+'，标签：'+p.tags.join('、')+(commentStr?('，校友评论：'+commentStr):'')});
   });
   AI_KB_BUILT=true;
 }
@@ -3720,61 +3758,67 @@ function aiSend(){
   },delay);
 }
 
-// === 附近搜索：清水河校区地点数据库 ===
+// === 附近搜索：清水河校区全能地点数据库 ===
 var NEARBY_PLACES=[
   // 餐饮美食
-  {cat:'food',name:'银桦餐厅',desc:'清水河校区主食堂之一，菜品丰富，充值地点之一',tags:['食堂','正餐']},
-  {cat:'food',name:'学子餐厅',desc:'清水河校区主食堂之一，学生常用就餐点',tags:['食堂','正餐']},
-  {cat:'food',name:'学知苑食堂',desc:'20栋旁，后勤服务中心所在地',tags:['食堂','后勤']},
-  {cat:'food',name:'朝阳餐厅',desc:'商业街内，多种风味小吃',tags:['商业街','小吃']},
-  {cat:'food',name:'品悦吧',desc:'图书馆旁休闲餐饮，自助图书馆旁',tags:['咖啡','休闲']},
-  {cat:'food',name:'商业街美食街',desc:'商业街内各类餐饮店铺，火锅、烧烤、奶茶等',tags:['商业街','美食']},
-  {cat:'food',name:'瑞幸咖啡',desc:'商业街1楼16号铺位，移动营业厅对面',tags:['咖啡','商业街']},
-  {cat:'food',name:'蜜雪冰城',desc:'商业街内，平价奶茶',tags:['奶茶','商业街']},
-  {cat:'food',name:'食堂二楼小炒',desc:'银桦餐厅二楼，现炒现卖',tags:['食堂','小炒']},
+  {cat:'food',name:'银桦餐厅',desc:'银杏苑一楼，清水河主食堂，菜品丰富，麻辣干锅/小炒一绝',tags:['食堂','正餐','干锅'],rating:4.5,score:'4.5',distance:'50m',dist_text:'距学生活动中心50m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1565299624946-b28f0a3c91d3?w=400',comments:[{user:'成电干饭人',text:'麻辣干锅绝绝子！荤菜入味素菜爽口，宵夜首选',time:'2024-09-15'},{user:'银桦常客',text:'二楼酸菜肉丝面3-4元，配蜜雪冰城蜜桃四季春，完美搭配',time:'2024-10-02'}]},
+  {cat:'food',name:'学子餐厅',desc:'思学苑一楼，学生常用就餐点，早餐6:35开始供应',tags:['食堂','正餐','早餐'],rating:4.3,score:'4.3',distance:'100m',dist_text:'距学生活动中心100m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400',comments:[{user:'学子老粉',text:'二楼草莓吸吸冻6元，夏天来一杯太爽了',time:'2024-09-20'},{user:'早起鸟',text:'早餐很丰盛，包子油条豆浆应有尽有',time:'2024-10-05'}]},
+  {cat:'food',name:'学知苑食堂',desc:'20栋旁，后勤服务中心所在地，供应日常三餐',tags:['食堂','后勤'],rating:4.1,score:'4.1',distance:'200m',dist_text:'距学生宿舍20栋旁',hot:false,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1517248135467-4c7edcad346d?w=400',comments:[{user:'20栋住户',text:'就在楼下很方便，菜量足价格便宜',time:'2024-09-18'}]},
+  {cat:'food',name:'朝阳餐厅',desc:'春晖苑，分一二楼，多种风味小吃，改造后环境升级',tags:['商业街','小吃','风味'],rating:4.4,score:'4.4',distance:'150m',dist_text:'距商业街150m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1579871494447-9815cf73e9b8?w=400',comments:[{user:'风味爱好者',text:'各种地方小吃都有，冒菜/米线/铁板烧选不过来',time:'2024-10-01'},{user:'朝阳粉',text:'改造后环境好多了，一楼冒菜窗口排队最长',time:'2024-09-25'}]},
+  {cat:'food',name:'西北餐厅',desc:'银杏苑旁圆形建筑，兰州拉面/烧茄子/炸蘑菇，口味偏北方',tags:['面食','西北','拉面'],rating:4.6,score:'4.6',distance:'80m',dist_text:'距银杏苑旁',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400',comments:[{user:'面食爱好者',text:'兰州拉面5.5元，汤好喝面劲道，冬天暖胃神器',time:'2024-10-03'},{user:'西北粉丝',text:'烧茄子+炸蘑菇绝配，偏甜口很特别',time:'2024-09-28'}]},
+  {cat:'food',name:'品悦吧',desc:'图书馆旁休闲餐饮，自助图书馆旁，适合学习间隙小憩',tags:['咖啡','休闲','图书馆旁'],rating:4.0,score:'4.0',distance:'50m',dist_text:'图书馆旁',hot:false,hours:'8:00-22:00',img:'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400',comments:[{user:'图书馆常客',text:'自习累了来杯咖啡歇会，氛围不错',time:'2024-09-22'}]},
+  {cat:'food',name:'商业街美食街',desc:'校内商业综合体，火锅/烧烤/奶茶/简餐一应俱全，改善伙食首选',tags:['商业街','美食','聚餐'],rating:4.5,score:'4.5',distance:'100m',dist_text:'校内商业街',hot:true,hours:'10:00-22:00',img:'https://images.unsplash.com/photo-1555396273-363ea8779d1d?w=400',comments:[{user:'美食探店者',text:'商业街简直是吃货天堂，火锅烧烤奶茶什么都有',time:'2024-10-10'},{user:'聚餐达人',text:'班级聚会经常来这，选择多价格也还行',time:'2024-09-30'}]},
+  {cat:'food',name:'瑞幸咖啡',desc:'商业街1楼16号铺位，校内咖啡连锁，价格亲民品质稳定',tags:['咖啡','连锁','商业街'],rating:4.3,score:'4.3',distance:'120m',dist_text:'商业街1楼16号',hot:true,hours:'7:30-22:00',img:'https://images.unsplash.com/photo-1485808191679-5f86568fda8e?w=400',comments:[{user:'瑞幸粉',text:'生椰拿铁永远的神，9.9元券经常有',time:'2024-10-08'},{user:'早八人',text:'上课前顺手买一杯，比图书馆品悦吧选择多',time:'2024-09-19'}]},
+  {cat:'food',name:'蜜雪冰城',desc:'商业街内，平价奶茶冰淇淋，柠檬水2元、蜜桃四季春6元',tags:['奶茶','平价','商业街'],rating:4.2,score:'4.2',distance:'100m',dist_text:'商业街内',hot:true,hours:'9:00-22:30',img:'https://images.unsplash.com/photo-1558857563-b371033873b8?w=400',comments:[{user:'蜜雪铁粉',text:'2元柠檬水yyds，蜜桃四季春可以不要茶',time:'2024-10-12'},{user:'省钱小能手',text:'全校最便宜的饮品店，没有之一',time:'2024-09-26'}]},
+  {cat:'food',name:'鞠婆婆绵绵冰',desc:'乐山非遗品牌，手搓冰粉/凉糕/绵绵冰，2026年新入驻',tags:['甜品','非遗','冰粉'],rating:4.7,score:'4.7',distance:'100m',dist_text:'商业街内',hot:true,hours:'10:00-22:00',img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400',comments:[{user:'甜品控',text:'手搓冰粉Q弹有气泡，绵绵冰入口即化，太绝了',time:'2026-03-15'},{user:'非遗粉丝',text:'20年品牌老店，0添加配方吃得放心',time:'2026-03-20'}]},
+  {cat:'food',name:'紫荆餐厅',desc:'银杏苑二楼，川菜风味为主，中午供餐至14:00',tags:['食堂','川菜'],rating:4.2,score:'4.2',distance:'50m',dist_text:'银杏苑二楼',hot:false,hours:'6:35-14:00',img:'https://images.unsplash.com/photo-1546069901-ba9599a7e93c?w=400',comments:[{user:'紫荆常客',text:'中午供餐到两点很贴心，下午课不赶时间',time:'2024-09-29'}]},
+  {cat:'food',name:'芙蓉餐厅',desc:'银杏苑三楼，中午供餐至14:00，环境较安静',tags:['食堂','三楼'],rating:4.0,score:'4.0',distance:'50m',dist_text:'银杏苑三楼',hot:false,hours:'6:35-14:00',img:'https://images.unsplash.com/photo-1559847844-5315695dacef?w=400',comments:[{user:'安静党',text:'三楼人少清净，适合慢慢吃',time:'2024-09-17'}]},
+  {cat:'food',name:'布蕾德西点屋',desc:'校内连锁西点屋，面包蛋糕甜品，早餐好去处',tags:['西点','面包','早餐'],rating:4.3,score:'4.3',distance:'100m',dist_text:'校内',hot:false,hours:'7:00-21:00',img:'https://images.unsplash.com/photo-1517433670267-086d286eedd5?w=400',comments:[{user:'面包控',text:'早上来不及去食堂就来这买个面包，新鲜好吃',time:'2024-10-06'}]},
+  {cat:'food',name:'桃园餐厅',desc:'便捷自助餐厅，7:30开始供应早餐，快速就餐',tags:['食堂','自助','快'],rating:4.1,score:'4.1',distance:'200m',dist_text:'校内',hot:false,hours:'7:30-21:00',img:'https://images.unsplash.com/photo-1574870110600-3754f4c105a6?w=400',comments:[{user:'快枪手',text:'自助取餐不用排队，赶时间就选桃园',time:'2024-09-23'}]},
   // 生活服务
-  {cat:'service',name:'菜鸟驿站',desc:'商业街1楼，快递收发点，凭菜鸟APP取件',tags:['快递','商业街']},
-  {cat:'service',name:'顺丰取件点',desc:'商业街内，顺丰快递取寄件',tags:['快递','顺丰']},
-  {cat:'service',name:'电信营业厅',desc:'商业街1楼菜鸟驿站旁，校园卡办理',tags:['电话卡','电信']},
-  {cat:'service',name:'移动营业厅',desc:'商业街1楼16号瑞幸对面，校园卡办理',tags:['电话卡','移动']},
-  {cat:'service',name:'超市/便利店',desc:'商业街内，日用品、零食饮料',tags:['购物','日用品']},
-  {cat:'service',name:'自助打印机',desc:'行政主楼B2区1楼，自助打印各类证明材料',tags:['打印','证明']},
-  {cat:'service',name:'后勤服务中心',desc:'学知苑20栋，一卡通充值、报修',tags:['后勤','充值']},
-  {cat:'service',name:'校医院',desc:'清水河校区内，日常医疗服务，急诊24小时',tags:['医疗','急诊']},
-  {cat:'service',name:'卡务中心',desc:'一卡通补办、充值，每周四至六15:00-17:00',tags:['一卡通','补办']},
-  {cat:'service',name:'理发店',desc:'商业街内，理发美容服务',tags:['理发','商业街']},
-  {cat:'service',name:'文印店',desc:'商业街内，打印复印扫描装订',tags:['打印','复印','商业街']},
+  {cat:'service',name:'菜鸟驿站',desc:'商业街1楼，快递收发点，凭菜鸟APP取件，双十一排队最长',tags:['快递','商业街'],rating:3.8,score:'3.8',distance:'100m',dist_text:'商业街1楼',hot:true,hours:'8:00-20:00',img:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400',comments:[{user:'网购达人',text:'双十一排队能排半小时，平时还好',time:'2024-11-12'},{user:'取件老手',text:'记得提前在APP上点取件，到现场扫码就行',time:'2024-09-14'}]},
+  {cat:'service',name:'顺丰取件点',desc:'商业街内，顺丰快递取寄件，速度最快',tags:['快递','顺丰','加急'],rating:4.2,score:'4.2',distance:'100m',dist_text:'商业街内',hot:false,hours:'8:00-20:00',img:'https://images.unsplash.com/photo-1605965236514-91a3b885e1f1?w=400',comments:[{user:'顺丰粉',text:'急件就找顺丰，虽然贵点但靠谱',time:'2024-09-21'}]},
+  {cat:'service',name:'电信营业厅',desc:'商业街1楼菜鸟驿站旁，校园卡办理，电信套餐性价比首选',tags:['电话卡','电信','校园卡'],rating:4.5,score:'4.5',distance:'100m',dist_text:'商业街1楼',hot:true,hours:'9:00-18:00',img:'https://images.unsplash.com/photo-1593359677879-a1f2c89e8c6f?w=400',comments:[{user:'电信用户',text:'办了电信校园卡，39元月租710G流量，全校WiFi都能用',time:'2024-09-01'},{user:'过来人',text:'校园卡和校园网一体绑定，一张卡搞定，比移动省心多了',time:'2024-09-05'}]},
+  {cat:'service',name:'超市/便利店',desc:'商业街内综合超市+连锁便利店，日用品零食饮料文具',tags:['购物','日用品','零食'],rating:4.0,score:'4.0',distance:'100m',dist_text:'商业街内',hot:false,hours:'7:00-23:00',img:'https://images.unsplash.com/photo-1532387817212-8d1f1c1e9b4e?w=400',comments:[{user:'囤货党',text:'日用品零食一站式搞定，价格和外面差不多',time:'2024-09-27'}]},
+  {cat:'service',name:'自助打印机',desc:'行政主楼B2区1楼，自助打印各类证明材料，24小时可用',tags:['打印','证明','24h'],rating:4.1,score:'4.1',distance:'300m',dist_text:'行政主楼B2区1楼',hot:false,hours:'24小时',img:'https://images.unsplash.com/photo-1612831455540-9f6d4c5c5c5c?w=400',comments:[{user:'打印达人',text:'24小时自助很方便，刷一卡通就能打',time:'2024-10-02'}]},
+  {cat:'service',name:'后勤服务中心',desc:'学知苑20栋，一卡通充值、报修、宿舍咨询',tags:['后勤','充值','报修'],rating:3.9,score:'3.9',distance:'200m',dist_text:'学知苑20栋',hot:false,hours:'8:30-17:30',img:'https://images.unsplash.com/photo-1581094774516-8c4f1c5c5c5c?w=400',comments:[{user:'报修用户',text:'宿舍空调坏了来这报修，第二天就有人来修',time:'2024-09-18'}]},
+  {cat:'service',name:'校医院',desc:'清水河校区内，日常医疗服务，急诊24小时，夜班13518194790',tags:['医疗','急诊','24h'],rating:3.7,score:'3.7',distance:'500m',dist_text:'校内东北角',hot:false,hours:'24小时急诊',img:'https://images.unsplash.com/photo-1538108148396-f4d818d0c549?w=400',comments:[{user:'过来人',text:'小病在校医院看就行，挂号便宜，急诊24小时有人',time:'2024-10-01'}]},
+  {cat:'service',name:'卡务中心',desc:'一卡通补办、充值，每周四至六15:00-17:00',tags:['一卡通','补办'],rating:3.5,score:'3.5',distance:'300m',dist_text:'行政楼区域',hot:false,hours:'周四至六 15:00-17:00',img:'https://images.unsplash.com/photo-1554224155-6d455e1c5c5c?w=400',comments:[{user:'丢卡党',text:'补办卡记得在规定时间去，别白跑一趟',time:'2024-09-12'}]},
+  {cat:'service',name:'理发店',desc:'商业街内，理发美容服务，价格比校外便宜',tags:['理发','美容','商业街'],rating:3.8,score:'3.8',distance:'100m',dist_text:'商业街内',hot:false,hours:'9:00-21:00',img:'https://images.unsplash.com/photo-1599358910396-6c5c5c5c5c5c?w=400',comments:[{user:'理发常客',text:'校内理发够用了，男生剪头20-30元',time:'2024-09-20'}]},
+  {cat:'service',name:'文印店',desc:'商业街内，打印复印扫描装订，论文装订来这里',tags:['打印','复印','装订','商业街'],rating:4.0,score:'4.0',distance:'100m',dist_text:'商业街内',hot:false,hours:'8:00-22:00',img:'https://images.unsplash.com/photo-1612831455540-9f6d4c5c5c5d?w=400',comments:[{user:'论文党',text:'毕业论文装订就来这，老板会帮你调格式',time:'2024-10-09'}]},
+  {cat:'service',name:'水果店',desc:'商业街内，新鲜水果/果切/果汁，日常补给',tags:['水果','健康','商业街'],rating:4.1,score:'4.1',distance:'100m',dist_text:'商业街内',hot:false,hours:'8:00-22:00',img:'https://images.unsplash.com/photo-1610832958506-aa6t5c5c5c5c?w=400',comments:[{user:'水果控',text:'果切很方便，晚上买还有打折',time:'2024-09-24'}]},
+  {cat:'service',name:'药店',desc:'商业街内，常备药品/感冒药/创可贴等',tags:['药品','健康','商业街'],rating:3.9,score:'3.9',distance:'100m',dist_text:'商业街内',hot:false,hours:'8:00-22:00',img:'https://images.unsplash.com/photo-1587854693802-c4c5c5c5c5c5?w=400',comments:[{user:'感冒党',text:'感冒了不用出校，商业街药店就能买药',time:'2024-10-03'}]},
   // 学习场所
-  {cat:'study',name:'清水河图书馆',desc:'5.2万㎡，07:00-22:30，座位7000+，研修室116间，需预约',tags:['图书馆','自习','预约']},
-  {cat:'study',name:'图书馆研修室',desc:'116间团队研讨空间，网上预约使用',tags:['研讨','预约']},
-  {cat:'study',name:'图书馆多媒体学习空间',desc:'8个多媒体学习空间，电子资源阅览',tags:['电子','多媒体']},
-  {cat:'study',name:'自助图书馆',desc:'行政主楼五楼及品悦吧外，24小时开放',tags:['24小时','自习']},
-  {cat:'study',name:'品学楼',desc:'主要教学楼之一，考场常用',tags:['教学楼','考试']},
-  {cat:'study',name:'立人楼',desc:'教学楼，部分课程授课地点',tags:['教学楼','上课']},
-  {cat:'study',name:'科创楼',desc:'科研楼，实验室聚集区',tags:['科研','实验室']},
-  {cat:'study',name:'电子科技博物馆',desc:'藏品15000+件，周二至日9:00-17:00，周一闭馆',tags:['博物馆','参观']},
-  {cat:'study',name:'校史馆',desc:'9:30-11:30/14:30-16:30，预约讲解61830771',tags:['校史','参观']},
+  {cat:'study',name:'清水河图书馆',desc:'5.2万㎡，07:00-22:30，座位7000+，研修室116间，需预约',tags:['图书馆','自习','预约'],rating:4.8,score:'4.8',distance:'200m',dist_text:'校园中心',hot:true,hours:'07:00-22:30',img:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400',comments:[{user:'图书馆常客',text:'环境超好，座位多，考研季需要早起占座',time:'2024-10-05'},{user:'预约达人',text:'研修室网上预约，小组讨论必备',time:'2024-09-16'}]},
+  {cat:'study',name:'图书馆研修室',desc:'116间团队研讨空间，网上预约使用，白板/投影/空调',tags:['研讨','预约','团队'],rating:4.6,score:'4.6',distance:'200m',dist_text:'图书馆内',hot:false,hours:'08:00-22:00',img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400',comments:[{user:'项目组长',text:'小组作业必备，提前一天预约就行，有白板和投影',time:'2024-09-28'}]},
+  {cat:'study',name:'图书馆多媒体学习空间',desc:'8个多媒体学习空间，电子资源阅览，电脑可用',tags:['电子','多媒体','电脑'],rating:4.3,score:'4.3',distance:'200m',dist_text:'图书馆内',hot:false,hours:'08:00-22:00',img:'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400',comments:[{user:'电子资源用户',text:'查文献方便，电脑配置也还行',time:'2024-09-30'}]},
+  {cat:'study',name:'自助图书馆',desc:'行政主楼五楼及品悦吧外，24小时开放，刷一卡通进入',tags:['24小时','自习','夜猫子'],rating:4.5,score:'4.5',distance:'300m',dist_text:'行政主楼五楼',hot:true,hours:'24小时',img:'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=400',comments:[{user:'夜猫子',text:'期末赶DDL的福音，24小时开放！',time:'2024-10-10'},{user:'考研党',text:'晚上图书馆关了就来这，安静人少',time:'2024-09-22'}]},
+  {cat:'study',name:'品学楼',desc:'主要教学楼之一，考场常用，教室宽敞设备齐全',tags:['教学楼','考试','上课'],rating:4.2,score:'4.2',distance:'150m',dist_text:'教学区',hot:false,hours:'7:00-22:00',img:'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=400',comments:[{user:'品学楼常客',text:'教室大座位多，期末考场经常在这',time:'2024-09-19'}]},
+  {cat:'study',name:'立人楼',desc:'教学楼，部分课程授课地点，离宿舍区较近',tags:['教学楼','上课'],rating:4.0,score:'4.0',distance:'200m',dist_text:'教学区',hot:false,hours:'7:00-22:00',img:'https://images.unsplash.com/photo-1562774053-7019ba1a8d27?w=400',comments:[{user:'立人楼上课人',text:'离宿舍近，早八不用起太早',time:'2024-09-25'}]},
+  {cat:'study',name:'科创楼',desc:'科研楼，实验室聚集区，研究生/科研常用',tags:['科研','实验室','研究生'],rating:4.4,score:'4.4',distance:'300m',dist_text:'科研区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1581092160562-405e4d9c5c5c?w=400',comments:[{user:'科研狗',text:'实验室聚集地，导师办公室也多在这',time:'2024-10-01'}]},
+  {cat:'study',name:'电子科技博物馆',desc:'藏品15000+件，周二至日9:00-17:00，周一闭馆，免费参观',tags:['博物馆','参观','免费'],rating:4.5,score:'4.5',distance:'400m',dist_text:'校园内',hot:false,hours:'周二至日 9:00-17:00',img:'https://images.unsplash.com/photo-1519337265831-7d0c5c5c5c5c?w=400',comments:[{user:'博物馆爱好者',text:'15000+藏品，了解电子科技发展史的好地方',time:'2024-09-27'}]},
+  {cat:'study',name:'校史馆',desc:'9:30-11:30/14:30-16:30，预约讲解61830771，了解成电历史',tags:['校史','参观','讲解'],rating:4.3,score:'4.3',distance:'400m',dist_text:'校园内',hot:false,hours:'9:30-11:30 14:30-16:30',img:'https://images.unsplash.com/photo-1574732340737-65c5c5c5c5c5?w=400',comments:[{user:'校史迷',text:'预约讲解很值得，了解成电60多年历史',time:'2024-10-08'}]},
   // 校园建筑
-  {cat:'building',name:'行政主楼',desc:'学校行政办公中心，B2区1楼自助打印',tags:['行政','办公']},
-  {cat:'building',name:'学生活动中心',desc:'新生报到点，社团活动场地',tags:['报到','活动']},
-  {cat:'building',name:'商业街',desc:'校内商业综合体，餐饮/快递/超市/营业厅',tags:['商业','购物','餐饮']},
-  {cat:'building',name:'硕丰苑',desc:'硕士宿舍区，21-28栋为五期/六期新建',tags:['宿舍','硕士']},
-  {cat:'building',name:'博翰苑',desc:'博士生宿舍区',tags:['宿舍','博士']},
-  {cat:'building',name:'本科宿舍组团',desc:'多个组团，刷一卡通进出，入口设门禁',tags:['宿舍','本科']},
+  {cat:'building',name:'行政主楼',desc:'学校行政办公中心，B2区1楼自助打印，标志性建筑',tags:['行政','办公','地标'],rating:4.0,score:'4.0',distance:'300m',dist_text:'校园中心',hot:false,hours:'工作日8:30-17:30',img:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400',comments:[{user:'办事达人',text:'盖章/证明/自助打印都在这，很方便',time:'2024-09-15'}]},
+  {cat:'building',name:'学生活动中心',desc:'新生报到点，社团活动场地，各类晚会/比赛举办地',tags:['报到','活动','社团'],rating:4.4,score:'4.4',distance:'50m',dist_text:'校园中心',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400',comments:[{user:'社团达人',text:'社团活动/晚会/比赛都在这，新生报到也在这',time:'2024-09-01'},{user:'新生',text:'报到第一站就是学活，找不到就问路',time:'2024-08-25'}]},
+  {cat:'building',name:'商业街',desc:'校内商业综合体，餐饮/快递/超市/营业厅/理发一应俱全',tags:['商业','购物','餐饮','快递'],rating:4.5,score:'4.5',distance:'100m',dist_text:'校内',hot:true,hours:'7:00-23:00',img:'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400',comments:[{user:'商业街常客',text:'吃喝玩乐一站式解决，校内生活核心区',time:'2024-10-12'},{user:'新生家长',text:'送孩子来学校第一件事就是逛商业街，什么都有',time:'2024-08-30'}]},
+  {cat:'building',name:'硕丰苑',desc:'硕士宿舍区，21-28栋为五期/六期新建，2人间为主',tags:['宿舍','硕士','新建'],rating:4.3,score:'4.3',distance:'400m',dist_text:'宿舍区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1555854877-bab0e4c5c5c5?w=400',comments:[{user:'硕丰苑住户',text:'21-28栋新宿舍条件好，2人间有独卫',time:'2024-09-10'}]},
+  {cat:'building',name:'博翰苑',desc:'博士生宿舍区，环境安静，配套设施完善',tags:['宿舍','博士'],rating:4.2,score:'4.2',distance:'500m',dist_text:'宿舍区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=400',comments:[{user:'博翰苑住户',text:'博士宿舍安静，适合搞科研',time:'2024-09-18'}]},
+  {cat:'building',name:'本科宿舍组团',desc:'多个组团，刷一卡通进出，入口设门禁，4人间为主',tags:['宿舍','本科','门禁'],rating:4.0,score:'4.0',distance:'200m',dist_text:'宿舍区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1521577432336-c4c5c5c5c5c5?w=400',comments:[{user:'本科住户',text:'4人间上床下桌，有空调独卫，条件还行',time:'2024-09-05'}]},
   // 运动场馆
-  {cat:'sport',name:'体育馆',desc:'室内运动场，篮球/羽毛球等',tags:['室内','篮球']},
-  {cat:'sport',name:'体育场',desc:'标准田径场，户外运动',tags:['田径','跑步']},
-  {cat:'sport',name:'游泳馆',desc:'室内游泳馆',tags:['游泳']},
-  {cat:'sport',name:'网球场',desc:'室外网球场',tags:['网球']},
-  {cat:'sport',name:'篮球场',desc:'室外篮球场，多个',tags:['篮球','室外']}
+  {cat:'sport',name:'体育馆',desc:'室内运动场，篮球/羽毛球/乒乓球，可预约',tags:['室内','篮球','羽毛球'],rating:4.4,score:'4.4',distance:'300m',dist_text:'运动区',hot:false,hours:'6:00-22:00',img:'https://images.unsplash.com/photo-1517649763962-0c6230660d5c?w=400',comments:[{user:'篮球爱好者',text:'室内打球不怕刮风下雨，需要提前预约',time:'2024-09-28'}]},
+  {cat:'sport',name:'体育场',desc:'标准田径场，户外运动，夜跑/晨跑好去处',tags:['田径','跑步','户外'],rating:4.5,score:'4.5',distance:'250m',dist_text:'运动区',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400',comments:[{user:'跑步爱好者',text:'标准400米跑道，晚上跑步的人很多，氛围好',time:'2024-10-05'},{user:'体测选手',text:'体测就在这，1000米/800米/50米都有',time:'2024-09-20'}]},
+  {cat:'sport',name:'游泳馆',desc:'室内游泳馆，需预约/购票，水质不错',tags:['游泳','室内'],rating:4.2,score:'4.2',distance:'350m',dist_text:'运动区',hot:false,hours:'需预约',img:'https://images.unsplash.com/photo-1565299624946-b28f0a3c91d3?w=400',comments:[{user:'游泳爱好者',text:'校内游泳馆水质还行，价格比外面便宜',time:'2024-09-15'}]},
+  {cat:'sport',name:'网球场',desc:'室外网球场，需要自带球拍/球，免费使用',tags:['网球','室外'],rating:4.0,score:'4.0',distance:'300m',dist_text:'运动区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1622279457486-62dcc4a93c5c?w=400',comments:[{user:'网球爱好者',text:'场地免费但需要自带装备，周末人多',time:'2024-09-22'}]},
+  {cat:'sport',name:'篮球场',desc:'室外篮球场，多个场地，白天夜晚均可使用',tags:['篮球','室外'],rating:4.3,score:'4.3',distance:'200m',dist_text:'运动区',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400',comments:[{user:'篮球少年',text:'室外场随时能打，晚上有灯，氛围超好',time:'2024-10-01'}]}
 ];
 
 var NEARBY_CAT_MAP={
-  food:{container:'nearbyFood',icon:'🍽️'},
-  service:{container:'nearbyService',icon:'🛒'},
-  study:{container:'nearbyStudy',icon:'📚'},
-  building:{container:'nearbyBuilding',icon:'🏢'},
-  sport:{container:'nearbySport',icon:'🏃'}
+  food:{container:'nearbyFood',icon:'🍽️',title:'餐饮美食'},
+  service:{container:'nearbyService',icon:'🛒',title:'生活服务'},
+  study:{container:'nearbyStudy',icon:'📚',title:'学习场所'},
+  building:{container:'nearbyBuilding',icon:'🏢',title:'校园建筑'},
+  sport:{container:'nearbySport',icon:'🏃',title:'运动场馆'}
 };
 
 function renderNearbyPlaces(){
@@ -3784,7 +3828,9 @@ function renderNearbyPlaces(){
     if(!container)return;
     var places=NEARBY_PLACES.filter(function(p){return p.cat===cat});
     container.innerHTML=places.map(function(p){
-      return '<div class="nearby-place" onclick="nearbyPlaceClick(\''+p.name+'\')"><div class="nearby-place-name">'+p.name+'</div><div class="nearby-place-desc">'+p.desc+'</div></div>';
+      var hotHtml=p.hot?'<span class="nearby-place-hot">🔥热门</span>':'';
+      var imgHtml=p.img?'<img class="nearby-place-img" src="'+p.img+'" loading="lazy" onerror="this.style.display=\'none\'">':'';
+      return '<div class="nearby-place" onclick="nearbyPlaceClick(\''+p.name.replace(/'/g,"\\'")+'\')">'+imgHtml+'<div class="nearby-place-name">'+NEARBY_CAT_MAP[p.cat].icon+' '+p.name+hotHtml+'<span class="nearby-place-rating">⭐'+p.rating+'</span></div><div class="nearby-place-desc">'+p.desc+'</div><div class="nearby-place-distance">📍 '+p.dist_text+' · 🕐 '+p.hours+'</div></div>';
     }).join('');
   });
 }
@@ -3797,37 +3843,103 @@ function doNearbySearch(q){
     return p.name.toLowerCase().indexOf(q)>=0||p.desc.toLowerCase().indexOf(q)>=0||p.tags.some(function(t){return t.toLowerCase().indexOf(q)>=0});
   });
   if(!hits.length){
-    resultsDiv.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:14px">未找到相关地点，试试用外部平台搜索👇</div>';
+    resultsDiv.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:14px">未找到相关地点，试试用社交平台搜索👇</div>';
     updatePlatformLinks(q);
     return;
   }
   resultsDiv.innerHTML='<div class="nearby-cat-title">📍 搜索结果（'+hits.length+'个）</div>'+hits.map(function(p){
     var tagsHtml=p.tags.map(function(t){return '<span class="nearby-place-result-tag">'+t+'</span>'}).join('');
-    return '<div class="nearby-place-result" onclick="nearbyPlaceClick(\''+p.name+'\')"><div class="nearby-place-result-name">'+NEARBY_CAT_MAP[p.cat].icon+' '+p.name+'</div><div class="nearby-place-result-desc">'+p.desc+'</div><div class="nearby-place-result-tags">'+tagsHtml+'</div></div>';
+    var hotHtml=p.hot?'<span class="nearby-place-hot">🔥热门</span>':'';
+    var imgHtml=p.img?'<img class="nearby-place-img" src="'+p.img+'" loading="lazy" onerror="this.style.display=\'none\'">':'';
+    return '<div class="nearby-place-result" onclick="nearbyPlaceClick(\''+p.name.replace(/'/g,"\\'")+'\')">'+imgHtml+'<div class="nearby-place-result-name">'+NEARBY_CAT_MAP[p.cat].icon+' '+p.name+hotHtml+' <span class="nearby-place-rating">⭐'+p.rating+'</span></div><div class="nearby-place-result-desc">'+p.desc+'</div><div class="nearby-place-result-tags">'+tagsHtml+'</div><div class="nearby-place-distance">📍 '+p.dist_text+' · 🕐 '+p.hours+'</div></div>';
   }).join('');
   updatePlatformLinks(q);
 }
 
 function updatePlatformLinks(q){
   var keyword=q||'电子科技大学清水河校区';
-  var amapUrl='https://uri.amap.com/search?keyword='+encodeURIComponent(keyword+' 电子科技大学清水河校区')+'&city=成都';
-  var meituanUrl='https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(keyword);
-  var baiduUrl='https://www.baidu.com/s?wd='+encodeURIComponent(keyword+' 电子科技大学清水河校区');
-  var douyinUrl='https://www.douyin.com/search/'+encodeURIComponent(keyword+' 电子科技大学清水河校区');
-  var kuaishouUrl='https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(keyword+' 电子科技大学清水河校区');
-  document.getElementById('plAmap').href=amapUrl;
+  var full_kw=keyword+' 电子科技大学清水河校区';
+  // 美团：直接搜索清水河校区附近美食，优先推送高排名商家
+  var meituanUrl='https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(keyword)+'&latitude=30.7456&longitude=103.9327';
+  var douyinUrl='https://www.douyin.com/search/'+encodeURIComponent(full_kw);
+  var xiaohongshuUrl='https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(full_kw);
+  var kuaishouUrl='https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(full_kw);
+  var zhiwangUrl='https://kns.cnki.net/kns8/defaultresult/index?korder=SU&kw='+encodeURIComponent(keyword+' 电子科技大学');
   document.getElementById('plMeituan').href=meituanUrl;
-  document.getElementById('plBaidu').href=baiduUrl;
   document.getElementById('plDouyin').href=douyinUrl;
+  document.getElementById('plXiaohongshu').href=xiaohongshuUrl;
   document.getElementById('plKuaishou').href=kuaishouUrl;
+  if(document.getElementById('plZhiwang'))document.getElementById('plZhiwang').href=zhiwangUrl;
 }
 
 function nearbyPlaceClick(name){
-  // 点击地点 → 搜索该地点在各平台的信息
-  updatePlatformLinks(name);
-  // 滚动到平台搜索区域
-  var platformTitle=document.querySelector('.nearby-platform-title');
-  if(platformTitle)platformTitle.scrollIntoView({behavior:'smooth'});
+  var place=NEARBY_PLACES.find(function(p){return p.name===name});
+  if(!place)return;
+  openNearbyDetail(place);
+}
+
+function openNearbyDetail(p){
+  var overlay=document.getElementById('nearbyDetailOverlay');
+  var card=document.getElementById('nearbyDetailCard');
+  // 星级显示
+  var stars='';
+  for(var i=1;i<=5;i++){stars+=i<=Math.round(p.rating)?'⭐':'☆'}
+  // 评论HTML
+  var commentsHtml='';
+  if(p.comments&&p.comments.length){
+    commentsHtml=p.comments.map(function(c){
+      return '<div class="nearby-detail-comment"><div class="nearby-detail-comment-user">'+c.user+'</div><div class="nearby-detail-comment-text">'+c.text+'</div><div class="nearby-detail-comment-meta">📅 '+c.time+'</div></div>';
+    }).join('');
+  }else{
+    commentsHtml='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">暂无评论，去社交平台看看更多打卡吧👇</div>';
+  }
+  // 社交平台链接
+  var full_kw=p.name+' 电子科技大学清水河校区';
+  var platformLinks=
+    '<a class="nearby-detail-platform-link nearby-platform-meituan" href="https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(p.name)+'&latitude=30.7456&longitude=103.9327" target="_blank">🍔 美团外卖</a>'+
+    '<a class="nearby-detail-platform-link nearby-platform-douyin" href="https://www.douyin.com/search/'+encodeURIComponent(full_kw)+'" target="_blank">🎵 抖音打卡</a>'+
+    '<a class="nearby-detail-platform-link nearby-platform-xiaohongshu" href="https://www.xiaohongshu.com/search_result?keyword='+encodeURIComponent(full_kw)+'" target="_blank">📕 小红书攻略</a>'+
+    '<a class="nearby-detail-platform-link nearby-platform-kuaishou" href="https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(full_kw)+'" target="_blank">🎬 快手视频</a>'+
+    '<a class="nearby-detail-platform-link nearby-platform-zhiwang" href="https://kns.cnki.net/kns8/defaultresult/index?korder=SU&kw='+encodeURIComponent(p.name+' 电子科技大学')+'" target="_blank">📖 知网学术</a>';
+  // GIS地图链接
+  var mapLink='https://gis.uestc.edu.cn/cmipsh5/#/';
+  // 热门标签
+  var hotHtml=p.hot?'<span class="nearby-place-hot" style="margin-left:8px">🔥 校内热门</span>':'';
+  card.innerHTML=
+    '<div class="nearby-detail-close">'+
+      '<div class="nearby-detail-close-name">'+NEARBY_CAT_MAP[p.cat].icon+' '+p.name+hotHtml+'</div>'+
+      '<div class="nearby-detail-close-btn" onclick="closeNearbyDetail()">✕</div>'+
+    '</div>'+
+    (p.img?'<img class="nearby-detail-img" src="'+p.img+'" onerror="this.style.display=\'none\'">':'')+
+    '<div class="nearby-detail-body">'+
+      '<div class="nearby-detail-rating">'+
+        '<span class="nearby-detail-stars">'+stars+'</span>'+
+        '<span class="nearby-detail-score">'+p.score+'</span>'+
+      '</div>'+
+      '<div class="nearby-detail-meta">'+
+        '<span>📍 '+p.dist_text+'</span>'+
+        '<span>🕐 '+p.hours+'</span>'+
+      '</div>'+
+      '<div class="nearby-detail-section">'+
+        '<div class="nearby-detail-section-title">📝 简介</div>'+
+        '<p style="font-size:14px;color:var(--text);line-height:1.7">'+p.desc+'</p>'+
+      '</div>'+
+      '<a class="nearby-detail-map-link" href="'+mapLink+'" target="_blank">🗺️ 在GIS校园地图上查看位置</a>'+
+      '<div class="nearby-detail-section">'+
+        '<div class="nearby-detail-section-title">💬 校友点评</div>'+
+        commentsHtml+
+      '</div>'+
+      '<div class="nearby-detail-section">'+
+        '<div class="nearby-detail-section-title">🔎 社交平台搜索</div>'+
+        '<p style="font-size:12px;color:var(--text2);margin-bottom:8px">点击以下按钮，在社交平台搜索该地点的打卡视频/攻略/评价</p>'+
+        '<div class="nearby-detail-platform-links">'+platformLinks+'</div>'+
+      '</div>'+
+    '</div>';
+  overlay.classList.add('open');
+}
+
+function closeNearbyDetail(){
+  document.getElementById('nearbyDetailOverlay').classList.remove('open');
 }
 
 // === 打开/关闭详情（全屏覆盖，z-index=300 > tabbar=100） ===
@@ -3955,6 +4067,12 @@ window.aiSend=aiSend;
 window.openDetail=openDetail;
 window.closeDetail=closeDetail;
 window.switchTab=switchTab;
+window.nearbyPlaceClick=nearbyPlaceClick;
+window.openNearbyDetail=openNearbyDetail;
+window.closeNearbyDetail=closeNearbyDetail;
+window.doNearbySearch=doNearbySearch;
+window.renderNearbyPlaces=renderNearbyPlaces;
+window.updatePlatformLinks=updatePlatformLinks;
 </script>
 </body>
 </html>
