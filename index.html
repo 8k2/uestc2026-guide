@@ -129,6 +129,41 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .search-hot-tag{padding:6px 14px;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.12);border-radius:20px;font-size:13px;color:var(--text);cursor:pointer;transition:all .2s}
 .search-hot-tag:active{background:rgba(255,215,0,0.15)}
 
+/* === 附近搜索区 === */
+.nearby-section{padding:16px;display:none;flex-direction:column;gap:16px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.nearby-section.active{display:flex}
+.nearby-loc{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(135deg,rgba(20,30,60,0.8),rgba(30,40,80,0.6));border:1px solid rgba(255,215,0,0.15);border-radius:12px}
+.nearby-loc-icon{font-size:24px}
+.nearby-loc-info{flex:1}
+.nearby-loc-name{font-size:15px;font-weight:700;color:var(--gold)}
+.nearby-loc-addr{font-size:12px;color:var(--text2);margin-top:2px}
+.nearby-cat-title{font-size:14px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:8px}
+.nearby-cat-title::before{content:'';width:3px;height:14px;background:var(--gold);border-radius:2px}
+.nearby-place-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nearby-place{padding:12px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:12px;cursor:pointer;transition:all .2s}
+.nearby-place:active{border-color:rgba(255,215,0,0.2);transform:scale(.97)}
+.nearby-place-name{font-size:14px;font-weight:600;color:var(--gold)}
+.nearby-place-desc{font-size:11px;color:var(--text2);margin-top:3px;line-height:1.4}
+.nearby-search-box{margin:0 0 4px;padding:10px 14px;background:rgba(20,30,60,0.6);border:1px solid rgba(255,215,0,0.15);border-radius:12px;display:flex;align-items:center;gap:10px}
+.nearby-search-box input{flex:1;border:none;background:none;color:var(--text);font-size:14px;outline:none}
+.nearby-search-box input::placeholder{color:var(--text3)}
+.nearby-platform-title{font-size:14px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:8px;margin-top:4px}
+.nearby-platform-title::before{content:'';width:3px;height:14px;background:var(--gold);border-radius:2px}
+.nearby-platforms{display:flex;gap:10px;flex-wrap:wrap}
+.nearby-platform{display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:12px;cursor:pointer;transition:all .2s;font-size:14px;font-weight:600;flex:1;min-width:100px;justify-content:center;text-decoration:none}
+.nearby-platform:active{transform:scale(.95)}
+.nearby-platform-amap{background:rgba(0,140,255,0.12);border:1px solid rgba(0,140,255,0.2);color:#008cff}
+.nearby-platform-meituan{background:rgba(255,180,0,0.12);border:1px solid rgba(255,180,0,0.2);color:#ffb400}
+.nearby-platform-baidu{background:rgba(45,130,255,0.12);border:1px solid rgba(45,130,255,0.2);color:#2d82ff}
+.nearby-platform-douyin{background:rgba(255,50,80,0.12);border:1px solid rgba(255,50,80,0.2);color:#ff3250}
+.nearby-platform-kuaishou{background:rgba(255,120,0,0.12);border:1px solid rgba(255,120,0,0.2);color:#ff7800}
+.nearby-place-result{padding:12px 14px;margin-bottom:8px;background:var(--card);border:1px solid rgba(255,215,0,0.06);border-radius:12px;cursor:pointer;transition:all .2s}
+.nearby-place-result:active{border-color:rgba(255,215,0,0.2);transform:scale(.98)}
+.nearby-place-result-name{font-size:14px;font-weight:600;color:var(--gold)}
+.nearby-place-result-desc{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
+.nearby-place-result-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.nearby-place-result-tag{font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(255,215,0,0.08);color:var(--gold)}
+
 /* === AI 对话区 === */
 .ai-chat{flex:1;overflow-y:auto;padding:12px 16px 80px;-webkit-overflow-scrolling:touch;display:none;flex-direction:column;gap:12px}
 .ai-chat.active{display:flex}
@@ -397,6 +432,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <div class="search-mode-tabs">
     <div class="search-mode-tab active" id="modeLocal" onclick="switchMode('local')">📚 本地搜索</div>
     <div class="search-mode-tab" id="modeAI" onclick="switchMode('ai')">🤖 AI智能问答</div>
+    <div class="search-mode-tab" id="modeNearby" onclick="switchMode('nearby')">📍 附近搜索</div>
   </div>
   <div class="search-results" id="searchResults">
     <div class="search-hot">
@@ -429,6 +465,39 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <div class="ai-input-bar" id="aiInputBar" style="display:none">
     <textarea class="ai-input-field" id="aiInput" placeholder="问点什么…  回车发送" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea>
     <div class="ai-send-btn" id="aiSendBtn" onclick="aiSend()">➤</div>
+  </div>
+  <div class="nearby-section" id="nearbySection">
+    <div class="nearby-loc">
+      <div class="nearby-loc-icon">📍</div>
+      <div class="nearby-loc-info">
+        <div class="nearby-loc-name">电子科技大学 · 清水河校区</div>
+        <div class="nearby-loc-addr">成都市高新区（西区）西源大道2006号 · 邮编611731</div>
+      </div>
+    </div>
+    <div class="nearby-search-box">
+      <span style="font-size:16px;color:var(--gold)">🔍</span>
+      <input id="nearbyInput" placeholder="搜索校内地点：食堂、打印店、超市、图书馆…" oninput="doNearbySearch(this.value)">
+    </div>
+    <div id="nearbyResults">
+      <div class="nearby-cat-title">🍽️ 餐饮美食</div>
+      <div class="nearby-place-grid" id="nearbyFood"></div>
+      <div class="nearby-cat-title">🛒 生活服务</div>
+      <div class="nearby-place-grid" id="nearbyService"></div>
+      <div class="nearby-cat-title">📚 学习场所</div>
+      <div class="nearby-place-grid" id="nearbyStudy"></div>
+      <div class="nearby-cat-title">🏢 校园建筑</div>
+      <div class="nearby-place-grid" id="nearbyBuilding"></div>
+      <div class="nearby-cat-title">🏃 运动场馆</div>
+      <div class="nearby-place-grid" id="nearbySport"></div>
+    </div>
+    <div class="nearby-platform-title">🔎 到外部平台搜索更多</div>
+    <div class="nearby-platforms">
+      <a class="nearby-platform nearby-platform-amap" id="plAmap" target="_blank">📍 高德地图</a>
+      <a class="nearby-platform nearby-platform-meituan" id="plMeituan" target="_blank">🍔 美团外卖</a>
+      <a class="nearby-platform nearby-platform-baidu" id="plBaidu" target="_blank">🔍 百度</a>
+      <a class="nearby-platform nearby-platform-douyin" id="plDouyin" target="_blank">🎵 抖音</a>
+      <a class="nearby-platform nearby-platform-kuaishou" id="plKuaishou" target="_blank">🎬 快手</a>
+    </div>
   </div>
 </div>
 
@@ -3372,19 +3441,32 @@ function switchMode(mode){
   currentMode=mode;
   var tabLocal=document.getElementById('modeLocal');
   var tabAI=document.getElementById('modeAI');
+  var tabNearby=document.getElementById('modeNearby');
   var results=document.getElementById('searchResults');
   var aiChat=document.getElementById('aiChat');
   var aiBar=document.getElementById('aiInputBar');
+  var nearbySection=document.getElementById('nearbySection');
   var searchInput=document.getElementById('searchInput');
+  var header=document.querySelector('.search-panel-header');
+  // reset
+  tabLocal.classList.remove('active');tabAI.classList.remove('active');tabNearby.classList.remove('active');
+  results.style.display='none';aiChat.classList.remove('active');aiBar.style.display='none';
+  nearbySection.classList.remove('active');searchInput.style.display='block';
   if(mode==='ai'){
-    tabAI.classList.add('active');tabLocal.classList.remove('active');
-    results.style.display='none';aiChat.classList.add('active');
-    aiBar.style.display='flex';searchInput.style.display='none';
+    tabAI.classList.add('active');
+    results.style.display='none';aiChat.classList.add('active');aiBar.style.display='flex';
+    searchInput.style.display='none';
     setTimeout(()=>document.getElementById('aiInput').focus(),100);
+  }else if(mode==='nearby'){
+    tabNearby.classList.add('active');
+    results.style.display='none';nearbySection.classList.add('active');
+    searchInput.style.display='none';
+    renderNearbyPlaces();
+    setTimeout(()=>document.getElementById('nearbyInput').focus(),100);
   }else{
-    tabLocal.classList.add('active');tabAI.classList.remove('active');
-    results.style.display='block';aiChat.classList.remove('active');
-    aiBar.style.display='none';searchInput.style.display='block';
+    tabLocal.classList.add('active');
+    results.style.display='block';
+    searchInput.style.display='block';
     setTimeout(()=>document.getElementById('searchInput').focus(),100);
   }
 }
@@ -3466,6 +3548,34 @@ function buildAIKB(){
       });
     }
   }
+  // 注入官网信息
+  var officialData=[
+    {key:'图书馆',title:'图书馆开放时间',content:'清水河馆07:00-22:30（周一至周日），沙河馆07:00-22:30。自助图书馆在行政主楼五楼及品悦吧外，24小时开放。年均开馆340余天。暑期自8月28日起恢复正常开放。'},
+    {key:'图书馆',title:'图书馆座位预约',content:'每日20:00起可预约次日座位。预约成功后30分钟内需入馆，否则自动失效。11:00-12:30和17:00-18:30离馆保留90分钟，其他时段离馆保留30分钟。预约入口：图书馆官网空间及服务预约。本校读者可用校园一卡通或人脸识别入馆。'},
+    {key:'图书馆',title:'图书馆空间预约类型',content:'座位预约（日常阅览）、考研座位预约、研修室预约（116间团队研讨空间）、报告厅/多媒体阅览室预约（8个多媒体学习空间）、参观预约（提前1个工作日网上预约）。'},
+    {key:'图书馆',title:'图书馆联系电话',content:'行政业务028-61831850，读者服务清水河028-61830016，沙河028-83203620，研究生论文审核028-61830533，科技查新028-61831813，馆际互借028-61831793。'},
+    {key:'校园生活',title:'校园一卡通',content:'一卡通集学生证、图书证、就餐卡、电子钱包于一体。功能：身份识别、进出校门、食堂就餐、校内消费、宿舍淋浴、电费充值、图书馆入馆、门禁刷卡。充值方式：圈存机、支付宝（搜电子科技大学生活号→电子校园卡→充校园卡）、后勤服务中心现场。电费充值：圈存机电控转账（本科1+楼号+房间号，研究生2+楼号+房间号）。'},
+    {key:'校园网络',title:'校园网络服务',content:'无线网络SSID为UESTC-WiFi，用统一身份认证账号免费使用。清水河有线网由信息中心与电信建设维护。学生宿舍有线可选移动、电信。校园VPN：vpn.uestc.edu.cn。正版软件：soft.uestc.cn（仅校内网激活，校外需VPN）。'},
+    {key:'选课查询',title:'本科生选课系统',content:'教务系统入口eams.uestc.edu.cn，通过统一身份认证登录。选课前需完成学期注册和学生评教，否则无法选课。选课机制：权重选课法和抢课制选课法，分三轮选课。'},
+    {key:'选课查询',title:'考试安排与缓考',content:'考试类型：期中、期末、缓补考、重新学习考试。凭两证（学生证、身份证、带照片校园一卡通任两证）参加。考研学生可申请期末缓考（限14-16周课程，限3门，不含素质教育选修课）。'},
+    {key:'交通',title:'校区班车服务',content:'教职工班车、置信班车、学生班车（天府行学生班车）。班次以智慧成电校车预约平台信息为准。交通运输服务部电话61831596。'},
+    {key:'校园生活',title:'快递服务',content:'清水河校区快递地址：四川省成都市高新西区西源大道2006号电子科技大学清水河校区。取件方式：菜鸟驿站凭菜鸟APP身份码取件，顺丰取件点在商业街。'},
+    {key:'校园生活',title:'自助打印服务',content:'清水河校区主楼B2区1楼自助打印机，支持打印科研证明、事业单位法人证书、出楼出校证明、学生审查等材料。'},
+    {key:'报到',title:'网上服务大厅',content:'网址eportal.uestc.edu.cn，130余个应用服务，含查询、业务办理、流程申请。PC端和移动端（成电在线微信服务号），统一身份认证登录。'},
+    {key:'报到',title:'重要联系电话',content:'学校总值班室61831312，保卫处清水河61830110/61830119，保卫处沙河83200110/83200119，饮食服务清水河61830390，宿舍管理清水河61830091/61830090，交通运输61831596，图书馆61831850，校医院61830397。'},
+    {key:'报到',title:'智慧成电平台',content:'智慧成电企业微信：校车预约、商易购桶装水订购、在线报修。成电智慧学工：请销假、假期登记、劳育活动。平安成电微信公众号：绑定信息，校门扫码进校。成电在线：网上服务大厅移动端。'},
+    {key:'场馆',title:'体育场馆',content:'清水河、沙河校区各体育场地面向学生教职工开放。卡务中心：清水河周四至六15:00-17:00。已注册用户可在场馆充值一体机充值。'},
+    {key:'场馆',title:'电子科技博物馆',content:'开馆时间周二至日9:00-12:00/14:00-17:00（16:30停止进馆），周一闭馆。固定讲解10:30、15:30。寒暑假正常开放。预约电话61831009、61831002（郝老师）。藏品15000余件。'},
+    {key:'场馆',title:'校史馆',content:'开放时间每天9:30-11:30、14:30-16:30，寒暑假另定。预约讲解电话61830771（张老师）。'},
+    {key:'校园生活',title:'食堂充值与服务',content:'充值地点：清水河学知苑20栋后勤服务中心、银桦餐厅、学子餐厅。饮食服务部电话清水河61830390。校友持校友卡在学生餐厅消费需收20%搭伙费。'}
+  ];
+  officialData.forEach(function(item){
+    AI_KB.push(item);
+  });
+  // 注入地点数据
+  NEARBY_PLACES.forEach(function(p){
+    AI_KB.push({key:'附近搜索',title:p.name,content:p.desc+'，分类：'+p.cat+'，标签：'+p.tags.join('、')});
+  });
   AI_KB_BUILT=true;
 }
 
@@ -3608,6 +3718,116 @@ function aiSend(){
     chat.appendChild(botMsg);
     chat.scrollTop=chat.scrollHeight;
   },delay);
+}
+
+// === 附近搜索：清水河校区地点数据库 ===
+var NEARBY_PLACES=[
+  // 餐饮美食
+  {cat:'food',name:'银桦餐厅',desc:'清水河校区主食堂之一，菜品丰富，充值地点之一',tags:['食堂','正餐']},
+  {cat:'food',name:'学子餐厅',desc:'清水河校区主食堂之一，学生常用就餐点',tags:['食堂','正餐']},
+  {cat:'food',name:'学知苑食堂',desc:'20栋旁，后勤服务中心所在地',tags:['食堂','后勤']},
+  {cat:'food',name:'朝阳餐厅',desc:'商业街内，多种风味小吃',tags:['商业街','小吃']},
+  {cat:'food',name:'品悦吧',desc:'图书馆旁休闲餐饮，自助图书馆旁',tags:['咖啡','休闲']},
+  {cat:'food',name:'商业街美食街',desc:'商业街内各类餐饮店铺，火锅、烧烤、奶茶等',tags:['商业街','美食']},
+  {cat:'food',name:'瑞幸咖啡',desc:'商业街1楼16号铺位，移动营业厅对面',tags:['咖啡','商业街']},
+  {cat:'food',name:'蜜雪冰城',desc:'商业街内，平价奶茶',tags:['奶茶','商业街']},
+  {cat:'food',name:'食堂二楼小炒',desc:'银桦餐厅二楼，现炒现卖',tags:['食堂','小炒']},
+  // 生活服务
+  {cat:'service',name:'菜鸟驿站',desc:'商业街1楼，快递收发点，凭菜鸟APP取件',tags:['快递','商业街']},
+  {cat:'service',name:'顺丰取件点',desc:'商业街内，顺丰快递取寄件',tags:['快递','顺丰']},
+  {cat:'service',name:'电信营业厅',desc:'商业街1楼菜鸟驿站旁，校园卡办理',tags:['电话卡','电信']},
+  {cat:'service',name:'移动营业厅',desc:'商业街1楼16号瑞幸对面，校园卡办理',tags:['电话卡','移动']},
+  {cat:'service',name:'超市/便利店',desc:'商业街内，日用品、零食饮料',tags:['购物','日用品']},
+  {cat:'service',name:'自助打印机',desc:'行政主楼B2区1楼，自助打印各类证明材料',tags:['打印','证明']},
+  {cat:'service',name:'后勤服务中心',desc:'学知苑20栋，一卡通充值、报修',tags:['后勤','充值']},
+  {cat:'service',name:'校医院',desc:'清水河校区内，日常医疗服务，急诊24小时',tags:['医疗','急诊']},
+  {cat:'service',name:'卡务中心',desc:'一卡通补办、充值，每周四至六15:00-17:00',tags:['一卡通','补办']},
+  {cat:'service',name:'理发店',desc:'商业街内，理发美容服务',tags:['理发','商业街']},
+  {cat:'service',name:'文印店',desc:'商业街内，打印复印扫描装订',tags:['打印','复印','商业街']},
+  // 学习场所
+  {cat:'study',name:'清水河图书馆',desc:'5.2万㎡，07:00-22:30，座位7000+，研修室116间，需预约',tags:['图书馆','自习','预约']},
+  {cat:'study',name:'图书馆研修室',desc:'116间团队研讨空间，网上预约使用',tags:['研讨','预约']},
+  {cat:'study',name:'图书馆多媒体学习空间',desc:'8个多媒体学习空间，电子资源阅览',tags:['电子','多媒体']},
+  {cat:'study',name:'自助图书馆',desc:'行政主楼五楼及品悦吧外，24小时开放',tags:['24小时','自习']},
+  {cat:'study',name:'品学楼',desc:'主要教学楼之一，考场常用',tags:['教学楼','考试']},
+  {cat:'study',name:'立人楼',desc:'教学楼，部分课程授课地点',tags:['教学楼','上课']},
+  {cat:'study',name:'科创楼',desc:'科研楼，实验室聚集区',tags:['科研','实验室']},
+  {cat:'study',name:'电子科技博物馆',desc:'藏品15000+件，周二至日9:00-17:00，周一闭馆',tags:['博物馆','参观']},
+  {cat:'study',name:'校史馆',desc:'9:30-11:30/14:30-16:30，预约讲解61830771',tags:['校史','参观']},
+  // 校园建筑
+  {cat:'building',name:'行政主楼',desc:'学校行政办公中心，B2区1楼自助打印',tags:['行政','办公']},
+  {cat:'building',name:'学生活动中心',desc:'新生报到点，社团活动场地',tags:['报到','活动']},
+  {cat:'building',name:'商业街',desc:'校内商业综合体，餐饮/快递/超市/营业厅',tags:['商业','购物','餐饮']},
+  {cat:'building',name:'硕丰苑',desc:'硕士宿舍区，21-28栋为五期/六期新建',tags:['宿舍','硕士']},
+  {cat:'building',name:'博翰苑',desc:'博士生宿舍区',tags:['宿舍','博士']},
+  {cat:'building',name:'本科宿舍组团',desc:'多个组团，刷一卡通进出，入口设门禁',tags:['宿舍','本科']},
+  // 运动场馆
+  {cat:'sport',name:'体育馆',desc:'室内运动场，篮球/羽毛球等',tags:['室内','篮球']},
+  {cat:'sport',name:'体育场',desc:'标准田径场，户外运动',tags:['田径','跑步']},
+  {cat:'sport',name:'游泳馆',desc:'室内游泳馆',tags:['游泳']},
+  {cat:'sport',name:'网球场',desc:'室外网球场',tags:['网球']},
+  {cat:'sport',name:'篮球场',desc:'室外篮球场，多个',tags:['篮球','室外']}
+];
+
+var NEARBY_CAT_MAP={
+  food:{container:'nearbyFood',icon:'🍽️'},
+  service:{container:'nearbyService',icon:'🛒'},
+  study:{container:'nearbyStudy',icon:'📚'},
+  building:{container:'nearbyBuilding',icon:'🏢'},
+  sport:{container:'nearbySport',icon:'🏃'}
+};
+
+function renderNearbyPlaces(){
+  var cats=['food','service','study','building','sport'];
+  cats.forEach(function(cat){
+    var container=document.getElementById(NEARBY_CAT_MAP[cat].container);
+    if(!container)return;
+    var places=NEARBY_PLACES.filter(function(p){return p.cat===cat});
+    container.innerHTML=places.map(function(p){
+      return '<div class="nearby-place" onclick="nearbyPlaceClick(\''+p.name+'\')"><div class="nearby-place-name">'+p.name+'</div><div class="nearby-place-desc">'+p.desc+'</div></div>';
+    }).join('');
+  });
+}
+
+function doNearbySearch(q){
+  var resultsDiv=document.getElementById('nearbyResults');
+  if(!q||!q.trim()){renderNearbyPlaces();return}
+  q=q.trim().toLowerCase();
+  var hits=NEARBY_PLACES.filter(function(p){
+    return p.name.toLowerCase().indexOf(q)>=0||p.desc.toLowerCase().indexOf(q)>=0||p.tags.some(function(t){return t.toLowerCase().indexOf(q)>=0});
+  });
+  if(!hits.length){
+    resultsDiv.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--text3);font-size:14px">未找到相关地点，试试用外部平台搜索👇</div>';
+    updatePlatformLinks(q);
+    return;
+  }
+  resultsDiv.innerHTML='<div class="nearby-cat-title">📍 搜索结果（'+hits.length+'个）</div>'+hits.map(function(p){
+    var tagsHtml=p.tags.map(function(t){return '<span class="nearby-place-result-tag">'+t+'</span>'}).join('');
+    return '<div class="nearby-place-result" onclick="nearbyPlaceClick(\''+p.name+'\')"><div class="nearby-place-result-name">'+NEARBY_CAT_MAP[p.cat].icon+' '+p.name+'</div><div class="nearby-place-result-desc">'+p.desc+'</div><div class="nearby-place-result-tags">'+tagsHtml+'</div></div>';
+  }).join('');
+  updatePlatformLinks(q);
+}
+
+function updatePlatformLinks(q){
+  var keyword=q||'电子科技大学清水河校区';
+  var amapUrl='https://uri.amap.com/search?keyword='+encodeURIComponent(keyword+' 电子科技大学清水河校区')+'&city=成都';
+  var meituanUrl='https://h5.waimai.meituan.com/waimai/mindex/search?query='+encodeURIComponent(keyword);
+  var baiduUrl='https://www.baidu.com/s?wd='+encodeURIComponent(keyword+' 电子科技大学清水河校区');
+  var douyinUrl='https://www.douyin.com/search/'+encodeURIComponent(keyword+' 电子科技大学清水河校区');
+  var kuaishouUrl='https://www.kuaishou.com/search/video?searchKey='+encodeURIComponent(keyword+' 电子科技大学清水河校区');
+  document.getElementById('plAmap').href=amapUrl;
+  document.getElementById('plMeituan').href=meituanUrl;
+  document.getElementById('plBaidu').href=baiduUrl;
+  document.getElementById('plDouyin').href=douyinUrl;
+  document.getElementById('plKuaishou').href=kuaishouUrl;
+}
+
+function nearbyPlaceClick(name){
+  // 点击地点 → 搜索该地点在各平台的信息
+  updatePlatformLinks(name);
+  // 滚动到平台搜索区域
+  var platformTitle=document.querySelector('.nearby-platform-title');
+  if(platformTitle)platformTitle.scrollIntoView({behavior:'smooth'});
 }
 
 // === 打开/关闭详情（全屏覆盖，z-index=300 > tabbar=100） ===
