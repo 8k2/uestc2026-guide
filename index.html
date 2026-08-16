@@ -36,6 +36,11 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .hero-sub{font-size:13px;color:var(--text2);margin-top:6px;letter-spacing:2px}
 .hero-badge{display:inline-block;margin-top:10px;padding:4px 14px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:20px;font-size:12px;color:var(--gold)}
 
+/* === 音量控制按钮 === */
+.hero-vol{position:absolute;top:12px;right:12px;z-index:5;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,215,0,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .2s;-webkit-user-select:none;user-select:none}
+.hero-vol:active{transform:scale(.9)}
+.hero-vol.off{opacity:0.4}
+
 /* === 快捷入口 === */
 .quick-row{display:flex;gap:10px;padding:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .quick-row::-webkit-scrollbar{display:none}
@@ -140,7 +145,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 <!-- ============ TAB1 首页 ============ -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <video class="hero-video" autoplay loop muted playsinline webkit-playsinline>
+    <video class="hero-video" id="heroVideo" autoplay loop playsinline webkit-playsinline muted>
       <source src="bg_video.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
@@ -150,6 +155,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <div class="hero-sub">电子科技大学 · 清水河校区</div>
       <div class="hero-badge">2026新生入学全能指南</div>
     </div>
+    <div class="hero-vol" id="heroVol" onclick="toggleVol()">🔇</div>
   </div>
 
   <div class="search-box" onclick="openSearch()">
@@ -859,6 +865,35 @@ panel.addEventListener('touchend',function(e){
   touchCurrentX=0;
   swipeStarted=false;
 },{passive:true});
+
+// === 背景视频：移动端兜底播放 + 音量控制 ===
+(function(){
+  const v=document.getElementById('heroVideo');
+  const volBtn=document.getElementById('heroVol');
+  let soundOn=false;
+  // 移动端兜底：首次触摸触发播放
+  v.play().catch(()=>{
+    document.addEventListener('touchstart',()=>v.play(),{once:true});
+    document.addEventListener('click',()=>v.play(),{once:true});
+  });
+  // 音量控制
+  window.toggleVol=function(){
+    if(soundOn){
+      v.muted=true;
+      soundOn=false;
+      volBtn.textContent='🔇';
+      volBtn.classList.add('off');
+    }else{
+      v.muted=false;
+      v.volume=0.5;
+      soundOn=true;
+      volBtn.textContent='🔊';
+      volBtn.classList.remove('off');
+      // 某些浏览器需要用户交互后才能播放带声音的视频
+      if(v.paused){v.play().catch(()=>{});}
+    }
+  };
+})();
 </script>
 </body>
 </html>
