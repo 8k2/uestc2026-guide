@@ -3688,15 +3688,28 @@ function expandQuery(q){
 function aiSearch(query){
   buildAIKB();
   var qTokens=expandQuery(query);
+  var qLower=query.toLowerCase();
   var scored=[];
   AI_KB.forEach(function(block){
     var blockTokens=tokenize(block.title+' '+block.content);
     var score=0;
+    // Q&A标题全句子串匹配：用户输入包含在标题中，或标题包含用户输入
+    if(block.isQA){
+      var tLower=block.title.toLowerCase();
+      if(tLower.indexOf(qLower)>=0||qLower.indexOf(tLower.substring(0,6))>=0) score+=10;
+      // Q&A标题关键词高权重匹配
+      var qChars=qLower.replace(/[，？？！!、]/g,'').split('');
+      var titleHitCount=0;
+      qChars.forEach(function(c){
+        if(c.length===1 && block.title.indexOf(c)>=0) titleHitCount++;
+      });
+      if(titleHitCount>=3) score+=6;
+    }
     qTokens.forEach(function(qt){
       // 标题中命中权重更高
       var titleTokens=tokenize(block.title);
       if(titleTokens.indexOf(qt)>=0)score+=3;
-      if(block.key.toLowerCase().indexOf(qt)>=0)score+=5;
+      if(block.key.toLowerCase().indexOf(qt)>=0)score+=2;
       // 内容命中
       var count=0;
       blockTokens.forEach(function(bt){if(bt===qt)count++});
@@ -3709,7 +3722,7 @@ function aiSearch(query){
       }
     });
     // QQ频道Q&A加权：精准问答优先
-    if(block.isQA && score>=2) score+=4;
+    if(block.isQA && score>=3) score+=5;
     if(score>0)scored.push({block:block,score:score});
   });
   scored.sort(function(a,b){return b.score-a.score});
