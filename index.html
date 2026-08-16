@@ -27,13 +27,14 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .tabbar-label{font-size:10px}
 
 /* === 首页英雄区（含背景视频） === */
-.hero{text-align:center;padding:40px 20px 24px;position:relative;overflow:hidden;min-height:200px}
-.hero-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.55;z-index:0}
-.hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(10,14,39,0.1) 0%,rgba(10,14,39,0.7) 100%);z-index:1}
+.hero{text-align:center;padding:40px 20px 24px;position:relative;overflow:hidden;min-height:240px}
+.hero-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;opacity:0.7;z-index:0}
+.hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(10,14,39,0.05) 0%,rgba(10,14,39,0.55) 100%);z-index:1}
 .hero-content{position:relative;z-index:2}
 .hero-logo{font-size:52px;margin-bottom:8px}
 .hero-title{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px}
 .hero-sub{font-size:13px;color:var(--text2);margin-top:6px;letter-spacing:2px}
+.hero-welcome{font-size:13px;color:rgba(255,215,0,0.7);margin-top:8px;letter-spacing:3px;font-family:'Georgia','Palatino Linotype','Book Antiqua',serif;font-style:italic}
 .hero-badge{display:inline-block;margin-top:10px;padding:4px 14px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:20px;font-size:12px;color:var(--gold)}
 
 /* === 音量控制按钮 === */
@@ -155,6 +156,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
         <div class="hero-logo" style="font-size:36px;margin:0">🎓</div>
       </div>
       <div class="hero-sub">电子科技大学 · 清水河校区</div>
+      <div class="hero-welcome">Welcome to UESTC</div>
     </div>
     <div class="hero-vol" id="heroVol" onclick="toggleVol()">🔇</div>
   </div>
