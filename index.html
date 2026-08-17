@@ -3917,6 +3917,12 @@ function extractNearbyKeyword(q){
 // 调用高德地图周边搜索API
 function searchAmapNearby(query,callback){
   var extracted=extractNearbyKeyword(query);
+  var called=false;
+  function doCallback(result){
+    if(called)return;
+    called=true;
+    callback(result);
+  }
   function doSearch(useTypes,useKeyword,retry){
     var params=[
       'key='+AMAP_CONFIG.key,
@@ -3938,23 +3944,20 @@ function searchAmapNearby(query,callback){
           try{
             var resp=JSON.parse(xhr.responseText);
             if(resp.status==='1'&&resp.pois&&resp.pois.length>0){
-              callback({success:true,pois:resp.pois,keyword:extracted.keyword});
+              doCallback({success:true,pois:resp.pois,keyword:extracted.keyword});
             }else if(!retry&&extracted.types){
               // types+keyword 无结果，重试：只用types不带keyword
               doSearch(extracted.types,'',true);
-            }else if(!retry&&extracted.keyword){
-              // keyword无结果，重试：不传keyword也不传types，返回空让上层走大模型
-              callback({success:false,keyword:extracted.keyword});
             }else{
-              callback({success:false,keyword:extracted.keyword});
+              doCallback({success:false,keyword:extracted.keyword});
             }
-          }catch(e){callback({success:false,keyword:extracted.keyword});}
-        }else{callback({success:false,keyword:extracted.keyword});}
+          }catch(e){doCallback({success:false,keyword:extracted.keyword});}
+        }else{doCallback({success:false,keyword:extracted.keyword});}
       }
     };
-    xhr.onerror=function(){callback({success:false,keyword:extracted.keyword});};
-    xhr.ontimeout=function(){callback({success:false,keyword:extracted.keyword});};
-    try{xhr.send();}catch(e){callback({success:false,keyword:extracted.keyword});}
+    xhr.onerror=function(){doCallback({success:false,keyword:extracted.keyword});};
+    xhr.ontimeout=function(){doCallback({success:false,keyword:extracted.keyword});};
+    try{xhr.send();}catch(e){doCallback({success:false,keyword:extracted.keyword});}
   }
   // 首次搜索：有types时同时传keyword过滤，无types时只传keyword
   doSearch(extracted.types,extracted.types?extracted.keyword:extracted.keyword,false);
