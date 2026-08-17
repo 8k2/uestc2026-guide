@@ -4042,11 +4042,15 @@ function aiSend(){
   }
 
   // 2. 检测是否为"周边/附近"类问题 → 走高德地图
-  if(isNearbyQuery(q)){
+  var _nearbyCheck=isNearbyQuery(q);
+  console.log('[AI DEBUG] query="'+q+'", isNearby='+_nearbyCheck);
+  if(_nearbyCheck){
     setTimeout(function(){
       typing.remove();
+      console.log('[AI DEBUG] calling searchAmapNearby...');
       // 先调用高德地图
       searchAmapNearby(q,function(amapResult){
+        console.log('[AI DEBUG] amapResult:', JSON.stringify({success:amapResult.success,poisCount:amapResult.pois?amapResult.pois.length:0}));
         if(amapResult.success&&amapResult.pois.length>0){
           // 高德有结果：卡片式渲染（含图片+完整信息）
           renderAiMsg({answer:'',sources:[],isQA:false,isAmap:true,amapPois:amapResult.pois,amapKeyword:amapResult.keyword});
