@@ -4007,42 +4007,9 @@ function aiSend(){
       // 先调用高德地图
       searchAmapNearby(q,function(amapResult){
         if(amapResult.success&&amapResult.pois.length>0){
-          // 高德有结果：格式化为卡片
-          var answerLines=['【高德地图 · 清水河校区周边'+amapResult.keyword+'】'];
-          amapResult.pois.forEach(function(poi,idx){
-            if(idx>=8) return;
-            var dist=poi.distance?poi.distance+'m':'';
-            var rating=(poi.biz_ext&&poi.biz_ext.rating&&poi.biz_ext.rating.length>0)?poi.biz_ext.rating:'';
-            var tag=poi.keytag||'';
-            var addr=poi.address||'';
-            var line='🏨 '+(idx+1)+'. '+poi.name;
-            if(rating) line+=' ⭐'+rating;
-            if(dist) line+=' 📍'+dist;
-            line+='\n   '+addr;
-            if(tag) line+=' | '+tag.split(';').slice(-1)[0];
-            answerLines.push(line);
-          });
-          renderAiMsg({answer:answerLines.join('\n'),sources:['高德地图'],isQA:false,isAmap:true});
-          // 同时调大模型补充建议
-          if(AI_MODELS.glm.apiKey){
-            var dsTyping=document.createElement('div');
-            dsTyping.className='ai-typing';
-            dsTyping.id='aiDsTyping';
-            dsTyping.innerHTML='<span></span><span></span><span></span>';
-            chat.appendChild(dsTyping);
-            chat.scrollTop=chat.scrollHeight;
-            callAIModel(q,'已展示高德地图搜索结果，请补充一些生活建议',function(dsText){
-              var dsTypingEl=document.getElementById('aiDsTyping');
-              if(dsTypingEl)dsTypingEl.remove();
-              if(dsText){
-                renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
-              }
-              // 多平台搜索链接
-              renderPlatformLinks(q);
-            });
-          }else{
-            renderPlatformLinks(q);
-          }
+          // 高德有结果：卡片式渲染（含图片+完整信息）
+          renderAiMsg({answer:'',sources:[],isQA:false,isAmap:true,amapPois:amapResult.pois,amapKeyword:amapResult.keyword});
+          renderPlatformLinks(q);
         }else{
           // 高德无结果：走大模型
           if(AI_MODELS.glm.apiKey){
@@ -4122,44 +4089,76 @@ function renderAiMsg(result){
   var botMsg=document.createElement('div');
   botMsg.className='ai-msg bot';
   var html='';
-  var lines=result.answer.split('\n');
-  lines.forEach(function(line){
-    if(line.startsWith('【')){
-      var tagText=line.replace(/[【】]/g,'');
-      if(tagText.indexOf('学长学姐问答')>=0){
-        html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.08));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
-      }else if(tagText.indexOf('高德地图')>=0){
-        html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,180,100,0.15),rgba(0,150,80,0.08));border:1px solid rgba(0,180,100,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:#4cff9f;">🗺️ '+tagText+'</div>';
+  // 如果是高德地图结果，走卡片渲染
+  if(result.isAmap&&result.amapPois){
+    html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,180,100,0.15),rgba(0,150,80,0.08));border:1px solid rgba(0,180,100,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 8px;font-size:12px;color:#4cff9f;">🗺️ 高德地图 · 清水河校区周边'+result.amapKeyword+'</div>';
+    result.amapPois.forEach(function(poi,idx){
+      if(idx>=8) return;
+      var dist=poi.distance?poi.distance+'m':'';
+      var rating=(poi.biz_ext&&poi.biz_ext.rating&&poi.biz_ext.rating.length>0)?poi.biz_ext.rating:'';
+      var tag=poi.keytag||'';
+      var addr=poi.address||'';
+      var photoUrl=(poi.photos&&poi.photos.length>0&&poi.photos[0].url)?poi.photos[0].url:'';
+      var tel=poi.tel||'';
+      html+='<div style="margin:6px 0;padding:10px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">';
+      if(photoUrl){
+        html+='<div style="width:100%;height:120px;border-radius:8px;overflow:hidden;margin-bottom:8px;background:rgba(0,0,0,0.3)"><img src="'+photoUrl+'" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>';
+      }
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+      html+='<div style="font-size:14px;font-weight:700;color:#fff">'+(idx+1)+'. '+poi.name+'</div>';
+      if(rating) html+='<div style="font-size:12px;color:#ffc107;background:rgba(255,193,7,0.1);border-radius:10px;padding:2px 8px">⭐ '+rating+'</div>';
+      html+='</div>';
+      html+='<div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">';
+      if(addr) html+='<div style="margin:2px 0">📍 '+addr+'</div>';
+      if(dist) html+='<div style="margin:2px 0;display:inline-block;margin-right:12px">📏 距学校'+dist+'</div>';
+      if(tel) html+='<div style="margin:2px 0;display:inline-block">📞 '+tel.split(';')[0]+'</div>';
+      if(tag) html+='<div style="margin:2px 0">🏷️ '+tag.split(';').slice(-1)[0]+'</div>';
+      html+='</div></div>';
+    });
+    html+='<div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4)">📎 来源：高德地图</div>';
+  }else{
+    // 普通回答渲染
+    var lines=result.answer.split('\n');
+    lines.forEach(function(line){
+      // 解析Markdown加粗语法 **text** → <strong>text</strong>
+      line=line.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
+      // 清除残留单星号
+      line=line.replace(/\*(.*?)\*/g,'$1');
+      if(line.startsWith('【')){
+        var tagText=line.replace(/[【】]/g,'');
+        if(tagText.indexOf('学长学姐问答')>=0){
+          html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,180,0,0.08));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
+        }else if(tagText.indexOf('高德地图')>=0){
+          html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,180,100,0.15),rgba(0,150,80,0.08));border:1px solid rgba(0,180,100,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:#4cff9f;">🗺️ '+tagText+'</div>';
+        }else{
+          html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+        }
+      }else if(line.startsWith('❓')){
+        html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
+      }else if(line.startsWith('💡')){
+        html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px">'+line.replace('💡 ','')+'</div>';
+      }else if(line.startsWith('👤')){
+        html+='<div style="font-size:11px;color:rgba(255,215,0,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
+      }else if(line.trim()===''){
+        // skip empty
       }else{
-        html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+        html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(255,255,255,0.85)">'+line+'</p>';
       }
-    }else if(line.startsWith('🏨')){
-      html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.6;margin:3px 0;padding:6px 10px;background:rgba(0,180,100,0.06);border-left:3px solid rgba(0,180,100,0.4);border-radius:4px">'+line.replace('🏨 ','')+'</div>';
-    }else if(line.startsWith('❓')){
-      html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
-    }else if(line.startsWith('💡')){
-      html+='<div style="font-size:13px;color:rgba(255,255,255,0.9);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:8px">'+line.replace('💡 ','')+'</div>';
-    }else if(line.startsWith('👤')){
-      html+='<div style="font-size:11px;color:rgba(255,215,0,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
-    }else if(line.trim()===''){
-      // skip empty
-    }else{
-      html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(255,255,255,0.85)">'+line+'</p>';
+    });
+    if(result.sources.length>0){
+      html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4)">📎 来源：'+result.sources.map(function(s){
+        if(s==='成电频道'){
+          return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
+        }
+        if(s==='AI大模型(联网)'){
+          return '<span style="color:var(--gold)">AI大模型(联网)</span>';
+        }
+        if(s==='高德地图'){
+          return '<span style="color:#4cff9f">高德地图</span>';
+        }
+        return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
+      }).join('、')+'</div>';
     }
-  });
-  if(result.sources.length>0){
-    html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.4)">📎 来源：'+result.sources.map(function(s){
-      if(s==='成电频道'){
-        return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
-      }
-      if(s==='AI大模型(联网)'){
-        return '<span style="color:var(--gold)">AI大模型(联网)</span>';
-      }
-      if(s==='高德地图'){
-        return '<span style="color:#4cff9f">高德地图</span>';
-      }
-      return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
-    }).join('、')+'</div>';
   }
   // 校园网/校园卡专用"查看详情"按钮
   if(result.detailKey){
@@ -4176,9 +4175,9 @@ function renderPlatformLinks(query){
   var links=buildAiPlatformLinks(query);
   var html='<div style="margin:8px 0 4px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">';
   html+='<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px">🔗 相关搜索</div>';
-  html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start">';
   links.forEach(function(link){
-    html+='<a href="'+link.url+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:3px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:4px 10px;font-size:11px;color:var(--gold);text-decoration:none;transition:background 0.2s" onmouseover="this.style.background=\'rgba(255,215,0,0.2)\'" onmouseout="this.style.background=\'rgba(255,215,0,0.1)\'">'+link.icon+' '+link.name+'</a>';
+    html+='<a href="'+link.url+'" target="_blank" rel="noopener" style="flex:0 0 auto;min-width:60px;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:3px;background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:5px 12px;font-size:11px;color:var(--gold);text-decoration:none;transition:background 0.2s" onmouseover="this.style.background=\'rgba(255,215,0,0.2)\'" onmouseout="this.style.background=\'rgba(255,215,0,0.1)\'">'+link.icon+' '+link.name+'</a>';
   });
   html+='</div></div>';
   var linkDiv=document.createElement('div');
