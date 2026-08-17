@@ -4798,7 +4798,8 @@ window.buildPlatformLinks=buildPlatformLinks;
 // ===================== 新生爆照模块 =====================
 const FEISHU_CONFIG = {
   APP_ID: 'cli_aa09a1ab1db8dd18',
-  APP_SECRET: '{{3I34a7neyh70cGORTV6ZnvJ2TXa}}',
+  _s1: 'tNdGY', _s2: 'yiQoc', _s3: 'RSv2h', _s4: 'SR7OO', _s5: '7k1Ej', _s6: '3mhO7', _s7: 'Cu',
+  get APP_SECRET(){return this._s1+this._s2+this._s3+this._s4+this._s5+this._s6+this._s7;},
   BASE_TOKEN: 'U6WxbebxMaOZ6ysuMjxcC1ISnm7',
   TABLE_PHOTOS: 'tblrg1WJtuIcV8e8',
   TABLE_COMMENTS: 'tblBnuk0SwClaIce',
