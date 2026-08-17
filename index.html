@@ -265,6 +265,57 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes badgeSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .fade-in{animation:fadeIn .4s ease-out both}
+/* 新生爆照样式 */
+.photo-wall{padding:12px;display:flex;flex-wrap:wrap;gap:8px;max-height:calc(100vh - 200px);overflow-y:auto}
+.photo-card{width:calc(33.33% - 6px);border-radius:12px;overflow:hidden;background:var(--card);cursor:pointer;transition:transform .2s;position:relative}
+.photo-card:active{transform:scale(0.96)}
+.photo-card-img{width:100%;aspect-ratio:1;background-size:cover;background-position:center;background-color:#1a2040}
+.photo-card-badge{position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.6);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px}
+.photo-card-info{padding:6px 8px}
+.photo-card-title{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.photo-card-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:2px}
+.photo-card-time{font-size:9px;color:var(--text3);margin-top:1px}
+.photo-section{display:none}
+.photo-section.active{display:block}
+.photo-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px}
+.photo-header-title{font-size:16px;font-weight:bold;color:var(--gold)}
+.photo-upload-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer}
+.photo-upload-btn:active{transform:scale(0.95)}
+.photo-detail-modal,.upload-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;justify-content:center;align-items:center;flex-direction:column;overflow-y:auto}
+.photo-detail-content{max-width:500px;width:90%;max-height:90vh;overflow-y:auto;background:var(--card);border-radius:16px;padding:16px}
+.detail-img{width:100%;border-radius:12px;margin-bottom:12px}
+.detail-title{font-size:18px;font-weight:bold;margin-bottom:6px}
+.detail-desc{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:8px}
+.detail-meta{font-size:12px;color:var(--text3);margin-bottom:4px}
+.detail-time{font-size:11px;color:var(--text3);margin-bottom:12px}
+.detail-actions{display:flex;gap:12px;margin-bottom:16px}
+.detail-like-btn{background:rgba(255,215,0,0.15);border:1px solid var(--gold);color:var(--gold);padding:6px 16px;border-radius:20px;font-size:13px;cursor:pointer}
+.detail-export-btn{background:rgba(22,93,255,0.15);border:1px solid var(--blue);color:var(--blue);padding:6px 16px;border-radius:20px;font-size:13px;cursor:pointer}
+.detail-comments-section{border-top:1px solid rgba(255,255,255,0.1);padding-top:12px}
+.detail-comments-title{font-size:14px;font-weight:bold;margin-bottom:8px}
+.comment-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0}
+.comment-body{flex:1}
+.comment-nick{font-size:12px;color:var(--gold);font-weight:bold}
+.comment-text{font-size:13px;color:var(--text);margin:2px 0}
+.comment-time{font-size:10px;color:var(--text3)}
+.comment-input-bar{display:flex;gap:8px;padding:8px 0;margin-top:8px}
+.comment-input{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;resize:none;max-height:80px}
+.comment-input:focus{outline:none;border-color:var(--gold)}
+.comment-send-btn{background:var(--gold);color:#000;border:none;padding:0 16px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer}
+.upload-content{max-width:400px;width:90%;background:var(--card);border-radius:16px;padding:20px}
+.upload-content h3{font-size:18px;margin-bottom:16px;text-align:center}
+.upload-form-group{margin-bottom:12px}
+.upload-form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px}
+.upload-form-group input,.upload-form-group textarea{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:8px;padding:8px 12px;font-size:14px}
+.upload-form-group input:focus,.upload-form-group textarea:focus{outline:none;border-color:var(--gold)}
+.upload-form-group textarea{resize:vertical;min-height:50px}
+.upload-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:none}
+.upload-file-label{display:block;text-align:center;padding:20px;border:2px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2)}
+.upload-file-label:active{border-color:var(--gold)}
+.upload-submit-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:10px;border-radius:8px;font-size:15px;font-weight:bold;cursor:pointer;margin-top:8px}
+.upload-submit-btn:disabled{opacity:0.5}
+.detail-close-btn{position:fixed;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;border:none;font-size:18px;cursor:pointer;z-index:10001;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -288,6 +339,66 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <img src="contact_qr.jpg" style="width:200px;border-radius:12px;border:1px solid rgba(255,215,0,0.15);margin:0 auto 12px;display:block" alt="圈主企业微信二维码">
     <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">扫描二维码，添加圈主企业微信<br>入学问题随时问，圈主全程帮你搞定</div>
     <div onclick="document.getElementById('contactModal').style.display='none'" style="display:inline-block;padding:8px 28px;background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,170,0,0.1));border:1px solid rgba(255,215,0,0.3);border-radius:20px;color:var(--gold);font-size:14px;font-weight:600;cursor:pointer">关闭</div>
+  </div>
+</div>
+
+<!-- 照片详情弹窗 -->
+<div class="photo-detail-modal" id="photoDetailModal" onclick="closePhotoDetail(event)">
+  <button class="detail-close-btn" onclick="closePhotoDetail()">✕</button>
+  <div class="photo-detail-content" onclick="event.stopPropagation()">
+    <img class="detail-img" id="detailImg" src="">
+    <div class="detail-title" id="detailTitle"></div>
+    <div class="detail-desc" id="detailDesc"></div>
+    <div class="detail-meta" id="detailMeta"></div>
+    <div class="detail-time" id="detailTime"></div>
+    <div class="detail-actions">
+      <button class="detail-like-btn" onclick="likePhoto()">❤️ 点赞 (<span id="detailLikes">0</span>)</button>
+      <button class="detail-export-btn" onclick="exportVisitorsExcel()">📊 导出访客</button>
+    </div>
+    <div class="detail-comments-section">
+      <div class="detail-comments-title">💬 评论</div>
+      <div id="detailComments"></div>
+      <div class="comment-input-bar">
+        <textarea class="comment-input" id="commentInput" placeholder="说点什么..." rows="1"></textarea>
+        <button class="comment-send-btn" id="commentSubmitBtn" onclick="submitComment()">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 上传照片弹窗 -->
+<div class="upload-modal" id="uploadModal" onclick="closeUploadModal(event)">
+  <div class="upload-content" onclick="event.stopPropagation()">
+    <h3>📸 晒出你的照片</h3>
+    <div class="upload-form-group">
+      <label>选择照片</label>
+      <label class="upload-file-label" for="photoFileInput">
+        点击选择图片（≤2MB）
+        <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+      </label>
+      <img class="upload-preview" id="uploadPreview" src="" alt="预览">
+    </div>
+    <div class="upload-form-group">
+      <label>标题 *</label>
+      <input type="text" id="uploadTitle" placeholder="给照片起个名字" maxlength="50">
+    </div>
+    <div class="upload-form-group">
+      <label>描述</label>
+      <textarea id="uploadDesc" placeholder="说说这张照片的故事" maxlength="200"></textarea>
+    </div>
+    <div class="upload-form-group">
+      <label>昵称（不填则随机匿名）</label>
+      <input type="text" id="uploadNick" placeholder="留空则匿名" maxlength="20">
+    </div>
+    <div class="upload-form-group">
+      <label>学院</label>
+      <input type="text" id="uploadCollege" placeholder="如：信通、计算机、电子等" maxlength="20">
+    </div>
+    <div class="upload-form-group">
+      <label>标签</label>
+      <input type="text" id="uploadTags" placeholder="如：军训、宿舍、美食" maxlength="30">
+    </div>
+    <button class="upload-submit-btn" id="uploadSubmitBtn" onclick="uploadPhoto()">发布</button>
   </div>
 </div>
 
@@ -474,9 +585,18 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="search-mode-tab" id="modeAI" onclick="switchMode('ai')">🎓 成电AI</div>
     <div class="search-mode-tab" id="modeNearby" onclick="switchMode('nearby')">📍 成电校园生活圈</div>
   </div>
-  <div class="search-results" id="searchResults">
+  <div class="search-results" id="searchResults" style="display:none">
     <div class="search-hot">
       <div class="search-hot-title">输入关键词搜索，或切换Tab试试 👇</div>
+    </div>
+  </div>
+  <div class="photo-section" id="photoSection">
+    <div class="photo-header">
+      <div class="photo-header-title">📸 新生爆照墙</div>
+      <button class="photo-upload-btn" onclick="openUploadModal()">＋ 晒照片</button>
+    </div>
+    <div class="photo-wall" id="photoWall">
+      <div style="text-align:center;padding:40px;color:var(--text3);width:100%">加载中... 🔄</div>
     </div>
   </div>
   <div class="ai-chat" id="aiChat">
@@ -3510,10 +3630,7 @@ let currentMode='local';
 function openSearch(){
   searchOpen=true;
   document.getElementById('searchPanel').classList.add('open');
-  document.getElementById('searchInput').value='';
-  showHotSearch();
   switchMode('local');
-  setTimeout(()=>document.getElementById('searchInput').focus(),100);
   history.pushState({search:true},'','#search');
 }
 function closeSearch(){
@@ -3531,10 +3648,12 @@ function switchMode(mode){
   var nearbySection=document.getElementById('nearbySection');
   var searchInput=document.getElementById('searchInput');
   var header=document.querySelector('.search-panel-header');
+  var photoSection=document.getElementById('photoSection');
   // reset
   tabLocal.classList.remove('active');tabAI.classList.remove('active');tabNearby.classList.remove('active');
   results.style.display='none';aiChat.classList.remove('active');aiBar.style.display='none';
-  nearbySection.classList.remove('active');searchInput.style.display='block';
+  nearbySection.classList.remove('active');searchInput.style.display='none';
+  if(photoSection) photoSection.classList.remove('active');
   if(mode==='ai'){
     tabAI.classList.add('active');
     results.style.display='none';aiChat.classList.add('active');aiBar.style.display='flex';
@@ -3548,9 +3667,14 @@ function switchMode(mode){
     setTimeout(()=>document.getElementById('nearbyInput').focus(),100);
   }else{
     tabLocal.classList.add('active');
-    results.style.display='block';
-    searchInput.style.display='block';
-    setTimeout(()=>document.getElementById('searchInput').focus(),100);
+    if(photoSection){ photoSection.classList.add('active'); }
+    searchInput.style.display='none';
+    if(typeof _allPhotos !== 'undefined' && _allPhotos.length === 0 && !window._photoLoaded){
+      window._photoLoaded = true;
+      initPhotoWall();
+    }else if(window._photoLoaded){
+      // 已加载过，确保照片墙显示
+    }
   }
 }
 function showHotSearch(){
@@ -4670,6 +4794,435 @@ window.doNearbySearch=doNearbySearch;
 window.renderNearbyPlaces=renderNearbyPlaces;
 window.updatePlatformLinks=updatePlatformLinks;
 window.buildPlatformLinks=buildPlatformLinks;
+
+// ===================== 新生爆照模块 =====================
+const FEISHU_CONFIG = {
+  APP_ID: 'cli_aa09a1ab1db8dd18',
+  APP_SECRET: '{{3I34a7neyh70cGORTV6ZnvJ2TXa}}',
+  BASE_TOKEN: 'U6WxbebxMaOZ6ysuMjxcC1ISnm7',
+  TABLE_PHOTOS: 'tblrg1WJtuIcV8e8',
+  TABLE_COMMENTS: 'tblBnuk0SwClaIce',
+  TABLE_VISITORS: 'tblzThRX4zszcVfF',
+  API: 'https://open.feishu.cn/open-apis'
+};
+
+// 缓存 tenant_access_token
+let _feishuToken = null;
+let _feishuTokenExpire = 0;
+
+async function getFeishuToken(){
+  if(_feishuToken && Date.now() < _feishuTokenExpire) return _feishuToken;
+  const url = FEISHU_CONFIG.API + '/auth/v3/tenant_access_token/internal';
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({app_id: FEISHU_CONFIG.APP_ID, app_secret: FEISHU_CONFIG.APP_SECRET})
+  });
+  const data = await res.json();
+  if(data.code !== 0) throw new Error('获取token失败: '+data.msg);
+  _feishuToken = data.tenant_access_token;
+  _feishuTokenExpire = Date.now() + (data.expire - 300) * 1000;
+  return _feishuToken;
+}
+
+// 飞书多维表格 CRUD
+async function feishuRequest(method, path, body){
+  const token = await getFeishuToken();
+  const opts = {
+    method: method,
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    }
+  };
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(FEISHU_CONFIG.API + path, opts);
+  return await res.json();
+}
+
+// 记录访客
+async function logVisitor(){
+  try {
+    const ua = navigator.userAgent;
+    let device = '未知';
+    if(/Mobile|Android|iPhone/i.test(ua)) device = '手机';
+    else if(/Windows|Mac|Linux/i.test(ua)) device = '电脑';
+    const referrer = document.referrer || '直接访问';
+    const visitorId = 'V' + Date.now() + Math.random().toString(36).substr(2,5);
+    await feishuRequest('POST', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_VISITORS + '/records', {
+      fields: {
+        '访客ID': visitorId,
+        '设备信息': device + ' | ' + ua.substring(0, 100),
+        '来源': referrer,
+        '访问时间': Date.now()
+      }
+    });
+  } catch(e) { console.warn('访客记录失败:', e); }
+}
+
+// 加载照片列表
+let _allPhotos = [];
+async function loadPhotos(){
+  try {
+    const token = await getFeishuToken();
+    let allRecords = [];
+    let pageToken = null;
+    do {
+      let url = FEISHU_CONFIG.API + '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_PHOTOS + '/records?page_size=100';
+      if(pageToken) url += '&page_token=' + pageToken;
+      const res = await fetch(url, {headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}});
+      const data = await res.json();
+      if(data.code !== 0) throw new Error(data.msg);
+      allRecords = allRecords.concat(data.data.items || []);
+      pageToken = data.data.page_token;
+      if(!data.data.has_more) break;
+    } while(pageToken);
+
+    _allPhotos = allRecords.map(r => ({
+      id: r.fields['照片ID'] || r.record_id,
+      recordId: r.record_id,
+      nickname: r.fields['昵称'] || '匿名',
+      title: r.fields['标题'] || '',
+      desc: r.fields['描述'] || '',
+      imgData: r.fields['图片数据'] || '',
+      college: r.fields['学院'] || '',
+      tags: r.fields['标签'] || '',
+      likes: r.fields['点赞数'] || 0,
+      time: r.fields['上传时间'] || ''
+    })).reverse();
+    renderPhotoWall();
+  } catch(e) {
+    console.error('加载照片失败:', e);
+    document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载失败，请稍后重试</div>';
+  }
+}
+
+// 渲染照片墙
+function renderPhotoWall(){
+  const wall = document.getElementById('photoWall');
+  if(!wall) return;
+  if(_allPhotos.length === 0){
+    wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
+    return;
+  }
+  wall.innerHTML = _allPhotos.map((p, i) => {
+    const imgSrc = p.imgData.startsWith('data:') ? p.imgData : p.imgData;
+    const timeStr = p.time ? (typeof p.time === 'number' ? new Date(p.time).toLocaleString('zh-CN') : p.time) : '';
+    return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
+      '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
+        (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
+      '</div>' +
+      '<div class="photo-card-info">' +
+        '<div class="photo-card-title">' + escapeHtml(p.title || '无标题') + '</div>' +
+        '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + p.likes + '</span></div>' +
+        '<div class="photo-card-time">' + timeStr + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// 照片详情弹窗
+let _currentPhotoIdx = -1;
+let _currentComments = [];
+
+function openPhotoDetail(idx){
+  _currentPhotoIdx = idx;
+  const p = _allPhotos[idx];
+  if(!p) return;
+  const modal = document.getElementById('photoDetailModal');
+  const imgSrc = p.imgData.startsWith('data:') ? p.imgData : p.imgData;
+  const timeStr = p.time ? (typeof p.time === 'number' ? new Date(p.time).toLocaleString('zh-CN') : p.time) : '';
+  document.getElementById('detailImg').src = imgSrc;
+  document.getElementById('detailTitle').textContent = p.title || '无标题';
+  document.getElementById('detailDesc').textContent = p.desc || '';
+  document.getElementById('detailMeta').innerHTML = '👤 ' + escapeHtml(p.nickname) + (p.college ? ' · ' + escapeHtml(p.college) : '') + (p.tags ? ' · #' + escapeHtml(p.tags) : '');
+  document.getElementById('detailTime').textContent = timeStr;
+  document.getElementById('detailLikes').textContent = p.likes;
+  modal.style.display = 'flex';
+  loadComments(p.id);
+}
+
+function closePhotoDetail(e){
+  if(e && e.target && e.target.id !== 'photoDetailModal' && e.type === 'click') return;
+  document.getElementById('photoDetailModal').style.display = 'none';
+  _currentComments = [];
+}
+
+// 加载评论
+async function loadComments(photoId){
+  const cmtList = document.getElementById('detailComments');
+  cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">加载评论中...</div>';
+  try {
+    const token = await getFeishuToken();
+    let allRecords = [];
+    let pageToken = null;
+    do {
+      let url = FEISHU_CONFIG.API + '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_COMMENTS + '/records?page_size=100';
+      if(pageToken) url += '&page_token=' + pageToken;
+      const res = await fetch(url, {headers: {'Authorization': 'Bearer ' + token}});
+      const data = await res.json();
+      if(data.code !== 0) throw new Error(data.msg);
+      allRecords = allRecords.concat(data.data.items || []);
+      pageToken = data.data.page_token;
+      if(!data.data.has_more) break;
+    } while(pageToken);
+
+    _currentComments = allRecords
+      .filter(r => r.fields['照片ID'] === photoId)
+      .map(r => ({
+        nickname: r.fields['昵称'] || '匿名',
+        content: r.fields['评论内容'] || '',
+        time: r.fields['评论时间'] || ''
+      }));
+
+    if(_currentComments.length === 0){
+      cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">还没有评论，来抢沙发吧</div>';
+    } else {
+      cmtList.innerHTML = _currentComments.map(c => {
+        const t = c.time ? (typeof c.time === 'number' ? new Date(c.time).toLocaleString('zh-CN') : c.time) : '';
+        return '<div class="comment-item">' +
+          '<div class="comment-avatar">' + escapeHtml((c.nickname || '匿')[0]) + '</div>' +
+          '<div class="comment-body">' +
+            '<div class="comment-nick">' + escapeHtml(c.nickname || '匿名') + '</div>' +
+            '<div class="comment-text">' + escapeHtml(c.content) + '</div>' +
+            '<div class="comment-time">' + t + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+  } catch(e) {
+    cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">评论加载失败</div>';
+  }
+}
+
+// 发表评论
+async function submitComment(){
+  const input = document.getElementById('commentInput');
+  const content = input.value.trim();
+  if(!content){ showToast('说点什么吧～'); return; }
+  if(content.length > 500){ showToast('评论太长啦，限500字'); return; }
+  const photo = _allPhotos[_currentPhotoIdx];
+  if(!photo) return;
+
+  const btn = document.getElementById('commentSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '发送中...';
+  try {
+    const nick = '匿名' + Math.random().toString(36).substr(2, 4).toUpperCase();
+    await feishuRequest('POST', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_COMMENTS + '/records', {
+      fields: {
+        '评论ID': 'C' + Date.now() + Math.random().toString(36).substr(2,4),
+        '照片ID': photo.id,
+        '昵称': nick,
+        '评论内容': content,
+        '评论时间': Date.now()
+      }
+    });
+    input.value = '';
+    loadComments(photo.id);
+  } catch(e) {
+    showToast('评论失败，请稍后重试');
+  }
+  btn.disabled = false;
+  btn.textContent = '发送';
+}
+
+// 上传照片
+async function uploadPhoto(){
+  const fileInput = document.getElementById('photoFileInput');
+  const file = fileInput.files[0];
+  if(!file){ showToast('请先选择照片'); return; }
+  if(file.size > 2 * 1024 * 1024){ showToast('图片不能超过2MB'); return; }
+
+  const title = document.getElementById('uploadTitle').value.trim();
+  const desc = document.getElementById('uploadDesc').value.trim();
+  const nickname = document.getElementById('uploadNick').value.trim() || ('匿名' + Math.random().toString(36).substr(2,4).toUpperCase());
+  const college = document.getElementById('uploadCollege').value.trim();
+  const tags = document.getElementById('uploadTags').value.trim();
+
+  if(!title){ showToast('请填写标题'); return; }
+
+  const btn = document.getElementById('uploadSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '上传中...';
+  try {
+    const base64 = await compressImage(file);
+    if(base64.length > 100000){ showToast('图片太大，请换一张'); btn.disabled=false; btn.textContent='发布'; return; }
+
+    const photoId = 'P' + Date.now() + Math.random().toString(36).substr(2,4);
+    await feishuRequest('POST', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_PHOTOS + '/records', {
+      fields: {
+        '照片ID': photoId,
+        '昵称': nickname,
+        '标题': title,
+        '描述': desc,
+        '图片数据': base64,
+        '学院': college,
+        '标签': tags,
+        '点赞数': 0,
+        '上传时间': Date.now()
+      }
+    });
+
+    fileInput.value = '';
+    document.getElementById('uploadTitle').value = '';
+    document.getElementById('uploadDesc').value = '';
+    document.getElementById('uploadNick').value = '';
+    document.getElementById('uploadTags').value = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    closeUploadModal();
+    showToast('发布成功！');
+    await loadPhotos();
+  } catch(e) {
+    showToast('上传失败: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '发布';
+}
+
+// 图片压缩
+function compressImage(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const img = new Image();
+      img.onload = function(){
+        let canvas = document.createElement('canvas');
+        let maxW = 800, maxH = 800;
+        let w = img.width, h = img.height;
+        if(w > maxW){ h = h * maxW / w; w = maxW; }
+        if(h > maxH){ w = w * maxH / h; h = maxH; }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        let base64 = canvas.toDataURL('image/jpeg', 0.7);
+        resolve(base64);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// 预览选中的图片
+function previewPhoto(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const preview = document.getElementById('uploadPreview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// 点赞
+async function likePhoto(){
+  if(_currentPhotoIdx < 0) return;
+  const photo = _allPhotos[_currentPhotoIdx];
+  try {
+    const newLikes = (photo.likes || 0) + 1;
+    await feishuRequest('PUT', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_PHOTOS + '/records/' + photo.recordId, {
+      fields: { '点赞数': newLikes }
+    });
+    photo.likes = newLikes;
+    document.getElementById('detailLikes').textContent = newLikes;
+    showToast('已点赞');
+  } catch(e) {
+    showToast('点赞失败');
+  }
+}
+
+// 弹窗控制
+function openUploadModal(){
+  document.getElementById('uploadModal').style.display = 'flex';
+}
+function closeUploadModal(e){
+  if(e && e.target && e.target.id !== 'uploadModal' && e.type === 'click') return;
+  document.getElementById('uploadModal').style.display = 'none';
+}
+
+// Toast 提示
+function showToast(msg){
+  let toast = document.getElementById('toastTip');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'toastTip';
+    toast.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:10000;max-width:80%;text-align:center;transition:opacity 0.3s';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.display = 'block';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+}
+
+// HTML 转义
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+// 初始化爆照模块
+function initPhotoWall(){
+  logVisitor();
+  loadPhotos();
+}
+
+// 导出访客记录为CSV
+async function exportVisitorsExcel(){
+  try {
+    showToast('正在导出...');
+    const token = await getFeishuToken();
+    let allRecords = [];
+    let pageToken = null;
+    do {
+      let url = FEISHU_CONFIG.API + '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_VISITORS + '/records?page_size=100';
+      if(pageToken) url += '&page_token=' + pageToken;
+      const res = await fetch(url, {headers: {'Authorization': 'Bearer ' + token}});
+      const data = await res.json();
+      if(data.code !== 0) throw new Error(data.msg);
+      allRecords = allRecords.concat(data.data.items || []);
+      pageToken = data.data.page_token;
+      if(!data.data.has_more) break;
+    } while(pageToken);
+
+    let csv = '\uFEFF访客ID,设备信息,来源,访问时间\n';
+    allRecords.forEach(r => {
+      const id = (r.fields['访客ID'] || '').toString().replace(/,/g, '，');
+      const dev = (r.fields['设备信息'] || '').toString().replace(/,/g, '，');
+      const ref = (r.fields['来源'] || '').toString().replace(/,/g, '，');
+      const t = r.fields['访问时间'] ? (typeof r.fields['访问时间'] === 'number' ? new Date(r.fields['访问时间']).toLocaleString('zh-CN') : r.fields['访问时间']) : '';
+      csv += id + ',' + dev + ',' + ref + ',' + t + '\n';
+    });
+    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '访客记录_' + new Date().toLocaleDateString('zh-CN') + '.csv';
+    a.click();
+    showToast('导出成功！');
+  } catch(e) {
+    showToast('导出失败: ' + e.message);
+  }
+}
+
+// 挂载到 window
+window.openPhotoDetail=openPhotoDetail;
+window.closePhotoDetail=closePhotoDetail;
+window.loadComments=loadComments;
+window.submitComment=submitComment;
+window.uploadPhoto=uploadPhoto;
+window.previewPhoto=previewPhoto;
+window.likePhoto=likePhoto;
+window.openUploadModal=openUploadModal;
+window.closeUploadModal=closeUploadModal;
+window.exportVisitorsExcel=exportVisitorsExcel;
+window.initPhotoWall=initPhotoWall;
 </script>
 </body>
 </html>
