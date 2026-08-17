@@ -16,6 +16,8 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .topbar-contact{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--gold);cursor:pointer;opacity:0.85;transition:opacity .2s;-webkit-user-select:none;user-select:none}
 .topbar-contact:active{opacity:1}
 .topbar-contact-icon{font-size:16px}
+.topbar-motto{font-size:11px;letter-spacing:2px;color:var(--gold);text-shadow:0 0 6px rgba(255,215,0,0.6),0 0 12px rgba(255,215,0,0.3);animation:mottoGlow 3s ease-in-out infinite;white-space:nowrap}
+@keyframes mottoGlow{0%,100%{opacity:0.4;text-shadow:0 0 4px rgba(255,215,0,0.3),0 0 8px rgba(255,215,0,0.15)}50%{opacity:1;text-shadow:0 0 8px rgba(255,215,0,0.8),0 0 16px rgba(255,215,0,0.4),0 0 24px rgba(255,215,0,0.2)}}
 
 /* === 页面容器 === */
 .pages{position:fixed;top:44px;left:0;right:0;bottom:50px;overflow:hidden}
@@ -268,6 +270,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <div class="topbar-left">
     <div class="topbar-title">BK成电圈主全能版</div>
   </div>
+  <div class="topbar-motto">求实求新 · 大气大为</div>
   <div class="topbar-contact" onclick="openContactQR()">
     <span class="topbar-contact-icon">📱</span>圈主联系方式
   </div>
@@ -4045,15 +4048,11 @@ function aiSend(){
   }
 
   // 2. 检测是否为"周边/附近"类问题 → 走高德地图
-  var _nearbyCheck=isNearbyQuery(q);
-  console.log('[AI DEBUG] query="'+q+'", isNearby='+_nearbyCheck);
-  if(_nearbyCheck){
+  if(isNearbyQuery(q)){
     setTimeout(function(){
       typing.remove();
-      console.log('[AI DEBUG] calling searchAmapNearby...');
       // 先调用高德地图
       searchAmapNearby(q,function(amapResult){
-        console.log('[AI DEBUG] amapResult:', JSON.stringify({success:amapResult.success,poisCount:amapResult.pois?amapResult.pois.length:0}));
         if(amapResult.success&&amapResult.pois.length>0){
           // 高德有结果：卡片式渲染（含图片+完整信息）
           renderAiMsg({answer:'',sources:[],isQA:false,isAmap:true,amapPois:amapResult.pois,amapKeyword:amapResult.keyword});
@@ -4145,15 +4144,23 @@ function renderAiMsg(result){
       var dist=poi.distance?poi.distance+'m':'';
       var rating=(poi.biz_ext&&poi.biz_ext.rating&&poi.biz_ext.rating.length>0)?poi.biz_ext.rating:'';
       var tag=poi.keytag||'';
+      if(Array.isArray(tag))tag=tag.join(';');
+      if(typeof tag!=='string')tag=String(tag||'');
       var addr=poi.address||'';
+      if(Array.isArray(addr))addr=addr.join(';');
+      if(typeof addr!=='string')addr=String(addr||'');
+      var poiName=poi.name||'未知';
+      if(typeof poiName!=='string')poiName=String(poiName||'未知');
       var photoUrl=(poi.photos&&poi.photos.length>0&&poi.photos[0].url)?poi.photos[0].url:'';
       var tel=poi.tel||'';
+      if(Array.isArray(tel))tel=tel.join(';');
+      if(typeof tel!=='string')tel=String(tel||'');
       html+='<div style="margin:6px 0;padding:10px;background:rgba(255,255,255,0.05);border-radius:10px;border:1px solid rgba(255,255,255,0.08)">';
       if(photoUrl){
         html+='<div style="width:100%;height:120px;border-radius:8px;overflow:hidden;margin-bottom:8px;background:rgba(0,0,0,0.3)"><img src="'+photoUrl+'" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>';
       }
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
-      html+='<div style="font-size:14px;font-weight:700;color:#fff">'+(idx+1)+'. '+poi.name+'</div>';
+      html+='<div style="font-size:14px;font-weight:700;color:#fff">'+(idx+1)+'. '+poiName+'</div>';
       if(rating) html+='<div style="font-size:12px;color:#ffc107;background:rgba(255,193,7,0.1);border-radius:10px;padding:2px 8px">⭐ '+rating+'</div>';
       html+='</div>';
       html+='<div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">';
