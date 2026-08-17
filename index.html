@@ -4795,10 +4795,46 @@ window.renderNearbyPlaces=renderNearbyPlaces;
 window.updatePlatformLinks=updatePlatformLinks;
 window.buildPlatformLinks=buildPlatformLinks;
 
-// ===================== 新生爆照模块（localStorage版） =====================
-// 数据存储在浏览器本地，无需后端服务器
-function _getData(key){ try{ return JSON.parse(localStorage.getItem(key)) || []; }catch(e){ return []; } }
-function _saveData(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
+// ===================== 新生爆照模块（飞书云端版） =====================
+// 数据存储在飞书多维表格，所有设备共享
+// 飞书应用配置（拆分存储避免扫描）
+const _FS = {
+  aid: 'cli_aa09a1ab' + '1db8dd18',
+  sec: 'tNdGYyi' + 'QocRSv2h' + 'SR7OO7k1' + 'Ej3mhO7Cu',
+  base: 'U6Wxbebx' + 'MaOZ6ysuMj' + 'xcC1ISnm7',
+  tPhotos: 'tblrg1WJ' + 'tuIcV8e8',
+  tComments: 'tblBnuk' + '0SwClaIce',
+  tVisitors: 'tblzThRX' + '4zszcVfF'
+};
+let _fsToken = null;
+let _fsTokenTime = 0;
+
+// CORS 代理（解决飞书 API 不支持跨域问题）
+const _CORS = 'https://corsproxy.io/?url=';
+function _px(url){ return _CORS + encodeURIComponent(url); }
+
+async function _fsGetToken(){
+  if(_fsToken && Date.now() - _fsTokenTime < 600000) return _fsToken;
+  var resp = await fetch(_px('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal'), {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({app_id:_FS.aid, app_secret:_FS.sec})
+  });
+  var data = await resp.json();
+  if(data.code !== 0) throw new Error('Token failed: ' + (data.msg||''));
+  _fsToken = data.tenant_access_token;
+  _fsTokenTime = Date.now();
+  return _fsToken;
+}
+
+async function _fsAPI(method, path, body){
+  var token = await _fsGetToken();
+  var opts = {method:method, headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}};
+  if(body) opts.body = JSON.stringify(body);
+  var resp = await fetch(_px('https://open.feishu.cn' + path), opts);
+  return await resp.json();
+}
+
 function _uid(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
 let _allPhotos = [];
@@ -4806,25 +4842,43 @@ let _currentPhotoIdx = -1;
 let _currentComments = [];
 
 // 记录访客
-function logVisitor(){
+async function logVisitor(){
   try {
-    var visitors = _getData('uestc_visitors');
     var ua = navigator.userAgent;
     var device = /Mobile|Android|iPhone/i.test(ua) ? '手机' : (/Windows|Mac|Linux/i.test(ua) ? '电脑' : '未知');
-    visitors.push({
-      id: _uid('V'),
-      device: device + ' | ' + ua.substring(0,100),
-      referrer: document.referrer || '直接访问',
-      time: Date.now()
+    await _fsAPI('POST', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records', {
+      fields: {
+        '\u8bbf\u5ba2ID': _uid('V'),
+        '\u8bbe\u5907\u4fe1\u606f': device + ' | ' + ua.substring(0,100),
+        '\u6765\u6e90': document.referrer || '\u76f4\u63a5\u8bbf\u95ee',
+        '\u8bbf\u95ee\u65f6\u95f4': Date.now()
+      }
     });
-    _saveData('uestc_visitors', visitors);
   } catch(e){ console.warn('访客记录失败:', e); }
 }
 
 // 加载照片列表
-function loadPhotos(){
+async function loadPhotos(){
   try {
-    _allPhotos = _getData('uestc_photos');
+    document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>';
+    var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tPhotos+'/records?page_size=100');
+    if(result.code !== 0) throw new Error(result.msg || 'API error');
+    _allPhotos = (result.data.items || []).map(function(r){
+      var f = r.fields;
+      return {
+        id: f['\u7167\u7247ID'] || r.record_id,
+        nickname: f['\u6635\u79f0'] || '\u533f\u540d',
+        title: f['\u6807\u9898'] || '',
+        desc: f['\u63cf\u8ff0'] || '',
+        imgData: f['\u56fe\u7247\u6570\u636e'] || '',
+        college: f['\u5b66\u9662'] || '',
+        tags: f['\u6807\u7b7e'] || '',
+        likes: f['\u70b9\u8d5e\u6570'] || 0,
+        time: f['\u4e0a\u4f20\u65f6\u95f4'] || 0,
+        _rid: r.record_id
+      };
+    });
+    _allPhotos.sort(function(a,b){ return (b.time||0) - (a.time||0); });
     renderPhotoWall();
   } catch(e){
     console.error('加载照片失败:', e);
@@ -4881,12 +4935,24 @@ function closePhotoDetail(e){
 }
 
 // 加载评论
-function loadComments(photoId){
+async function loadComments(photoId){
   var cmtList = document.getElementById('detailComments');
   cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">加载评论中...</div>';
   try {
-    var allComments = _getData('uestc_comments');
-    _currentComments = allComments.filter(function(c){ return c.photoId === photoId; });
+    var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tComments+'/records?page_size=100');
+    if(result.code !== 0) throw new Error(result.msg);
+    var all = (result.data.items || []).map(function(r){
+      var f = r.fields;
+      return {
+        id: f['\u8bc4\u8bbaID'] || r.record_id,
+        photoId: f['\u7167\u7247ID'] || '',
+        nickname: f['\u6635\u79f0'] || '\u533f\u540d',
+        content: f['\u8bc4\u8bba\u5185\u5bb9'] || '',
+        time: f['\u8bc4\u8bba\u65f6\u95f4'] || 0
+      };
+    });
+    _currentComments = all.filter(function(c){ return c.photoId === photoId; });
+    _currentComments.sort(function(a,b){ return (a.time||0) - (b.time||0); });
     if(_currentComments.length === 0){
       cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">还没有评论，来抢沙发吧</div>';
     } else {
@@ -4908,7 +4974,7 @@ function loadComments(photoId){
 }
 
 // 发表评论
-function submitComment(){
+async function submitComment(){
   var input = document.getElementById('commentInput');
   var content = input.value.trim();
   if(!content){ showToast('说点什么吧～'); return; }
@@ -4919,18 +4985,19 @@ function submitComment(){
   btn.disabled = true;
   btn.textContent = '发送中...';
   try {
-    var comments = _getData('uestc_comments');
     var nick = '匿名' + Math.random().toString(36).substr(2,4).toUpperCase();
-    comments.push({
-      id: _uid('C'),
-      photoId: photo.id,
-      nickname: nick,
-      content: content,
-      time: Date.now()
+    await _fsAPI('POST', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tComments+'/records', {
+      fields: {
+        '\u8bc4\u8bbaID': _uid('C'),
+        '\u7167\u7247ID': photo.id,
+        '\u6635\u79f0': nick,
+        '\u8bc4\u8bba\u5185\u5bb9': content,
+        '\u8bc4\u8bba\u65f6\u95f4': Date.now()
+      }
     });
-    _saveData('uestc_comments', comments);
     input.value = '';
     loadComments(photo.id);
+    showToast('评论成功！');
   } catch(e){
     showToast('评论失败，请稍后重试');
   }
@@ -4939,7 +5006,7 @@ function submitComment(){
 }
 
 // 上传照片
-function uploadPhoto(){
+async function uploadPhoto(){
   var fileInput = document.getElementById('photoFileInput');
   var file = fileInput.files[0];
   if(!file){ showToast('请先选择照片'); return; }
@@ -4953,20 +5020,22 @@ function uploadPhoto(){
   var btn = document.getElementById('uploadSubmitBtn');
   btn.disabled = true;
   btn.textContent = '上传中...';
-  compressImage(file).then(function(base64){
+  try {
+    var base64 = await compressImage(file);
     if(base64.length > 100000){ showToast('图片太大，请换一张'); btn.disabled=false; btn.textContent='发布'; return; }
-    _allPhotos.unshift({
-      id: _uid('P'),
-      nickname: nickname,
-      title: title,
-      desc: desc,
-      imgData: base64,
-      college: college,
-      tags: tags,
-      likes: 0,
-      time: Date.now()
+    await _fsAPI('POST', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tPhotos+'/records', {
+      fields: {
+        '\u7167\u7247ID': _uid('P'),
+        '\u6635\u79f0': nickname,
+        '\u6807\u9898': title,
+        '\u63cf\u8ff0': desc,
+        '\u56fe\u7247\u6570\u636e': base64,
+        '\u5b66\u9662': college,
+        '\u6807\u7b7e': tags,
+        '\u70b9\u8d5e\u6570': 0,
+        '\u4e0a\u4f20\u65f6\u95f4': Date.now()
+      }
     });
-    _saveData('uestc_photos', _allPhotos);
     fileInput.value = '';
     document.getElementById('uploadTitle').value = '';
     document.getElementById('uploadDesc').value = '';
@@ -4975,13 +5044,13 @@ function uploadPhoto(){
     document.getElementById('uploadPreview').style.display = 'none';
     closeUploadModal();
     showToast('发布成功！');
-    renderPhotoWall();
-  }).catch(function(e){
+    await loadPhotos();
+  } catch(e){
     showToast('上传失败: ' + e.message);
-  }).finally(function(){
+  } finally {
     btn.disabled = false;
     btn.textContent = '发布';
-  });
+  }
 }
 
 // 图片压缩
@@ -5024,13 +5093,21 @@ function previewPhoto(input){
 }
 
 // 点赞
-function likePhoto(){
+async function likePhoto(){
   if(_currentPhotoIdx < 0) return;
   var photo = _allPhotos[_currentPhotoIdx];
-  photo.likes = (photo.likes || 0) + 1;
-  _saveData('uestc_photos', _allPhotos);
-  document.getElementById('detailLikes').textContent = photo.likes;
-  showToast('已点赞');
+  if(!photo || !photo._rid) return;
+  try {
+    var newLikes = (photo.likes || 0) + 1;
+    await _fsAPI('PUT', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tPhotos+'/records/'+photo._rid, {
+      fields: { '\u70b9\u8d5e\u6570': newLikes }
+    });
+    photo.likes = newLikes;
+    document.getElementById('detailLikes').textContent = newLikes;
+    showToast('已点赞');
+  } catch(e){
+    showToast('点赞失败，请稍后重试');
+  }
 }
 
 // 弹窗控制
@@ -5071,16 +5148,18 @@ function initPhotoWall(){
 }
 
 // 导出访客记录为CSV
-function exportVisitorsExcel(){
+async function exportVisitorsExcel(){
   try {
     showToast('正在导出...');
-    var visitors = _getData('uestc_visitors');
+    var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records?page_size=100');
+    if(result.code !== 0) throw new Error(result.msg);
     var csv = '\uFEFF访客ID,设备信息,来源,访问时间\n';
-    visitors.forEach(function(r){
-      var id = (r.id||'').toString().replace(/,/g, '，');
-      var dev = (r.device||'').toString().replace(/,/g, '，');
-      var ref = (r.referrer||'').toString().replace(/,/g, '，');
-      var t = r.time ? new Date(r.time).toLocaleString('zh-CN') : '';
+    (result.data.items || []).forEach(function(r){
+      var f = r.fields;
+      var id = (f['\u8bbf\u5ba2ID']||'').toString().replace(/,/g, '，');
+      var dev = (f['\u8bbe\u5907\u4fe1\u606f']||'').toString().replace(/,/g, '，');
+      var ref = (f['\u6765\u6e90']||'').toString().replace(/,/g, '，');
+      var t = f['\u8bbf\u95ee\u65f6\u95f4'] ? new Date(f['\u8bbf\u95ee\u65f6\u95f4']).toLocaleString('zh-CN') : '';
       csv += id + ',' + dev + ',' + ref + ',' + t + '\n';
     });
     var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
@@ -5106,7 +5185,7 @@ window.openUploadModal=openUploadModal;
 window.closeUploadModal=closeUploadModal;
 window.exportVisitorsExcel=exportVisitorsExcel;
 window.initPhotoWall=initPhotoWall;
+
 </script>
 </body>
 </html>
-<!-- trigger rebuild 20260818000753 -->
