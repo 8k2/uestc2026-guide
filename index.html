@@ -3849,18 +3849,33 @@ function extractNearbyKeyword(q){
     '住宿':['住宿服务;宾馆酒店;宾馆酒店','住宿'],
     '宾馆':['住宿服务;宾馆酒店;宾馆酒店','宾馆'],
     '旅馆':['住宿服务;旅馆招待所;旅馆招待所','旅馆'],
+    '民宿':['住宿服务;宾馆酒店;宾馆酒店','民宿'],
     '美食':['餐饮服务;餐饮相关场所','美食'],
     '餐厅':['餐饮服务;餐饮相关场所','餐厅'],
     '吃饭':['餐饮服务;餐饮相关场所','吃饭'],
+    '好吃':['餐饮服务;餐饮相关场所','美食'],
+    '好吃的':['餐饮服务;餐饮相关场所','美食'],
+    '觅食':['餐饮服务;餐饮相关场所','觅食'],
     '小吃':['餐饮服务;餐饮相关场所','小吃'],
     '火锅':['餐饮服务;餐饮相关场所','火锅'],
+    '串串':['餐饮服务;餐饮相关场所','串串'],
     '烧烤':['餐饮服务;餐饮相关场所','烧烤'],
+    '外卖':['餐饮服务;餐饮相关场所','外卖'],
+    '饭馆':['餐饮服务;餐饮相关场所','饭馆'],
+    '餐馆':['餐饮服务;餐饮相关场所','餐馆'],
+    '喝的':['餐饮服务;冷饮店','饮品'],
     '奶茶':['餐饮服务;冷饮店','奶茶'],
+    '茶':['餐饮服务;冷饮店','茶饮'],
     '咖啡':['餐饮服务;咖啡馆','咖啡'],
+    '甜品':['餐饮服务;甜品店','甜品'],
     '超市':['购物服务;超级市场','超市'],
+    '便利店':['购物服务;便利店','便利店'],
     '药店':['医疗保健服务;药店','药店'],
     '理发':['体育休闲服务;美容美发店','理发'],
+    '美发':['体育休闲服务;美容美发店','美发'],
+    '美容':['体育休闲服务;美容美发店','美容'],
     '打印':['购物服务;文印店','打印'],
+    '复印':['购物服务;文印店','打印'],
     '快递':['购物服务;物流速递','快递'],
     '医院':['医疗保健服务;综合医院','医院'],
     '银行':['金融服务;银行','银行'],
@@ -3868,55 +3883,81 @@ function extractNearbyKeyword(q){
     'KTV':['体育休闲服务;KTV','KTV'],
     '影院':['体育休闲服务;电影院','影院'],
     '电影院':['体育休闲服务;电影院','电影院'],
+    '健身':['体育休闲服务;健身房','健身'],
     '健身房':['体育休闲服务;健身房','健身房'],
     '网吧':['体育休闲服务;网吧','网吧'],
     '书店':['购物服务;书店','书店'],
     '水果':['购物服务;水果店','水果'],
     '面包':['餐饮服务;面包店','面包'],
     '蛋糕':['餐饮服务;蛋糕店','蛋糕'],
-    '驾校':['教育服务;驾校','驾校']
+    '驾校':['教育服务;驾校','驾校'],
+    '洗浴':['体育休闲服务;洗浴','洗浴'],
+    '干洗':['购物服务;洗衣店','干洗']
   };
   var ql=q.toLowerCase();
+  // 先精确匹配typeMap
   for(var k in typeMap){
     if(ql.indexOf(k)>=0) return {types:typeMap[k][0],keyword:typeMap[k][1]};
   }
-  return {types:'',keyword:q.replace(/附近|周边|旁边|周围|就近|有没有|有没有/g,'').trim()};
+  // 泛化餐饮关键词：好吃/吃/喝/味道 等没有精确匹配时，归入餐饮类
+  var foodWords=['吃','喝','味','馋','饿','宵夜','夜宵','早','午','晚','饭','面','菜','饮'];
+  for(var i=0;i<foodWords.length;i++){
+    if(ql.indexOf(foodWords[i])>=0) return {types:'餐饮服务;餐饮相关场所',keyword:'美食'};
+  }
+  // 泛化购物关键词：买/卖/逛/东西 等
+  var shopWords=['买','逛','购物','东西','商品'];
+  for(var i=0;i<shopWords.length;i++){
+    if(ql.indexOf(shopWords[i])>=0) return {types:'购物服务',keyword:'购物'};
+  }
+  // fallback：清理关键词后用通用搜索
+  var cleaned=q.replace(/附近|周边|旁边|周围|就近|有没有|哪儿|哪里|哪里有|推荐一下/g,'').trim();
+  return {types:'',keyword:cleaned||'生活服务'};
 }
 
 // 调用高德地图周边搜索API
 function searchAmapNearby(query,callback){
   var extracted=extractNearbyKeyword(query);
-  var params=[
-    'key='+AMAP_CONFIG.key,
-    'location='+AMAP_CONFIG.location,
-    'radius='+AMAP_CONFIG.radius,
-    'offset=10',
-    'sortrule=distance',
-    'output=json'
-  ];
-  if(extracted.types) params.push('types='+encodeURIComponent(extracted.types));
-  else params.push('keywords='+encodeURIComponent(extracted.keyword));
-  var url=AMAP_CONFIG.baseUrl+'?'+params.join('&');
-  var xhr=new XMLHttpRequest();
-  xhr.open('GET',url,true);
-  xhr.timeout=10000;
-  xhr.onreadystatechange=function(){
-    if(xhr.readyState===4){
-      if(xhr.status===200){
-        try{
-          var resp=JSON.parse(xhr.responseText);
-          if(resp.status==='1'&&resp.pois&&resp.pois.length>0){
-            callback({success:true,pois:resp.pois,keyword:extracted.keyword});
-          }else{
-            callback({success:false,keyword:extracted.keyword});
-          }
-        }catch(e){callback({success:false,keyword:extracted.keyword});}
-      }else{callback({success:false,keyword:extracted.keyword});}
-    }
-  };
-  xhr.onerror=function(){callback({success:false,keyword:extracted.keyword});};
-  xhr.ontimeout=function(){callback({success:false,keyword:extracted.keyword});};
-  try{xhr.send();}catch(e){callback({success:false,keyword:extracted.keyword});}
+  function doSearch(useTypes,useKeyword,retry){
+    var params=[
+      'key='+AMAP_CONFIG.key,
+      'location='+AMAP_CONFIG.location,
+      'radius='+AMAP_CONFIG.radius,
+      'offset=15',
+      'sortrule=distance',
+      'output=json'
+    ];
+    if(useTypes) params.push('types='+encodeURIComponent(useTypes));
+    if(useKeyword) params.push('keywords='+encodeURIComponent(useKeyword));
+    var url=AMAP_CONFIG.baseUrl+'?'+params.join('&');
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET',url,true);
+    xhr.timeout=10000;
+    xhr.onreadystatechange=function(){
+      if(xhr.readyState===4){
+        if(xhr.status===200){
+          try{
+            var resp=JSON.parse(xhr.responseText);
+            if(resp.status==='1'&&resp.pois&&resp.pois.length>0){
+              callback({success:true,pois:resp.pois,keyword:extracted.keyword});
+            }else if(!retry&&extracted.types){
+              // types+keyword 无结果，重试：只用types不带keyword
+              doSearch(extracted.types,'',true);
+            }else if(!retry&&extracted.keyword){
+              // keyword无结果，重试：不传keyword也不传types，返回空让上层走大模型
+              callback({success:false,keyword:extracted.keyword});
+            }else{
+              callback({success:false,keyword:extracted.keyword});
+            }
+          }catch(e){callback({success:false,keyword:extracted.keyword});}
+        }else{callback({success:false,keyword:extracted.keyword});}
+      }
+    };
+    xhr.onerror=function(){callback({success:false,keyword:extracted.keyword});};
+    xhr.ontimeout=function(){callback({success:false,keyword:extracted.keyword});};
+    try{xhr.send();}catch(e){callback({success:false,keyword:extracted.keyword});}
+  }
+  // 首次搜索：有types时同时传keyword过滤，无types时只传keyword
+  doSearch(extracted.types,extracted.types?extracted.keyword:extracted.keyword,false);
 }
 
 // 生成AI问答多平台搜索链接
