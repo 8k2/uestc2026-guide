@@ -4811,8 +4811,9 @@ let _fsToken = null;
 let _fsTokenTime = 0;
 
 // CORS 代理（解决飞书 API 不支持跨域问题）
-const _CORS = 'https://corsproxy.io/?url=';
-function _px(url){ return _CORS + encodeURIComponent(url); }
+// corsproxy.io 被 Cloudflare 封禁，改用 proxy.cors.sh
+const _CORS = 'https://proxy.cors.sh/';
+function _px(url){ return _CORS + url; }
 
 async function _fsGetToken(){
   if(_fsToken && Date.now() - _fsTokenTime < 600000) return _fsToken;
