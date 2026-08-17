@@ -277,7 +277,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .photo-card-time{font-size:9px;color:var(--text3);margin-top:1px}
 .photo-section{display:none}
 .photo-section.active{display:block}
-.photo-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px}
+.photo-header{display:flex;justify-content:flex-start;align-items:center;padding:8px 12px;gap:10px}
 .photo-header-title{font-size:16px;font-weight:bold;color:var(--gold)}
 .photo-upload-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer}
 .photo-upload-btn:active{transform:scale(0.95)}
@@ -372,10 +372,10 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <h3>📸 晒出你的照片</h3>
     <div class="upload-form-group">
       <label>选择照片</label>
-      <label class="upload-file-label" for="photoFileInput">
+      <div class="upload-file-label" onclick="document.getElementById('photoFileInput').click()">
         点击选择图片（≤2MB）
-        <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
-      </label>
+      </div>
+      <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
       <img class="upload-preview" id="uploadPreview" src="" alt="预览">
     </div>
     <div class="upload-form-group">
@@ -4795,104 +4795,38 @@ window.renderNearbyPlaces=renderNearbyPlaces;
 window.updatePlatformLinks=updatePlatformLinks;
 window.buildPlatformLinks=buildPlatformLinks;
 
-// ===================== 新生爆照模块 =====================
-const FEISHU_CONFIG = {
-  APP_ID: 'cli_aa09a1ab1db8dd18',
-  _s1: 'tNdGY', _s2: 'yiQoc', _s3: 'RSv2h', _s4: 'SR7OO', _s5: '7k1Ej', _s6: '3mhO7', _s7: 'Cu',
-  get APP_SECRET(){return this._s1+this._s2+this._s3+this._s4+this._s5+this._s6+this._s7;},
-  BASE_TOKEN: 'U6WxbebxMaOZ6ysuMjxcC1ISnm7',
-  TABLE_PHOTOS: 'tblrg1WJtuIcV8e8',
-  TABLE_COMMENTS: 'tblBnuk0SwClaIce',
-  TABLE_VISITORS: 'tblzThRX4zszcVfF',
-  API: 'https://open.feishu.cn/open-apis'
-};
+// ===================== 新生爆照模块（localStorage版） =====================
+// 数据存储在浏览器本地，无需后端服务器
+function _getData(key){ try{ return JSON.parse(localStorage.getItem(key)) || []; }catch(e){ return []; } }
+function _saveData(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
+function _uid(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).substr(2,4); }
 
-// 缓存 tenant_access_token
-let _feishuToken = null;
-let _feishuTokenExpire = 0;
-
-async function getFeishuToken(){
-  if(_feishuToken && Date.now() < _feishuTokenExpire) return _feishuToken;
-  const url = FEISHU_CONFIG.API + '/auth/v3/tenant_access_token/internal';
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({app_id: FEISHU_CONFIG.APP_ID, app_secret: FEISHU_CONFIG.APP_SECRET})
-  });
-  const data = await res.json();
-  if(data.code !== 0) throw new Error('获取token失败: '+data.msg);
-  _feishuToken = data.tenant_access_token;
-  _feishuTokenExpire = Date.now() + (data.expire - 300) * 1000;
-  return _feishuToken;
-}
-
-// 飞书多维表格 CRUD
-async function feishuRequest(method, path, body){
-  const token = await getFeishuToken();
-  const opts = {
-    method: method,
-    headers: {
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    }
-  };
-  if(body) opts.body = JSON.stringify(body);
-  const res = await fetch(FEISHU_CONFIG.API + path, opts);
-  return await res.json();
-}
+let _allPhotos = [];
+let _currentPhotoIdx = -1;
+let _currentComments = [];
 
 // 记录访客
-async function logVisitor(){
+function logVisitor(){
   try {
-    const ua = navigator.userAgent;
-    let device = '未知';
-    if(/Mobile|Android|iPhone/i.test(ua)) device = '手机';
-    else if(/Windows|Mac|Linux/i.test(ua)) device = '电脑';
-    const referrer = document.referrer || '直接访问';
-    const visitorId = 'V' + Date.now() + Math.random().toString(36).substr(2,5);
-    await feishuRequest('POST', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_VISITORS + '/records', {
-      fields: {
-        '访客ID': visitorId,
-        '设备信息': device + ' | ' + ua.substring(0, 100),
-        '来源': referrer,
-        '访问时间': Date.now()
-      }
+    var visitors = _getData('uestc_visitors');
+    var ua = navigator.userAgent;
+    var device = /Mobile|Android|iPhone/i.test(ua) ? '手机' : (/Windows|Mac|Linux/i.test(ua) ? '电脑' : '未知');
+    visitors.push({
+      id: _uid('V'),
+      device: device + ' | ' + ua.substring(0,100),
+      referrer: document.referrer || '直接访问',
+      time: Date.now()
     });
-  } catch(e) { console.warn('访客记录失败:', e); }
+    _saveData('uestc_visitors', visitors);
+  } catch(e){ console.warn('访客记录失败:', e); }
 }
 
 // 加载照片列表
-let _allPhotos = [];
-async function loadPhotos(){
+function loadPhotos(){
   try {
-    const token = await getFeishuToken();
-    let allRecords = [];
-    let pageToken = null;
-    do {
-      let url = FEISHU_CONFIG.API + '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_PHOTOS + '/records?page_size=100';
-      if(pageToken) url += '&page_token=' + pageToken;
-      const res = await fetch(url, {headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}});
-      const data = await res.json();
-      if(data.code !== 0) throw new Error(data.msg);
-      allRecords = allRecords.concat(data.data.items || []);
-      pageToken = data.data.page_token;
-      if(!data.data.has_more) break;
-    } while(pageToken);
-
-    _allPhotos = allRecords.map(r => ({
-      id: r.fields['照片ID'] || r.record_id,
-      recordId: r.record_id,
-      nickname: r.fields['昵称'] || '匿名',
-      title: r.fields['标题'] || '',
-      desc: r.fields['描述'] || '',
-      imgData: r.fields['图片数据'] || '',
-      college: r.fields['学院'] || '',
-      tags: r.fields['标签'] || '',
-      likes: r.fields['点赞数'] || 0,
-      time: r.fields['上传时间'] || ''
-    })).reverse();
+    _allPhotos = _getData('uestc_photos');
     renderPhotoWall();
-  } catch(e) {
+  } catch(e){
     console.error('加载照片失败:', e);
     document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载失败，请稍后重试</div>';
   }
@@ -4900,22 +4834,22 @@ async function loadPhotos(){
 
 // 渲染照片墙
 function renderPhotoWall(){
-  const wall = document.getElementById('photoWall');
+  var wall = document.getElementById('photoWall');
   if(!wall) return;
   if(_allPhotos.length === 0){
     wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
     return;
   }
-  wall.innerHTML = _allPhotos.map((p, i) => {
-    const imgSrc = p.imgData.startsWith('data:') ? p.imgData : p.imgData;
-    const timeStr = p.time ? (typeof p.time === 'number' ? new Date(p.time).toLocaleString('zh-CN') : p.time) : '';
+  wall.innerHTML = _allPhotos.map(function(p, i){
+    var imgSrc = p.imgData || '';
+    var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
     return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
       '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
         (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
       '</div>' +
       '<div class="photo-card-info">' +
         '<div class="photo-card-title">' + escapeHtml(p.title || '无标题') + '</div>' +
-        '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + p.likes + '</span></div>' +
+        '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
         '<div class="photo-card-time">' + timeStr + '</div>' +
       '</div>' +
     '</div>';
@@ -4923,22 +4857,19 @@ function renderPhotoWall(){
 }
 
 // 照片详情弹窗
-let _currentPhotoIdx = -1;
-let _currentComments = [];
-
 function openPhotoDetail(idx){
   _currentPhotoIdx = idx;
-  const p = _allPhotos[idx];
+  var p = _allPhotos[idx];
   if(!p) return;
-  const modal = document.getElementById('photoDetailModal');
-  const imgSrc = p.imgData.startsWith('data:') ? p.imgData : p.imgData;
-  const timeStr = p.time ? (typeof p.time === 'number' ? new Date(p.time).toLocaleString('zh-CN') : p.time) : '';
+  var modal = document.getElementById('photoDetailModal');
+  var imgSrc = p.imgData || '';
+  var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
   document.getElementById('detailImg').src = imgSrc;
   document.getElementById('detailTitle').textContent = p.title || '无标题';
   document.getElementById('detailDesc').textContent = p.desc || '';
   document.getElementById('detailMeta').innerHTML = '👤 ' + escapeHtml(p.nickname) + (p.college ? ' · ' + escapeHtml(p.college) : '') + (p.tags ? ' · #' + escapeHtml(p.tags) : '');
   document.getElementById('detailTime').textContent = timeStr;
-  document.getElementById('detailLikes').textContent = p.likes;
+  document.getElementById('detailLikes').textContent = p.likes || 0;
   modal.style.display = 'flex';
   loadComments(p.id);
 }
@@ -4950,37 +4881,17 @@ function closePhotoDetail(e){
 }
 
 // 加载评论
-async function loadComments(photoId){
-  const cmtList = document.getElementById('detailComments');
+function loadComments(photoId){
+  var cmtList = document.getElementById('detailComments');
   cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">加载评论中...</div>';
   try {
-    const token = await getFeishuToken();
-    let allRecords = [];
-    let pageToken = null;
-    do {
-      let url = FEISHU_CONFIG.API + '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_COMMENTS + '/records?page_size=100';
-      if(pageToken) url += '&page_token=' + pageToken;
-      const res = await fetch(url, {headers: {'Authorization': 'Bearer ' + token}});
-      const data = await res.json();
-      if(data.code !== 0) throw new Error(data.msg);
-      allRecords = allRecords.concat(data.data.items || []);
-      pageToken = data.data.page_token;
-      if(!data.data.has_more) break;
-    } while(pageToken);
-
-    _currentComments = allRecords
-      .filter(r => r.fields['照片ID'] === photoId)
-      .map(r => ({
-        nickname: r.fields['昵称'] || '匿名',
-        content: r.fields['评论内容'] || '',
-        time: r.fields['评论时间'] || ''
-      }));
-
+    var allComments = _getData('uestc_comments');
+    _currentComments = allComments.filter(function(c){ return c.photoId === photoId; });
     if(_currentComments.length === 0){
       cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">还没有评论，来抢沙发吧</div>';
     } else {
-      cmtList.innerHTML = _currentComments.map(c => {
-        const t = c.time ? (typeof c.time === 'number' ? new Date(c.time).toLocaleString('zh-CN') : c.time) : '';
+      cmtList.innerHTML = _currentComments.map(function(c){
+        var t = c.time ? new Date(c.time).toLocaleString('zh-CN') : '';
         return '<div class="comment-item">' +
           '<div class="comment-avatar">' + escapeHtml((c.nickname || '匿')[0]) + '</div>' +
           '<div class="comment-body">' +
@@ -4991,37 +4902,36 @@ async function loadComments(photoId){
         '</div>';
       }).join('');
     }
-  } catch(e) {
+  } catch(e){
     cmtList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">评论加载失败</div>';
   }
 }
 
 // 发表评论
-async function submitComment(){
-  const input = document.getElementById('commentInput');
-  const content = input.value.trim();
+function submitComment(){
+  var input = document.getElementById('commentInput');
+  var content = input.value.trim();
   if(!content){ showToast('说点什么吧～'); return; }
   if(content.length > 500){ showToast('评论太长啦，限500字'); return; }
-  const photo = _allPhotos[_currentPhotoIdx];
+  var photo = _allPhotos[_currentPhotoIdx];
   if(!photo) return;
-
-  const btn = document.getElementById('commentSubmitBtn');
+  var btn = document.getElementById('commentSubmitBtn');
   btn.disabled = true;
   btn.textContent = '发送中...';
   try {
-    const nick = '匿名' + Math.random().toString(36).substr(2, 4).toUpperCase();
-    await feishuRequest('POST', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_COMMENTS + '/records', {
-      fields: {
-        '评论ID': 'C' + Date.now() + Math.random().toString(36).substr(2,4),
-        '照片ID': photo.id,
-        '昵称': nick,
-        '评论内容': content,
-        '评论时间': Date.now()
-      }
+    var comments = _getData('uestc_comments');
+    var nick = '匿名' + Math.random().toString(36).substr(2,4).toUpperCase();
+    comments.push({
+      id: _uid('C'),
+      photoId: photo.id,
+      nickname: nick,
+      content: content,
+      time: Date.now()
     });
+    _saveData('uestc_comments', comments);
     input.value = '';
     loadComments(photo.id);
-  } catch(e) {
+  } catch(e){
     showToast('评论失败，请稍后重试');
   }
   btn.disabled = false;
@@ -5029,42 +4939,34 @@ async function submitComment(){
 }
 
 // 上传照片
-async function uploadPhoto(){
-  const fileInput = document.getElementById('photoFileInput');
-  const file = fileInput.files[0];
+function uploadPhoto(){
+  var fileInput = document.getElementById('photoFileInput');
+  var file = fileInput.files[0];
   if(!file){ showToast('请先选择照片'); return; }
   if(file.size > 2 * 1024 * 1024){ showToast('图片不能超过2MB'); return; }
-
-  const title = document.getElementById('uploadTitle').value.trim();
-  const desc = document.getElementById('uploadDesc').value.trim();
-  const nickname = document.getElementById('uploadNick').value.trim() || ('匿名' + Math.random().toString(36).substr(2,4).toUpperCase());
-  const college = document.getElementById('uploadCollege').value.trim();
-  const tags = document.getElementById('uploadTags').value.trim();
-
+  var title = document.getElementById('uploadTitle').value.trim();
+  var desc = document.getElementById('uploadDesc').value.trim();
+  var nickname = document.getElementById('uploadNick').value.trim() || ('匿名' + Math.random().toString(36).substr(2,4).toUpperCase());
+  var college = document.getElementById('uploadCollege').value.trim();
+  var tags = document.getElementById('uploadTags').value.trim();
   if(!title){ showToast('请填写标题'); return; }
-
-  const btn = document.getElementById('uploadSubmitBtn');
+  var btn = document.getElementById('uploadSubmitBtn');
   btn.disabled = true;
   btn.textContent = '上传中...';
-  try {
-    const base64 = await compressImage(file);
+  compressImage(file).then(function(base64){
     if(base64.length > 100000){ showToast('图片太大，请换一张'); btn.disabled=false; btn.textContent='发布'; return; }
-
-    const photoId = 'P' + Date.now() + Math.random().toString(36).substr(2,4);
-    await feishuRequest('POST', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_PHOTOS + '/records', {
-      fields: {
-        '照片ID': photoId,
-        '昵称': nickname,
-        '标题': title,
-        '描述': desc,
-        '图片数据': base64,
-        '学院': college,
-        '标签': tags,
-        '点赞数': 0,
-        '上传时间': Date.now()
-      }
+    _allPhotos.unshift({
+      id: _uid('P'),
+      nickname: nickname,
+      title: title,
+      desc: desc,
+      imgData: base64,
+      college: college,
+      tags: tags,
+      likes: 0,
+      time: Date.now()
     });
-
+    _saveData('uestc_photos', _allPhotos);
     fileInput.value = '';
     document.getElementById('uploadTitle').value = '';
     document.getElementById('uploadDesc').value = '';
@@ -5073,32 +4975,32 @@ async function uploadPhoto(){
     document.getElementById('uploadPreview').style.display = 'none';
     closeUploadModal();
     showToast('发布成功！');
-    await loadPhotos();
-  } catch(e) {
+    renderPhotoWall();
+  }).catch(function(e){
     showToast('上传失败: ' + e.message);
-  }
-  btn.disabled = false;
-  btn.textContent = '发布';
+  }).finally(function(){
+    btn.disabled = false;
+    btn.textContent = '发布';
+  });
 }
 
 // 图片压缩
 function compressImage(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
+  return new Promise(function(resolve, reject){
+    var reader = new FileReader();
     reader.onload = function(e){
-      const img = new Image();
+      var img = new Image();
       img.onload = function(){
-        let canvas = document.createElement('canvas');
-        let maxW = 800, maxH = 800;
-        let w = img.width, h = img.height;
+        var canvas = document.createElement('canvas');
+        var maxW = 800, maxH = 800;
+        var w = img.width, h = img.height;
         if(w > maxW){ h = h * maxW / w; w = maxW; }
         if(h > maxH){ w = w * maxH / h; h = maxH; }
         canvas.width = w;
         canvas.height = h;
-        const ctx = canvas.getContext('2d');
+        var ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        let base64 = canvas.toDataURL('image/jpeg', 0.7);
-        resolve(base64);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
       };
       img.onerror = reject;
       img.src = e.target.result;
@@ -5110,11 +5012,11 @@ function compressImage(file){
 
 // 预览选中的图片
 function previewPhoto(input){
-  const file = input.files[0];
+  var file = input.files[0];
   if(!file) return;
-  const reader = new FileReader();
+  var reader = new FileReader();
   reader.onload = function(e){
-    const preview = document.getElementById('uploadPreview');
+    var preview = document.getElementById('uploadPreview');
     preview.src = e.target.result;
     preview.style.display = 'block';
   };
@@ -5122,20 +5024,13 @@ function previewPhoto(input){
 }
 
 // 点赞
-async function likePhoto(){
+function likePhoto(){
   if(_currentPhotoIdx < 0) return;
-  const photo = _allPhotos[_currentPhotoIdx];
-  try {
-    const newLikes = (photo.likes || 0) + 1;
-    await feishuRequest('PUT', '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_PHOTOS + '/records/' + photo.recordId, {
-      fields: { '点赞数': newLikes }
-    });
-    photo.likes = newLikes;
-    document.getElementById('detailLikes').textContent = newLikes;
-    showToast('已点赞');
-  } catch(e) {
-    showToast('点赞失败');
-  }
+  var photo = _allPhotos[_currentPhotoIdx];
+  photo.likes = (photo.likes || 0) + 1;
+  _saveData('uestc_photos', _allPhotos);
+  document.getElementById('detailLikes').textContent = photo.likes;
+  showToast('已点赞');
 }
 
 // 弹窗控制
@@ -5149,7 +5044,7 @@ function closeUploadModal(e){
 
 // Toast 提示
 function showToast(msg){
-  let toast = document.getElementById('toastTip');
+  var toast = document.getElementById('toastTip');
   if(!toast){
     toast = document.createElement('div');
     toast.id = 'toastTip';
@@ -5160,13 +5055,13 @@ function showToast(msg){
   toast.style.opacity = '1';
   toast.style.display = 'block';
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+  toast._timer = setTimeout(function(){ toast.style.opacity = '0'; }, 2000);
 }
 
 // HTML 转义
 function escapeHtml(str){
   if(!str) return '';
-  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  return String(str).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
 }
 
 // 初始化爆照模块
@@ -5176,38 +5071,25 @@ function initPhotoWall(){
 }
 
 // 导出访客记录为CSV
-async function exportVisitorsExcel(){
+function exportVisitorsExcel(){
   try {
     showToast('正在导出...');
-    const token = await getFeishuToken();
-    let allRecords = [];
-    let pageToken = null;
-    do {
-      let url = FEISHU_CONFIG.API + '/bitable/v1/apps/' + FEISHU_CONFIG.BASE_TOKEN + '/tables/' + FEISHU_CONFIG.TABLE_VISITORS + '/records?page_size=100';
-      if(pageToken) url += '&page_token=' + pageToken;
-      const res = await fetch(url, {headers: {'Authorization': 'Bearer ' + token}});
-      const data = await res.json();
-      if(data.code !== 0) throw new Error(data.msg);
-      allRecords = allRecords.concat(data.data.items || []);
-      pageToken = data.data.page_token;
-      if(!data.data.has_more) break;
-    } while(pageToken);
-
-    let csv = '\uFEFF访客ID,设备信息,来源,访问时间\n';
-    allRecords.forEach(r => {
-      const id = (r.fields['访客ID'] || '').toString().replace(/,/g, '，');
-      const dev = (r.fields['设备信息'] || '').toString().replace(/,/g, '，');
-      const ref = (r.fields['来源'] || '').toString().replace(/,/g, '，');
-      const t = r.fields['访问时间'] ? (typeof r.fields['访问时间'] === 'number' ? new Date(r.fields['访问时间']).toLocaleString('zh-CN') : r.fields['访问时间']) : '';
+    var visitors = _getData('uestc_visitors');
+    var csv = '\uFEFF访客ID,设备信息,来源,访问时间\n';
+    visitors.forEach(function(r){
+      var id = (r.id||'').toString().replace(/,/g, '，');
+      var dev = (r.device||'').toString().replace(/,/g, '，');
+      var ref = (r.referrer||'').toString().replace(/,/g, '，');
+      var t = r.time ? new Date(r.time).toLocaleString('zh-CN') : '';
       csv += id + ',' + dev + ',' + ref + ',' + t + '\n';
     });
-    const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
-    const a = document.createElement('a');
+    var blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+    var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = '访客记录_' + new Date().toLocaleDateString('zh-CN') + '.csv';
     a.click();
     showToast('导出成功！');
-  } catch(e) {
+  } catch(e){
     showToast('导出失败: ' + e.message);
   }
 }
