@@ -4916,14 +4916,14 @@ window.closeContactQR=function(e){
   document.getElementById('contactModal').style.display='none';
 };
 
-// Server酱推送配置（通知圈主微信）
-const _SCT = 'SCT399833' + 'Trj336lC' + 'F8RWonQ5' + '9L5UzWbp9';
+// PushPlus推送配置（通知圈主微信，免费版每天200条）
+const _PP = 'b09d4958' + 'c92146bf' + '91354d27' + 'ce7f2127';
 function _notify(title, desp){
   try{
-    fetch('https://sctapi.ftqq.com/'+_SCT+'.send',{
+    fetch('https://www.pushplus.plus/send',{
       method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:'title='+encodeURIComponent(title)+'&desp='+encodeURIComponent(desp||'')
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:_PP,title:title,content:desp||'',template:'markdown'})
     }).catch(function(){});
   }catch(e){}
 }
