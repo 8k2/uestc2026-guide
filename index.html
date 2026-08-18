@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -5415,13 +5415,13 @@ function switchMode(mode){
     tabAI.classList.add('active');
     results.style.display='none';aiChat.classList.add('active');aiBar.style.display='flex';
     searchInput.style.display='none';
-    setTimeout(()=>document.getElementById('aiInput').focus(),100);
+    setTimeout(function(){document.getElementById('aiInput').focus();},100);
   }else if(mode==='nearby'){
     tabNearby.classList.add('active');
     results.style.display='none';nearbySection.classList.add('active');
     searchInput.style.display='none';
     renderNearbyPlaces();
-    setTimeout(()=>document.getElementById('nearbyInput').focus(),100);
+    setTimeout(function(){document.getElementById('nearbyInput').focus();},100);
   }else{
     tabLocal.classList.add('active');
     if(photoSection){ photoSection.classList.add('active'); }
@@ -5445,30 +5445,29 @@ function quickSearch(q){
 let searchTimer=null;
 function doSearch(q){
   clearTimeout(searchTimer);
-  searchTimer=setTimeout(()=>_doSearch(q),150);
+  searchTimer=setTimeout(function(){_doSearch(q);},150);
 }
 function _doSearch(q){
   const r=document.getElementById('searchResults');
   if(!q||!q.trim()){showHotSearch();return}
   q=q.trim().toLowerCase();
-  const hits=SEARCH_INDEX.filter(item=>item.fullText.toLowerCase().includes(q)||item.key.toLowerCase().includes(q));
+  var hits=SEARCH_INDEX.filter(function(item){return item.fullText.toLowerCase().indexOf(q)>=0||item.key.toLowerCase().indexOf(q)>=0;});
   if(!hits.length){
     r.innerHTML='<div class="search-empty">未找到相关内容，换个关键词试试</div>';
     return;
   }
-  let html='';
-  hits.forEach(item=>{
-    const idx=item.fullText.toLowerCase().indexOf(q);
-    const start=Math.max(0,idx-20);
-    const end=Math.min(item.fullText.length,idx+q.length+40);
-    let preview=(start>0?'...':'')+item.fullText.substring(start,end)+(end<item.fullText.length?'...':'');
-    html+=`<div class="search-result-item" onclick="closeSearch();openDetail('${item.key}')">
-      <div class="search-result-icon">${item.icon}</div>
-      <div class="search-result-info">
-        <div class="search-result-name">${item.key}</div>
-        <div class="search-result-preview">${preview}</div>
-      </div>
-    </div>`;
+  var html='';
+  hits.forEach(function(item){
+    var idx=item.fullText.toLowerCase().indexOf(q);
+    var start=Math.max(0,idx-20);
+    var end=Math.min(item.fullText.length,idx+q.length+40);
+    var preview=(start>0?'...':'')+item.fullText.substring(start,end)+(end<item.fullText.length?'...':'');
+    html+='<div class="search-result-item" onclick="closeSearch();openDetail(\''+item.key+'\')">'+
+      '<div class="search-result-icon">'+item.icon+'</div>'+
+      '<div class="search-result-info">'+
+      '<div class="search-result-name">'+item.key+'</div>'+
+      '<div class="search-result-preview">'+preview+'</div>'+
+      '</div></div>';
   });
   r.innerHTML=html;
 }
@@ -6254,7 +6253,7 @@ function extractNearbyKeyword(q){
     '菜市场':['购物服务','菜市场'],'水果':['购物服务','水果'],'水果店':['购物服务','水果店'],
     '书店':['购物服务','书店'],'文具':['购物服务','文具'],'办公用品':['购物服务','办公用品'],
     '眼镜':['购物服务','眼镜'],'配眼镜':['购物服务','眼镜'],'数码':['购物服务','数码'],
-    '手机'=>['购物服务','手机'],'修手机':['购物服务|生活服务','修手机'],'修电脑':['购物服务|生活服务','修电脑'],
+    '手机':['购物服务','手机'],'修手机':['购物服务|生活服务','修手机'],'修电脑':['购物服务|生活服务','修电脑'],
     '电脑':['购物服务','电脑'],'电器':['购物服务','电器'],'服装':['购物服务','服装'],
     '鞋':['购物服务','鞋'],'花店':['购物服务','花店'],'鲜花':['购物服务','鲜花'],
     '五金':['购物服务','五金'],'家居':['购物服务','家居'],'家具':['购物服务','家具'],
@@ -6275,14 +6274,14 @@ function extractNearbyKeyword(q){
     'KTV':['体育休闲服务','KTV'],'ktv':['体育休闲服务','KTV'],
     '影院':['体育休闲服务','影院'],'电影院':['体育休闲服务','电影院'],'电影':['体育休闲服务','电影'],
     '健身':['体育休闲服务','健身'],'健身房':['体育休闲服务','健身房'],'瑜伽':['体育休闲服务','瑜伽'],
-    '游泳':['体育休闲服务','游泳'],'泳池':['体育休闲服务','游泳'],'羽毛球'=>['体育休闲服务','羽毛球'],
-    '篮球':['体育休闲服务','篮球'],'乒乓球':['体育休闲服务','乒乓球'],'网球'=>['体育休闲服务','网球'],
+    '游泳':['体育休闲服务','游泳'],'泳池':['体育休闲服务','游泳'],'羽毛球':['体育休闲服务','羽毛球'],
+    '篮球':['体育休闲服务','篮球'],'乒乓球':['体育休闲服务','乒乓球'],'网球':['体育休闲服务','网球'],
     '网吧':['体育休闲服务','网吧'],'网咖':['体育休闲服务','网咖'],
     '台球':['体育休闲服务','台球'],'电玩':['体育休闲服务','电玩'],'棋牌':['体育休闲服务','棋牌'],
     '足浴':['体育休闲服务','足浴'],'按摩':['体育休闲服务','按摩'],'洗浴':['体育休闲服务','洗浴'],
     '桑拿':['体育休闲服务','桑拿'],'SPA':['体育休闲服务','SPA'],'spa':['体育休闲服务','SPA'],
     '密室':['体育休闲服务','密室'],'剧本杀':['体育休闲服务','剧本杀'],
-    '桌游'=>['体育休闲服务','桌游'],'游乐场':['体育休闲服务','游乐场'],
+    '桌游':['体育休闲服务','桌游'],'游乐场':['体育休闲服务','游乐场'],
     // 教育交通
     '驾校':['教育服务','驾校'],'驾考':['教育服务','驾校'],
     '银行':['金融服务','银行'],'ATM':['金融服务','ATM'],'atm':['金融服务','ATM'],
@@ -7030,13 +7029,13 @@ panel.addEventListener('touchend',function(e){
 // === 背景视频：移动端兜底播放 + 音量控制 ===
 (function(){
   const v=document.getElementById('heroVideo');
-  const volBtn=document.getElementById('heroVol');
-  let soundOn=false;
+  var volBtn=document.getElementById('heroVol');
+  var soundOn=false;
   // 移动端兜底：首次触摸触发播放
   v.style.display='block';
-  v.play().catch(()=>{
-    document.addEventListener('touchstart',()=>v.play(),{once:true});
-    document.addEventListener('click',()=>v.play(),{once:true});
+  v.play().catch(function(){
+    document.addEventListener('touchstart',function(){v.play();},{once:true});
+    document.addEventListener('click',function(){v.play();},{once:true});
   });
   // 音量控制
   window.toggleVol=function(){
@@ -7052,7 +7051,7 @@ panel.addEventListener('touchend',function(e){
       volBtn.textContent='🔊';
       volBtn.classList.remove('off');
       // 某些浏览器需要用户交互后才能播放带声音的视频
-      if(v.paused){v.play().catch(()=>{});}
+      if(v.paused){v.play().catch(function(){});}
     }
   };
 })();
