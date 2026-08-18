@@ -4371,6 +4371,114 @@ function generateWeatherGuide(weather,placeName,poiCat){
   return tips;
 }
 
+// 根据高德POI数据自动生成攻略笔记（跟校园生活圈同模板）
+function generatePoiGuide(poi,keyword){
+  var name=poi.name||'未知';
+  var addr=poi.address||'';
+  var tel=poi.tel||'';
+  var rating=(poi.biz_ext&&poi.biz_ext.rating&&poi.biz_ext.rating.length>0)?poi.biz_ext.rating:'';
+  var tag=poi.keytag||'';
+  if(Array.isArray(tag))tag=tag.join(';');
+  if(typeof tag!=='string')tag=String(tag||'');
+  var dist=poi.distance?poi.distance+'m':'';
+  var photoUrl=(poi.photos&&poi.photos.length>0&&poi.photos[0].url)?poi.photos[0].url:'';
+
+  // 根据tag/keyword判断类型
+  var cat='other';
+  var tagStr=(tag+' '+keyword+' '+name).toLowerCase();
+  if(tagStr.indexOf('酒店')>=0||tagStr.indexOf('宾馆')>=0||tagStr.indexOf('住宿')>=0||tagStr.indexOf('旅馆')>=0||tagStr.indexOf('民宿')>=0){
+    cat='hotel';
+  }else if(tagStr.indexOf('餐饮')>=0||tagStr.indexOf('美食')>=0||tagStr.indexOf('餐厅')>=0||tagStr.indexOf('火锅')>=0||tagStr.indexOf('烧烤')>=0||tagStr.indexOf('奶茶')>=0||tagStr.indexOf('咖啡')>=0||tagStr.indexOf('小吃')>=0||tagStr.indexOf('面')>=0){
+    cat='food';
+  }else if(tagStr.indexOf('景点')>=0||tagStr.indexOf('公园')>=0||tagStr.indexOf('广场')>=0||tagStr.indexOf('湖')>=0||tagStr.indexOf('山')>=0||tagStr.indexOf('寺')>=0||tagStr.indexOf('馆')>=0||tagStr.indexOf('拍照')>=0||tagStr.indexOf('打卡')>=0){
+    cat='scenic';
+  }else if(tagStr.indexOf('超市')>=0||tagStr.indexOf('购物')>=0||tagStr.indexOf('商场')>=0){
+    cat='shop';
+  }else if(tagStr.indexOf('医院')>=0||tagStr.indexOf('药店')>=0||tagStr.indexOf('医疗')>=0){
+    cat='medical';
+  }else if(tagStr.indexOf('银行')>=0||tagStr.indexOf('atm')>=0){
+    cat='bank';
+  }
+
+  // 星级评定
+  var numRating=parseFloat(rating)||0;
+  var level='',rank='';
+  if(numRating>=4.5){level='⭐⭐⭐⭐⭐ 强烈推荐';}
+  else if(numRating>=4.0){level='⭐⭐⭐⭐ 值得一去';}
+  else if(numRating>=3.5){level='⭐⭐⭐ 还不错';}
+  else if(numRating>=3.0){level='⭐⭐ 一般般';}
+  else if(numRating>0){level='⭐ 谨慎选择';}
+  else{level='⭐ 暂无评分';}
+
+  // 各类型攻略tips
+  var tips=[];
+  var photoTip='';
+
+  if(cat==='hotel'){
+    rank='清水河校区周边住宿推荐';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    if(numRating>=4.5)tips.push('评分'+rating+'，周边住宿口碑最佳，环境好服务佳');
+    else if(numRating>=4.0)tips.push('评分'+rating+'，性价比不错，住客反馈干净整洁');
+    else if(numRating>0)tips.push('评分'+rating+'，建议提前看评价再决定');
+    tips.push('开学季/考试季房源紧张，建议提前1-2周预订');
+    tips.push('家长送孩子报到首选离校近的，步行或打车5分钟内到校');
+    if(tag)tips.push('类型标签：'+tag.split(';').slice(-1)[0]);
+    photoTip='酒店大堂/房间窗景拍照，选朝向校园方向的房间夜景更好看';
+  }else if(cat==='food'){
+    rank='清水河校区周边美食推荐';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    if(numRating>=4.5)tips.push('评分'+rating+'，附近吃货口碑最好，味道正宗分量足');
+    else if(numRating>=4.0)tips.push('评分'+rating+'，值得一试，性价比可以');
+    tips.push('饭点12:00-13:00人多，建议错峰或提前排队');
+    tips.push('成都口味偏辣，不吃辣跟老板说微辣/不辣');
+    if(tag)tips.push('特色标签：'+tag.split(';').slice(-1)[0]);
+    photoTip='菜品上桌趁热拍，俯拍最有食欲感；店面招牌+美食合照是标准打卡照';
+  }else if(cat==='scenic'){
+    rank='清水河校区周边拍照打卡地';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    if(numRating>=4.5)tips.push('评分'+rating+'，出片率超高，热门打卡地');
+    else if(numRating>=4.0)tips.push('评分'+rating+'，风景不错适合拍照');
+    tips.push('上午10点前或下午4点后光线最柔和，拍人像最佳');
+    tips.push('周末人多，工作日去体验更好');
+    if(tag)tips.push('场景标签：'+tag.split(';').slice(-1)[0]);
+    photoTip='利用自然光线拍剪影/侧脸，带点前景（树叶/花朵）更有层次感';
+  }else if(cat==='shop'){
+    rank='清水河校区周边购物推荐';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    tips.push('日用品/零食/文具一站式采购，比校内商业街选择更多');
+    if(tag)tips.push('类型：'+tag.split(';').slice(-1)[0]);
+    photoTip='购物袋+战利品摆拍，很有大学生活日常感';
+  }else if(cat==='medical'){
+    rank='清水河校区周边医疗';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    tips.push('校内校医院可看小病，严重情况建议去校外大医院');
+    if(tel)tips.push('咨询电话：'+tel.split(';')[0]);
+    photoTip='';
+  }else{
+    rank='清水河校区周边推荐';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    if(numRating>0)tips.push('评分'+rating);
+    if(tag)tips.push('标签：'+tag.split(';').slice(-1)[0]);
+    photoTip='';
+  }
+
+  // 按校园生活圈同模板渲染
+  var tipsHtml=tips.map(function(t){
+    return '<div style="padding:4px 0 4px 14px;position:relative;font-size:13px;color:var(--text);line-height:1.6"><span style="position:absolute;left:0;top:4px;color:var(--gold)">•</span>'+t+'</div>';
+  }).join('');
+  var photoHtml=photoTip?'<div style="margin-top:8px;padding:8px 10px;background:rgba(255,193,7,0.06);border-radius:8px;border:1px solid rgba(255,193,7,0.15)"><div style="font-size:12px;color:#e67e00;font-weight:600;margin-bottom:4px">📷 拍照攻略</div><div style="font-size:12.5px;color:var(--text2);line-height:1.6">'+photoTip+'</div></div>':'';
+
+  return '<div style="margin-top:6px;padding:8px 10px;background:rgba(0,128,255,0.04);border-radius:8px;border:1px solid rgba(0,128,255,0.1)">'+
+    '<div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">📋 攻略笔记</div>'+
+    '<div style="margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap">'+
+      '<span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:11.5px;font-weight:600;background:linear-gradient(135deg,rgba(0,128,255,0.12),rgba(64,160,255,0.06));color:var(--gold);border:1px solid rgba(0,128,255,0.2)">🏆 '+rank+'</span>'+
+      '<span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:11.5px;font-weight:600;background:rgba(255,193,7,0.1);color:#e67e00;border:1px solid rgba(255,193,7,0.2)">'+level+'</span>'+
+    '</div>'+
+    tipsHtml+
+    photoHtml+
+  '</div>';
+}
+
 // 检测是否为"周边/附近"类问题
 function isNearbyQuery(q){
   var kw=['附近','周边','旁边','周围','就近','离学校近','学校外','校外','清水河附近','清水河周边','附近有','周边有','学校附近','学校周边'];
@@ -4713,13 +4821,8 @@ function renderAiMsg(result){
       if(firstTel) html+='<a href="tel:'+firstTel+'" style="margin:2px 0;display:inline-block;color:var(--gold);text-decoration:none;cursor:pointer;font-weight:600">📞 '+tel.split(';')[0]+'</a>';
       if(tag) html+='<div style="margin:2px 0">🏷️ '+tag.split(';').slice(-1)[0]+'</div>';
       html+='</div>';
-      html+='<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">';
-      html+='<a href="'+amapNavUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:rgba(0,128,255,0.12);color:var(--gold);text-decoration:none;border:1px solid rgba(0,128,255,0.2)">🗺️ 导航前往</a>';
-      if(firstTel) html+='<a href="tel:'+firstTel+'" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:linear-gradient(135deg,#0080FF,#40A0FF);color:#fff;text-decoration:none;border:none">📱 拨打电话</a>';
-      var searchKw=encodeURIComponent(poiName+' 电子科技大学清水河校区');
-      html+='<a href="https://www.douyin.com/search/'+searchKw+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:rgba(13,42,74,0.06);color:var(--text);text-decoration:none;border:1px solid rgba(13,42,74,0.1)">🎵 打卡视频</a>';
-      html+='<a href="https://www.xiaohongshu.com/search_result?keyword='+searchKw+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:rgba(255,64,129,0.08);color:#e91e63;text-decoration:none;border:1px solid rgba(255,64,129,0.15)">📕 攻略笔记</a>';
-      html+='</div>';
+      // 攻略笔记（与校园生活圈同模板，纯文字介绍）
+      html+=generatePoiGuide(poi,result.amapKeyword||'');
       html+='</div>';
     });
     html+='<div style="margin-top:6px;font-size:11px;color:rgba(13,42,74,0.5)">📎 来源：高德地图</div>';
