@@ -4961,7 +4961,7 @@ window.submitContactMsg=async function(){
     st.style.color='#00852a';st.textContent='留言已发送，圈主会看到的~';
     btn.textContent='已提交 ✓';
     // 推送通知到圈主微信
-    _notify('💬 有人给圈主留言了', msg + '\n\n设备：' + device + '\n时间：' + new Date().toLocaleString('zh-CN'));
+    _notify('💬 【圈主留言板】收到新留言', '#### 新留言\n---\n**留言内容：**' + msg + '\n**设备：**' + device + '\n**时间：**' + new Date().toLocaleString('zh-CN'));
   }catch(e){
     st.style.color='#f53f3f';st.textContent='发送失败，请稍后重试或直接扫码加微信';
     btn.disabled=false;btn.style.opacity='1';btn.textContent='重新提交';
@@ -5192,6 +5192,8 @@ async function submitComment(){
     input.value = '';
     loadComments(photo.id);
     showToast('评论成功！');
+    // 推送通知到圈主微信
+    _notify('💭 有人评论了照片', '评论内容：' + content + '\n昵称：' + nick + '\n照片标题：' + (photo.title||photo.fields['\u6807\u9898']||'未知') + '\n时间：' + new Date().toLocaleString('zh-CN'));
   } catch(e){
     showToast('评论失败，请稍后重试');
   }
@@ -5239,7 +5241,7 @@ async function uploadPhoto(){
     closeUploadModal();
     showToast('发布成功！');
     // 推送通知到圈主微信
-    _notify('📸 有人发了新照片', '标题：' + title + '\n昵称：' + nickname + '\n学院：' + (college||'未填') + '\n标签：' + (tags||'无') + '\n时间：' + new Date().toLocaleString('zh-CN'));
+    _notify('📸 【爆照墙】有人晒了新照片', '#### 新照片上传\n---\n**标题：**' + title + '\n**昵称：**' + nickname + '\n**学院：**' + (college||'未填') + '\n**标签：**' + (tags||'无') + '\n**时间：**' + new Date().toLocaleString('zh-CN'));
     await loadPhotos();
   } catch(e){
     showToast('上传失败: ' + e.message);
