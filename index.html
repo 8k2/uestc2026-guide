@@ -267,20 +267,40 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 @keyframes badgeSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 .fade-in{animation:fadeIn .4s ease-out both}
 /* 校园福利板块 */
-.welfare-section{padding:0 16px 20px}
-.welfare-header{display:flex;align-items:center;gap:10px;padding:8px 0 10px}
-.welfare-header-title{font-size:16px;font-weight:bold;color:var(--gold)}
-.welfare-card{background:var(--card);border:1px solid rgba(0,128,255,0.1);border-radius:14px;padding:16px;margin-bottom:12px;transition:all .2s}
-.welfare-card:active{transform:scale(.98)}
-.welfare-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.welfare-card-icon{font-size:24px}
+.welfare-section{padding:0 0 24px}
+.welfare-header{display:flex;align-items:center;gap:10px;padding:20px 16px 12px}
+.welfare-header-title{font-size:16px;font-weight:bold;color:var(--gold);display:flex;align-items:center;gap:6px}
+.welfare-header-title::before{content:'';width:3px;height:16px;background:var(--gold);border-radius:2px}
+.welfare-scroll{display:flex;gap:12px;padding:0 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+.welfare-scroll::-webkit-scrollbar{display:none}
+.welfare-card{flex-shrink:0;width:260px;scroll-snap-align:start;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid rgba(0,128,255,0.08);box-shadow:0 2px 12px rgba(0,128,255,0.06);transition:all .2s}
+.welfare-card:active{transform:scale(.97)}
+.welfare-card-top{padding:16px 16px 12px;display:flex;align-items:center;gap:10px}
+.welfare-card-top[data-theme="tutor"]{background:linear-gradient(135deg,rgba(0,128,255,0.12),rgba(64,160,255,0.04))}
+.welfare-card-top[data-theme="drive"]{background:linear-gradient(135deg,rgba(0,160,100,0.12),rgba(0,200,120,0.04))}
+.welfare-card-top[data-theme="digital"]{background:linear-gradient(135deg,rgba(128,0,255,0.10),rgba(160,80,255,0.03))}
+.welfare-card-icon{font-size:28px}
 .welfare-card-title{font-size:15px;font-weight:700;color:var(--gold)}
-.welfare-card-body{font-size:13px;color:var(--text);line-height:1.8}
+.welfare-card-body{padding:10px 16px 14px;font-size:12.5px;color:var(--text);line-height:1.7}
 .welfare-card-body b{color:var(--gold)}
-.welfare-card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.welfare-card-tag{font-size:11px;padding:2px 10px;border-radius:12px;background:rgba(0,128,255,0.08);color:var(--gold);border:1px solid rgba(0,128,255,0.12)}
-.welfare-contact{margin-top:16px;padding:12px 16px;background:linear-gradient(135deg,rgba(0,128,255,0.08),rgba(64,160,255,0.05));border:1px solid rgba(0,128,255,0.15);border-radius:12px;text-align:center;font-size:14px;color:var(--text);line-height:1.8}
+.welfare-card-tags{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 14px}
+.welfare-card-tag{font-size:10px;padding:3px 10px;border-radius:12px;background:rgba(0,128,255,0.08);color:var(--gold);border:1px solid rgba(0,128,255,0.1)}
+.welfare-contact{margin:4px 16px 0;padding:14px 16px;background:linear-gradient(135deg,rgba(0,128,255,0.08),rgba(64,160,255,0.05));border:1px solid rgba(0,128,255,0.12);border-radius:14px;text-align:center;font-size:13px;color:var(--text);line-height:1.8}
 .welfare-contact b{color:var(--gold)}
+/* 课表横幅 */
+.schedule-banner{margin:0 16px 4px;padding:14px 18px;background:linear-gradient(135deg,rgba(0,128,255,0.12),rgba(64,160,255,0.06));border:1px solid rgba(0,128,255,0.15);border-radius:14px;display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);transition:all .2s;box-shadow:0 2px 12px rgba(0,128,255,0.05)}
+.schedule-banner:active{transform:scale(.98)}
+.schedule-banner-icon{font-size:28px;flex-shrink:0}
+.schedule-banner-info{flex:1;min-width:0}
+.schedule-banner-name{font-size:15px;font-weight:700;color:var(--gold)}
+.schedule-banner-desc{font-size:11px;color:var(--text2);margin-top:1px}
+.schedule-banner-arrow{color:var(--gold);font-size:18px;flex-shrink:0}
+/* 功能网格 */
+.func-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.func-grid .func-card{margin-bottom:0}
+.func-grid .func-card .func-desc{white-space:normal;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+/* 分区分隔 */
+.home-divider{height:1px;margin:20px 16px;background:linear-gradient(90deg,transparent,rgba(0,128,255,0.15),transparent)}
 /* 新生爆照样式 */
 .photo-wall{padding:12px;display:flex;flex-wrap:wrap;gap:8px;max-height:calc(100vh - 200px);overflow-y:auto}
 .photo-card{width:calc(33.33% - 6px);border-radius:12px;overflow:hidden;background:var(--card);cursor:pointer;transition:transform .2s;position:relative}
@@ -479,7 +499,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 
   <!-- 功能入口 -->
   <div class="section-title">全部功能</div>
-  <div class="func-list">
+  <div class="func-grid">
     <div class="func-card" onclick="openDetail('报到')"><div class="func-icon">📝</div><div class="func-info"><div class="func-name">报到专区</div><div class="func-desc">必备材料 · 报到地点 · 流程 · 档案</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('宿舍')"><div class="func-icon">🏠</div><div class="func-info"><div class="func-name">宿舍专区</div><div class="func-desc">床位尺寸 · 热水 · 供电 · 选房规则</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('学业')"><div class="func-icon">📚</div><div class="func-info"><div class="func-name">学业专区</div><div class="func-desc">选课 · 四级 · 英才班 · 转专业 · 竞赛</div></div><div class="func-arrow">›</div></div>
@@ -489,12 +509,22 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="func-card" onclick="openDetail('军训')"><div class="func-icon">🎖️</div><div class="func-info"><div class="func-name">军训/新骨营</div><div class="func-desc">军训安排 · 新骨营报名 · 体测</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('奖学金')"><div class="func-icon">🏆</div><div class="func-info"><div class="func-name">奖学金细则</div><div class="func-desc">国奖/国励/校奖/企业奖 · 评选规则</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('转专业')"><div class="func-icon">🔄</div><div class="func-info"><div class="func-name">转专业指南</div><div class="func-desc">16学院细则 · 流程 · 考核方式</div></div><div class="func-arrow">›</div></div>
-    <div class="func-card" onclick="openDetail('专业软件')"><div class="func-icon">💾</div><div class="func-info"><div class="func-name">专业软件安装教程</div><div class="func-desc">16学院专业软件 · 安装步骤 · 开源替代</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openDetail('专业软件')"><div class="func-icon">💾</div><div class="func-info"><div class="func-name">专业软件教程</div><div class="func-desc">16学院专业软件 · 安装步骤 · 开源替代</div></div><div class="func-arrow">›</div></div>
     <div class="func-card" onclick="openDetail('编程学习')"><div class="func-icon">⌨️</div><div class="func-info"><div class="func-name">编程学习指南</div><div class="func-desc">C/C++/Python/Java/JS/Verilog · 学习路线</div></div><div class="func-arrow">›</div></div>
+    <div class="func-card" onclick="openSearch()"><div class="func-icon">📸</div><div class="func-info"><div class="func-name">新生爆照墙</div><div class="func-desc">晒照片 · 互动 · 找到同好</div></div><div class="func-arrow">›</div></div>
   </div>
 
-  <!-- 课表查询入口 -->
-  <a href="https://mapp.uestc.edu.cn/site/schedule/index" target="_blank" class="func-card" style="display:flex;text-decoration:none;color:inherit;margin:0 16px 12px"><div class="func-icon">📅</div><div class="func-info"><div class="func-name">课表查询系统</div><div class="func-desc">mapp.uestc.edu.cn · 查看本学期课表</div></div><div class="func-arrow">›</div></a>
+  <div class="home-divider"></div>
+
+  <!-- 课表查询横幅 -->
+  <a href="https://mapp.uestc.edu.cn/site/schedule/index" target="_blank" class="schedule-banner">
+    <div class="schedule-banner-icon">📅</div>
+    <div class="schedule-banner-info">
+      <div class="schedule-banner-name">课表查询系统</div>
+      <div class="schedule-banner-desc">mapp.uestc.edu.cn · 查看本学期课表</div>
+    </div>
+    <div class="schedule-banner-arrow">›</div>
+  </a>
 
   <!-- ============ 校园福利板块 ============ -->
   <div class="welfare-section">
@@ -502,74 +532,59 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <div class="welfare-header-title">🎁 校园福利</div>
     </div>
 
-    <!-- 家教服务 -->
-    <div class="welfare-card">
-      <div class="welfare-card-header">
-        <span class="welfare-card-icon">📚</span>
-        <span class="welfare-card-title">清水河家教服务</span>
+    <div class="welfare-scroll">
+      <!-- 家教服务 -->
+      <div class="welfare-card">
+        <div class="welfare-card-top" data-theme="tutor">
+          <span class="welfare-card-icon">📚</span>
+          <span class="welfare-card-title">清水河家教</span>
+        </div>
+        <div class="welfare-card-body">
+          <b>成电清水河在校本科生/研究生</b>，覆盖中小学全科辅导。刚从高考走过来的人，最清楚哪里容易卡、怎么讲才听得懂。
+          <br><b>科目：</b>小学全科、初中语数外理化、高中理科冲刺
+          <br><b>特色：</b>一对一上门、试讲满意再开始
+        </div>
+        <div class="welfare-card-tags">
+          <span class="welfare-card-tag">中小学全科</span>
+          <span class="welfare-card-tag">上门辅导</span>
+          <span class="welfare-card-tag">试讲满意再定</span>
+        </div>
       </div>
-      <div class="welfare-card-body">
-        <b>电子科技大学清水河校区</b>在校优秀本科生/研究生，覆盖中小学全科辅导。我们更懂成都本地考情，也更能和小朋友共情——刚从高考走过来的人，最清楚哪里容易卡、怎么讲才听得懂。
-        <br><br>
-        <b>科目覆盖：</b>小学全科、初中语数外理化、高中理科冲刺
-        <br>
-        <b>服务特色：</b>一对一上门、试讲满意再正式开始、每节课后反馈学习进度
-        <br>
-        <b>适合人群：</b>清水河校区周边家庭（高新西区、郫都区、犀浦片区优先）
-      </div>
-      <div class="welfare-card-tags">
-        <span class="welfare-card-tag">中小学全科</span>
-        <span class="welfare-card-tag">上门辅导</span>
-        <span class="welfare-card-tag">试讲满意再定</span>
-        <span class="welfare-card-tag">成大学子</span>
-      </div>
-    </div>
 
-    <!-- 驾考培训 -->
-    <div class="welfare-card">
-      <div class="welfare-card-header">
-        <span class="welfare-card-icon">🚗</span>
-        <span class="welfare-card-title">校园驾考培训</span>
+      <!-- 驾考培训 -->
+      <div class="welfare-card">
+        <div class="welfare-card-top" data-theme="drive">
+          <span class="welfare-card-icon">🚗</span>
+          <span class="welfare-card-title">校园驾考培训</span>
+        </div>
+        <div class="welfare-card-body">
+          专为在校大学生量身定制，<b>正规驾校、正规教练、正规场地</b>。告别"乱收费""练不上""教练凶"。
+          <br><b>流程：</b>科一至科四全流程，校内报名、周末练车
+          <br><b>优势：</b>学生专属通道、挂科免费复训至考过
+        </div>
+        <div class="welfare-card-tags">
+          <span class="welfare-card-tag">正规驾校</span>
+          <span class="welfare-card-tag">学生专属通道</span>
+          <span class="welfare-card-tag">挂科免费复训</span>
+        </div>
       </div>
-      <div class="welfare-card-body">
-        专为在校大学生量身定制的驾考服务，<b>正规驾校、正规教练、正规场地</b>，告别社会上学车常见的"乱收费""练不上""教练凶"等问题。
-        <br><br>
-        <b>科一至科四全流程</b>，校内报名、周末练车、考前集训，适配课表安排不耽误学业。教练一对一指导，通过率有保障，挂科免费复训至考过。
-        <br>
-        <b>核心优势：</b>学生专属通道、固定教练不换人、练车时间灵活预约、全流程费用透明无隐藏
-        <br>
-        <b>适合人群：</b>在校大学生（清水河校区及周边高校优先），零基础也可放心报名
-      </div>
-      <div class="welfare-card-tags">
-        <span class="welfare-card-tag">正规驾校</span>
-        <span class="welfare-card-tag">学生专属通道</span>
-        <span class="welfare-card-tag">挂科免费复训</span>
-        <span class="welfare-card-tag">时间灵活</span>
-      </div>
-    </div>
 
-    <!-- 数码产品福利 -->
-    <div class="welfare-card">
-      <div class="welfare-card-header">
-        <span class="welfare-card-icon">💻</span>
-        <span class="welfare-card-title">学生数码产品福利</span>
-      </div>
-      <div class="welfare-card-body">
-        手机、电脑、平板——大学生开学装备一站式搞定。<b>凭学生证/录取通知书即可享受专属教育优惠</b>，叠加国补、品牌返校季活动等多重福利，实实在在帮你省钱。
-        <br><br>
-        <b>覆盖品类：</b>笔记本电脑、平板、手机、智能穿戴、配件周边
-        <br>
-        <b>品牌覆盖：</b>Apple 教育优惠、华为学生价、联想/小米/荣耀等主流品牌均有专属福利
-        <br>
-        <b>服务特色：</b>帮你比对各平台价格、搞定学生认证、领取最优组合补贴，省心省到手
-        <br>
-        <b>适合人群：</b>入学新生换机、在校生升级设备、考研党配生产力工具
-      </div>
-      <div class="welfare-card-tags">
-        <span class="welfare-card-tag">教育优惠</span>
-        <span class="welfare-card-tag">国补叠加</span>
-        <span class="welfare-card-tag">全品牌覆盖</span>
-        <span class="welfare-card-tag">帮你比价</span>
+      <!-- 数码产品福利 -->
+      <div class="welfare-card">
+        <div class="welfare-card-top" data-theme="digital">
+          <span class="welfare-card-icon">💻</span>
+          <span class="welfare-card-title">数码产品福利</span>
+        </div>
+        <div class="welfare-card-body">
+          手机、电脑、平板一站式搞定。<b>凭学生证/录取通知书享专属教育优惠</b>，叠加国补、品牌返校季活动，实实在在省钱。
+          <br><b>品牌：</b>Apple教育优惠、华为学生价、联想/小米/荣耀等
+          <br><b>服务：</b>帮你比价、搞定学生认证、领最优补贴
+        </div>
+        <div class="welfare-card-tags">
+          <span class="welfare-card-tag">教育优惠</span>
+          <span class="welfare-card-tag">国补叠加</span>
+          <span class="welfare-card-tag">全品牌覆盖</span>
+        </div>
       </div>
     </div>
 
@@ -1114,7 +1129,7 @@ const DETAILS={
 <h3>覆盖范围：电信完胜</h3>
 <div class="info" style="font-size:1.05em"><b>电信校园网覆盖：寝室、其他寝室楼、教学区、办公区、图书馆、食堂等——基本全校覆盖</b></div>
 <ul>
-<li><b>电信</b>：5G信号 + 校园WiFi 覆盖<b>全校几乎所有区域</b>，包括教学楼、宿舍楼、图书馆、食堂、办公区、操场等，走到哪里都有网</li>
+<li><b>电信</b>：5G信号 + 校园WiFi 覆盖<b>全校几乎所有区域</b>，包括实验室、教研室、宿舍楼、图书馆、食堂、办公区、操场等，走到哪里都有网</li>
 <li><b>移动等其他运营商</b>：校园网<b>只能在寝室单独使用</b>，出了宿舍门就没网了，教学区、图书馆等区域无法使用</li>
 </ul>
 <div class="warn">如果你选了非电信的校园卡，在教学区、图书馆等地方就只能靠学校免费的 UESTC-WIFI（覆盖有限且高峰期容易卡），而电信用户全程自有网络，体验差距很大。</div>
@@ -1133,7 +1148,7 @@ const DETAILS={
 <h3>电信核心优势</h3>
 <ul>
 <li><b>校园卡+校园网一体绑定</b>：办卡即开通校园网，无需单独办理，最省心</li>
-<li><b>全校覆盖无死角</b>：教学楼、宿舍楼、图书馆、食堂、办公区、操场全区域5G+WiFi覆盖，走出宿舍也能上网</li>
+<li><b>全校覆盖无死角</b>：实验室、教研室、宿舍楼、图书馆、食堂、办公区、操场全区域5G+WiFi覆盖，走出宿舍也能上网</li>
 <li><b>换寝室无需迁移</b>：宽带账号随卡走，换寝室不用重新办号配置</li>
 <li><b>灵活无违约金</b>：无强制合约期，随时可退，不用赔违约金</li>
 <li><b>寒暑假保障</b>：返乡额外加赠流量，不断网</li>
