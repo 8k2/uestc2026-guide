@@ -4386,13 +4386,15 @@ function generatePoiGuide(poi,keyword){
   // 根据tag/keyword判断类型
   var cat='other';
   var tagStr=(tag+' '+keyword+' '+name).toLowerCase();
-  if(tagStr.indexOf('酒店')>=0||tagStr.indexOf('宾馆')>=0||tagStr.indexOf('住宿')>=0||tagStr.indexOf('旅馆')>=0||tagStr.indexOf('民宿')>=0){
+  if(tagStr.indexOf('ktv')>=0||tagStr.indexOf('影院')>=0||tagStr.indexOf('电影')>=0||tagStr.indexOf('健身')>=0||tagStr.indexOf('网吧')>=0||tagStr.indexOf('台球')>=0||tagStr.indexOf('电玩')>=0||tagStr.indexOf('棋牌')>=0||tagStr.indexOf('足浴')>=0||tagStr.indexOf('按摩')>=0||tagStr.indexOf('洗浴')>=0||tagStr.indexOf('娱乐')>=0||tagStr.indexOf('休闲')>=0){
+    cat='entertainment';
+  }else if(tagStr.indexOf('酒店')>=0||tagStr.indexOf('宾馆')>=0||tagStr.indexOf('住宿')>=0||tagStr.indexOf('旅馆')>=0||tagStr.indexOf('民宿')>=0){
     cat='hotel';
   }else if(tagStr.indexOf('餐饮')>=0||tagStr.indexOf('美食')>=0||tagStr.indexOf('餐厅')>=0||tagStr.indexOf('火锅')>=0||tagStr.indexOf('烧烤')>=0||tagStr.indexOf('奶茶')>=0||tagStr.indexOf('咖啡')>=0||tagStr.indexOf('小吃')>=0||tagStr.indexOf('面')>=0){
     cat='food';
-  }else if(tagStr.indexOf('景点')>=0||tagStr.indexOf('公园')>=0||tagStr.indexOf('广场')>=0||tagStr.indexOf('湖')>=0||tagStr.indexOf('山')>=0||tagStr.indexOf('寺')>=0||tagStr.indexOf('馆')>=0||tagStr.indexOf('拍照')>=0||tagStr.indexOf('打卡')>=0){
+  }else if(tagStr.indexOf('景点')>=0||tagStr.indexOf('公园')>=0||tagStr.indexOf('广场')>=0||tagStr.indexOf('湖')>=0||tagStr.indexOf('山')>=0||tagStr.indexOf('寺')>=0||tagStr.indexOf('馆')>=0||tagStr.indexOf('拍照')>=0||tagStr.indexOf('打卡')>=0||tagStr.indexOf('风景')>=0){
     cat='scenic';
-  }else if(tagStr.indexOf('超市')>=0||tagStr.indexOf('购物')>=0||tagStr.indexOf('商场')>=0){
+  }else if(tagStr.indexOf('超市')>=0||tagStr.indexOf('购物')>=0||tagStr.indexOf('商场')>=0||tagStr.indexOf('便利店')>=0){
     cat='shop';
   }else if(tagStr.indexOf('医院')>=0||tagStr.indexOf('药店')>=0||tagStr.indexOf('医疗')>=0){
     cat='medical';
@@ -4412,9 +4414,30 @@ function generatePoiGuide(poi,keyword){
 
   // 各类型攻略tips
   var tips=[];
-  var photoTip='';
+  var extraTitle='',extraTip='',extraColor='#e67e00',extraBg='rgba(255,193,7,0.06)',extraBorder='rgba(255,193,7,0.15)',extraIcon='📷';
 
-  if(cat==='hotel'){
+  if(cat==='entertainment'){
+    rank='清水河校区周边娱乐推荐';
+    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
+    if(numRating>=4.5)tips.push('评分'+rating+'，附近热门娱乐去处，环境好体验佳');
+    else if(numRating>=4.0)tips.push('评分'+rating+'，值得一去，性价比可以');
+    else if(numRating>0)tips.push('评分'+rating+'，建议提前看评价再决定');
+    tips.push('周末/晚上人多，建议提前预约或错峰前往');
+    if(tag)tips.push('类型标签：'+tag.split(';').slice(-1)[0]);
+    // 娱乐攻略
+    extraTitle='消费攻略';extraIcon='🎮';extraColor='#7c3aed';extraBg='rgba(124,58,237,0.05)';extraBorder='rgba(124,58,237,0.15)';
+    if(tagStr.indexOf('ktv')>=0){
+      extraTip='团购套餐更划算（美团/抖音），提前预订包厢；工作日白天价格最低，周末晚上最贵';
+    }else if(tagStr.indexOf('影院')>=0||tagStr.indexOf('电影')>=0){
+      extraTip='猫眼/淘票票购票比柜台便宜；学生证有半价优惠；周二半价日最划算';
+    }else if(tagStr.indexOf('健身')>=0){
+      extraTip='先体验再办卡，注意合同期限；很多健身房有学生季卡/月卡优惠';
+    }else if(tagStr.indexOf('网吧')>=0){
+      extraTip='注意上网时间，保持坐姿；包夜套餐更便宜但注意休息';
+    }else{
+      extraTip='建议在美团/抖音搜团购套餐，比到店消费更划算；学生证部分场所可享优惠';
+    }
+  }else if(cat==='hotel'){
     rank='清水河校区周边住宿推荐';
     tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
     if(numRating>=4.5)tips.push('评分'+rating+'，周边住宿口碑最佳，环境好服务佳');
@@ -4423,7 +4446,9 @@ function generatePoiGuide(poi,keyword){
     tips.push('开学季/考试季房源紧张，建议提前1-2周预订');
     tips.push('家长送孩子报到首选离校近的，步行或打车5分钟内到校');
     if(tag)tips.push('类型标签：'+tag.split(';').slice(-1)[0]);
-    photoTip='酒店大堂/房间窗景拍照，选朝向校园方向的房间夜景更好看';
+    // 订购攻略
+    extraTitle='订购攻略';extraIcon='🏨';extraColor='#00852a';extraBg='rgba(0,133,42,0.05)';extraBorder='rgba(0,133,42,0.15)';
+    extraTip='建议美团/携程/飞猪多家比价再下单；开学报到季(8-9月)价格上浮，提前2周预订更便宜；到店后看实际房间再决定入住，不满意可换';
   }else if(cat==='food'){
     rank='清水河校区周边美食推荐';
     tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
@@ -4432,7 +4457,8 @@ function generatePoiGuide(poi,keyword){
     tips.push('饭点12:00-13:00人多，建议错峰或提前排队');
     tips.push('成都口味偏辣，不吃辣跟老板说微辣/不辣');
     if(tag)tips.push('特色标签：'+tag.split(';').slice(-1)[0]);
-    photoTip='菜品上桌趁热拍，俯拍最有食欲感；店面招牌+美食合照是标准打卡照';
+    extraTitle='拍照攻略';extraIcon='📷';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
+    extraTip='菜品上桌趁热拍，俯拍最有食欲感；店面招牌+美食合照是标准打卡照';
   }else if(cat==='scenic'){
     rank='清水河校区周边拍照打卡地';
     tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
@@ -4441,32 +4467,32 @@ function generatePoiGuide(poi,keyword){
     tips.push('上午10点前或下午4点后光线最柔和，拍人像最佳');
     tips.push('周末人多，工作日去体验更好');
     if(tag)tips.push('场景标签：'+tag.split(';').slice(-1)[0]);
-    photoTip='利用自然光线拍剪影/侧脸，带点前景（树叶/花朵）更有层次感';
+    extraTitle='拍照攻略';extraIcon='📷';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
+    extraTip='利用自然光线拍剪影/侧脸，带点前景（树叶/花朵）更有层次感';
   }else if(cat==='shop'){
     rank='清水河校区周边购物推荐';
     tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
     tips.push('日用品/零食/文具一站式采购，比校内商业街选择更多');
     if(tag)tips.push('类型：'+tag.split(';').slice(-1)[0]);
-    photoTip='购物袋+战利品摆拍，很有大学生活日常感';
+    extraTitle='拍照攻略';extraIcon='📷';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
+    extraTip='购物袋+战利品摆拍，很有大学生活日常感';
   }else if(cat==='medical'){
     rank='清水河校区周边医疗';
     tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
     tips.push('校内校医院可看小病，严重情况建议去校外大医院');
     if(tel)tips.push('咨询电话：'+tel.split(';')[0]);
-    photoTip='';
   }else{
     rank='清水河校区周边推荐';
     tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
     if(numRating>0)tips.push('评分'+rating);
     if(tag)tips.push('标签：'+tag.split(';').slice(-1)[0]);
-    photoTip='';
   }
 
   // 按校园生活圈同模板渲染
   var tipsHtml=tips.map(function(t){
     return '<div style="padding:4px 0 4px 14px;position:relative;font-size:13px;color:var(--text);line-height:1.6"><span style="position:absolute;left:0;top:4px;color:var(--gold)">•</span>'+t+'</div>';
   }).join('');
-  var photoHtml=photoTip?'<div style="margin-top:8px;padding:8px 10px;background:rgba(255,193,7,0.06);border-radius:8px;border:1px solid rgba(255,193,7,0.15)"><div style="font-size:12px;color:#e67e00;font-weight:600;margin-bottom:4px">📷 拍照攻略</div><div style="font-size:12.5px;color:var(--text2);line-height:1.6">'+photoTip+'</div></div>':'';
+  var extraHtml=extraTip?'<div style="margin-top:8px;padding:8px 10px;background:'+extraBg+';border-radius:8px;border:1px solid '+extraBorder+'"><div style="font-size:12px;color:'+extraColor+';font-weight:600;margin-bottom:4px">'+extraIcon+' '+extraTitle+'</div><div style="font-size:12.5px;color:var(--text2);line-height:1.6">'+extraTip+'</div></div>':'';
 
   return '<div style="margin-top:6px;padding:8px 10px;background:rgba(0,128,255,0.04);border-radius:8px;border:1px solid rgba(0,128,255,0.1)">'+
     '<div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">📋 攻略笔记</div>'+
@@ -4475,14 +4501,14 @@ function generatePoiGuide(poi,keyword){
       '<span style="display:inline-block;padding:3px 8px;border-radius:10px;font-size:11.5px;font-weight:600;background:rgba(255,193,7,0.1);color:#e67e00;border:1px solid rgba(255,193,7,0.2)">'+level+'</span>'+
     '</div>'+
     tipsHtml+
-    photoHtml+
+    extraHtml+
   '</div>';
 }
 
 // 检测是否为"周边/附近"类问题
 function isNearbyQuery(q){
   var kw=['附近','周边','旁边','周围','就近','离学校近','学校外','校外','清水河附近','清水河周边','附近有','周边有','学校附近','学校周边'];
-  var types=['酒店','住宿','宾馆','旅馆','美食','餐厅','吃饭','小吃','火锅','烧烤','奶茶','咖啡','超市','药店','理发','打印','快递','医院','银行','ATM','KTV','影院','电影院','健身房','游泳','网吧','书店','水果','面包','蛋糕','洗衣服','干洗','修手机','修电脑','配眼镜','驾校','瑜伽','台球','电玩','棋牌','足浴','按摩'];
+  var types=['酒店','住宿','宾馆','旅馆','美食','餐厅','吃饭','小吃','火锅','烧烤','奶茶','咖啡','超市','药店','理发','打印','快递','医院','银行','ATM','KTV','影院','电影院','健身房','游泳','网吧','书店','水果','面包','蛋糕','洗衣服','干洗','修手机','修电脑','配眼镜','驾校','瑜伽','台球','电玩','棋牌','足浴','按摩','拍照','好玩','景点','公园','风景','游玩','娱乐','逛街','看电影','出片','打卡','好玩的地方'];
   var ql=q.toLowerCase();
   var hasKw=false,hasType=false;
   kw.forEach(function(k){if(ql.indexOf(k)>=0)hasKw=true;});
@@ -4557,15 +4583,28 @@ function extractNearbyKeyword(q){
   for(var i=0;i<shopWords.length;i++){
     if(ql.indexOf(shopWords[i])>=0) return {types:'购物服务',keyword:'购物'};
   }
+  // 拍照/风景/景点 → 搜索风景名胜+公园
+  var scenicWords=['拍照','风景','景点','出片','好看的地方'];
+  for(var i=0;i<scenicWords.length;i++){
+    if(ql.indexOf(scenicWords[i])>=0) return {types:'风景名胜;风景名胜相关|公园广场;公园',keyword:'拍照'};
+  }
+  // 好玩/娱乐/游玩 → 搜索体育休闲服务
+  var funWords=['好玩','娱乐','游玩','逛街','看电影'];
+  for(var i=0;i<funWords.length;i++){
+    if(ql.indexOf(funWords[i])>=0) return {types:'体育休闲服务',keyword:'娱乐'};
+  }
   // fallback：清理关键词后用通用搜索
   var cleaned=q.replace(/附近|周边|旁边|周围|就近|有没有|哪儿|哪里|哪里有|推荐一下/g,'').trim();
   return {types:'',keyword:cleaned||'生活服务'};
 }
 
-// 调用高德地图周边搜索API
+// 调用高德地图周边搜索API（支持动态扩展搜索半径）
 function searchAmapNearby(query,callback){
   var extracted=extractNearbyKeyword(query);
   var called=false;
+  // 搜索半径阶梯：3km → 5km → 10km → 20km → 50km
+  var radiusSteps=[3000,5000,10000,20000,50000];
+  var radiusIdx=0;
   function doCallback(result){
     if(called)return;
     called=true;
@@ -4575,7 +4614,7 @@ function searchAmapNearby(query,callback){
     var params=[
       'key='+AMAP_CONFIG.key,
       'location='+AMAP_CONFIG.location,
-      'radius='+AMAP_CONFIG.radius,
+      'radius='+radiusSteps[radiusIdx],
       'offset=15',
       'sortrule=distance',
       'output=json'
@@ -4596,6 +4635,10 @@ function searchAmapNearby(query,callback){
             }else if(!retry&&extracted.types){
               // types+keyword 无结果，重试：只用types不带keyword
               doSearch(extracted.types,'',true);
+            }else if(radiusIdx<radiusSteps.length-1){
+              // 当前半径无结果，扩大搜索半径
+              radiusIdx++;
+              doSearch(extracted.types,extracted.types?'':extracted.keyword,false);
             }else{
               doCallback({success:false,keyword:extracted.keyword});
             }
@@ -4825,7 +4868,7 @@ function renderAiMsg(result){
       html+=generatePoiGuide(poi,result.amapKeyword||'');
       html+='</div>';
     });
-    html+='<div style="margin-top:6px;font-size:11px;color:rgba(13,42,74,0.5)">📎 来源：高德地图</div>';
+    // 来源标签已移除
     // 天气攻略笔记占位（异步加载）
     html+='<div id="weatherGuide_'+Date.now()+'" style="margin-top:8px;padding:10px 12px;background:rgba(0,180,100,0.04);border-radius:10px;border:1px solid rgba(0,180,100,0.12)"><div style="font-size:12px;color:rgba(13,42,74,0.5)">🌤️ 正在获取实时天气和出行建议...</div></div>';
     var weatherElId='weatherGuide_'+Date.now();
