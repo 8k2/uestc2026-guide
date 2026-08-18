@@ -5914,9 +5914,10 @@ function generateWeatherGuide(weather,placeName,poiCat){
 
 // 根据高德POI数据自动生成攻略笔记（跟校园生活圈同模板）
 function generatePoiGuide(poi,keyword){
-  var name=poi.name||'未知';
-  var addr=poi.address||'';
-  var tel=poi.tel||'';
+  var name=(poi.name||'未知').toString();
+  var addr=(poi.address||'').toString();
+  var tel=(poi.tel||'').toString();
+  if(Array.isArray(tel))tel=tel.join(';');
   var rating=(poi.biz_ext&&poi.biz_ext.rating&&poi.biz_ext.rating.length>0)?poi.biz_ext.rating:'';
   var tag=poi.keytag||'';
   if(Array.isArray(tag))tag=tag.join(';');
@@ -5945,7 +5946,7 @@ function generatePoiGuide(poi,keyword){
 
   // 星级评定
   var numRating=parseFloat(rating)||0;
-  var level='',rank='';
+  var level='';
   if(numRating>=4.5){level='⭐⭐⭐⭐⭐ 强烈推荐';}
   else if(numRating>=4.0){level='⭐⭐⭐⭐ 值得一去';}
   else if(numRating>=3.5){level='⭐⭐⭐ 还不错';}
@@ -5953,80 +5954,236 @@ function generatePoiGuide(poi,keyword){
   else if(numRating>0){level='⭐ 谨慎选择';}
   else{level='⭐ 暂无评分';}
 
-  // 各类型攻略tips
+  // 识别品牌
+  var brand='';
+  var brandList=['桔子水晶','全季','维利亚','尚品拾光','汉庭','如家','锦江','7天','速8','希尔顿','万豪','洲际','皇冠假日','假日','智选','亚朵','丽枫','铂尔曼','福朋','宜尚','格林豪泰','布丁','尚客优','城市便捷','首旅','开元','万达','保利','凯悦','喜来登','威斯汀','丽思卡尔顿','香格里拉','索菲特','诺富特','美居','宜必思','佳季','瑞幸','星巴克','麦当劳','肯德基','海底捞','小龙坎','钢管厂','大龙燚','蜀大侠','小龙也','袁记','杨国福','张亮','蜜雪冰城','茶百道','书亦','CoCo','喜茶','奈雪','霸王茶姬','德克士','汉堡王','华莱士','塔斯汀','紫荆','阳光','芙蓉'];
+  for(var bi=0;bi<brandList.length;bi++){
+    if(name.indexOf(brandList[bi])>=0){brand=brandList[bi];break;}
+  }
+
+  // 距离描述
+  var distDesc='';
+  if(dist){
+    var distNum=parseInt(dist);
+    if(distNum<=300){distDesc='就在校门口旁边，步行3分钟即到';}
+    else if(distNum<=600){distDesc='离校很近，步行5-8分钟可达';}
+    else if(distNum<=1000){distDesc='步行10-15分钟可达，也可骑车前往';}
+    else if(distNum<=2000){distDesc='稍远一些，建议骑车或打车前往';}
+    else{distDesc='距离较远，建议打车或乘坐公共交通';}
+  }
+
+  // 提取最具体的类型标签
+  var typeLabel=tag?tag.split(';').slice(-1)[0]:'';
+
   var tips=[];
   var extraTitle='',extraTip='',extraColor='#e67e00',extraBg='rgba(255,193,7,0.06)',extraBorder='rgba(255,193,7,0.15)',extraIcon='📷';
 
-  if(cat==='entertainment'){
-    rank='清水河校区周边娱乐推荐';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    if(numRating>=4.5)tips.push('评分'+rating+'，附近热门娱乐去处，环境好体验佳');
-    else if(numRating>=4.0)tips.push('评分'+rating+'，值得一去，性价比可以');
-    else if(numRating>0)tips.push('评分'+rating+'，建议提前看评价再决定');
-    tips.push('周末/晚上人多，建议提前预约或错峰前往');
-    if(tag)tips.push('类型标签：'+tag.split(';').slice(-1)[0]);
-    // 娱乐攻略
-    extraTitle='消费攻略';extraIcon='🎮';extraColor='#7c3aed';extraBg='rgba(124,58,237,0.05)';extraBorder='rgba(124,58,237,0.15)';
-    if(tagStr.indexOf('ktv')>=0){
-      extraTip='团购套餐更划算（美团/抖音），提前预订包厢；工作日白天价格最低，周末晚上最贵';
-    }else if(tagStr.indexOf('影院')>=0||tagStr.indexOf('电影')>=0){
-      extraTip='猫眼/淘票票购票比柜台便宜；学生证有半价优惠；周二半价日最划算';
-    }else if(tagStr.indexOf('健身')>=0){
-      extraTip='先体验再办卡，注意合同期限；很多健身房有学生季卡/月卡优惠';
-    }else if(tagStr.indexOf('网吧')>=0){
-      extraTip='注意上网时间，保持坐姿；包夜套餐更便宜但注意休息';
-    }else{
-      extraTip='建议在美团/抖音搜团购套餐，比到店消费更划算；学生证部分场所可享优惠';
-    }
-  }else if(cat==='hotel'){
+  if(cat==='hotel'){
     rank='清水河校区周边住宿推荐';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    if(numRating>=4.5)tips.push('评分'+rating+'，周边住宿口碑最佳，环境好服务佳');
-    else if(numRating>=4.0)tips.push('评分'+rating+'，性价比不错，住客反馈干净整洁');
-    else if(numRating>0)tips.push('评分'+rating+'，建议提前看评价再决定');
-    tips.push('开学季/考试季房源紧张，建议提前1-2周预订');
-    tips.push('家长送孩子报到首选离校近的，步行或打车5分钟内到校');
-    if(tag)tips.push('类型标签：'+tag.split(';').slice(-1)[0]);
+    // 根据酒店类型差异化描述
+    var hotelType='酒店';
+    if(tagStr.indexOf('高档')>=0||tagStr.indexOf('豪华')>=0||tagStr.indexOf('五星')>=0){hotelType='高档酒店';}
+    else if(tagStr.indexOf('舒适')>=0||tagStr.indexOf('商务')>=0){hotelType='舒适型酒店';}
+    else if(tagStr.indexOf('经济')>=0||tagStr.indexOf('快捷')>=0){hotelType='经济型酒店';}
+    else if(tagStr.indexOf('民宿')>=0){hotelType='民宿客栈';}
+
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+
+    if(brand){
+      tips.push(brand+'连锁品牌，品控稳定，服务标准化');
+      // 品牌特色
+      if(brand.indexOf('桔子水晶')>=0){tips.push('桔子水晶属华住旗下中高端，设计感强，床品舒适度突出');}
+      else if(brand.indexOf('全季')>=0){tips.push('全季属华住旗下中端品牌，禅意设计风格，性价比高');}
+      else if(brand.indexOf('亚朵')>=0){tips.push('亚朵以服务著称，免费续杯茶饮、夜间粥品供应是亮点');}
+      else if(brand.indexOf('汉庭')>=0){tips.push('汉庭属华住旗下经济型，干净实惠，适合短期住宿');}
+      else if(brand.indexOf('如家')>=0){tips.push('如家连锁，价格亲民，基本设施齐全');}
+      else if(brand.indexOf('希尔顿')>=0||brand.indexOf('万豪')>=0||brand.indexOf('洲际')>=0){tips.push('国际五星品牌，设施豪华，适合重要客人接待或家庭出行');}
+    }
+
+    if(numRating>=4.5){tips.push('评分'+rating+'，住客普遍好评，环境卫生和服务态度俱佳');}
+    else if(numRating>=4.0){tips.push('评分'+rating+'，整体口碑不错，性价比可以');}
+    else if(numRating>0){tips.push('评分'+rating+'，建议预订前看看最新差评再决定');}
+    else{tips.push('暂无评分数据，建议到店实地看房后再决定入住');}
+
+    if(dist){
+      var dn=parseInt(dist);
+      if(dn<=500){tips.push('家长送孩子报到首选，出校门即到，搬家当最省力');}
+      else if(dn<=1000){tips.push('距校不远，报到当天来回搬东西也方便');}
+      else{tips.push('距离稍远，建议打车前往学校，行李多时不太方便来回跑');}
+    }
+    tips.push('开学报到季(8-9月)是入住高峰，提前2周预订更便宜且可选房');
+
     // 订购攻略
     extraTitle='订购攻略';extraIcon='🏨';extraColor='#00852a';extraBg='rgba(0,133,42,0.05)';extraBorder='rgba(0,133,42,0.15)';
-    extraTip='建议美团/携程/飞猪多家比价再下单；开学报到季(8-9月)价格上浮，提前2周预订更便宜；到店后看实际房间再决定入住，不满意可换';
+    var bookingTips=[];
+    if(brand){
+      bookingTips.push(brand+'可在官方App/华住会/携程多平台比价，会员价通常最低');
+    }else{
+      bookingTips.push('建议美团/携程/飞猪多家比价再下单，同房不同平台差价可能几十块');
+    }
+    bookingTips.push('开学季8-9月房价上浮20%-50%，提前2周锁定价格最划算');
+    if(numRating>=4.5){bookingTips.push('高评分热门酒店容易被订满，越早预订房型选择越多');}
+    else if(numRating<4.0&&numRating>0){bookingTips.push('评分一般，到店后先看实际房间再决定是否入住，不满意可换');}
+    else{bookingTips.push('无评分房源到店务必先看房，注意检查热水/空调/门窗安全');}
+    if(typeLabel&&typeLabel.indexOf('民宿')>=0){bookingTips.push('民宿退改政策通常比酒店严格，下单前确认退订规则');}
+    extraTip=bookingTips.join('；');
+
   }else if(cat==='food'){
     rank='清水河校区周边美食推荐';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    if(numRating>=4.5)tips.push('评分'+rating+'，附近吃货口碑最好，味道正宗分量足');
-    else if(numRating>=4.0)tips.push('评分'+rating+'，值得一试，性价比可以');
-    tips.push('饭点12:00-13:00人多，建议错峰或提前排队');
-    tips.push('成都口味偏辣，不吃辣跟老板说微辣/不辣');
-    if(tag)tips.push('特色标签：'+tag.split(';').slice(-1)[0]);
+    // 判断菜系/品类
+    var cuisine='';
+    var cuisineMap={'火锅':'火锅串串','串串':'串串香','烧烤':'烧烤烤肉','烤肉':'烤肉','奶茶':'茶饮','咖啡':'咖啡','面包':'烘焙','蛋糕':'甜品','冒菜':'冒菜','面':'面食','米粉':'米线','饺子':'饺子','快餐':'快餐','川菜':'川菜','中餐':'中餐','西餐':'西餐','日料':'日料','韩餐':'韩餐','泰餐':'泰餐','汉堡':'西式快餐','炸鸡':'炸鸡','小龙虾':'小龙虾','冒':'冒菜'};
+    for(var ck in cuisineMap){if(tagStr.indexOf(ck)>=0){cuisine=cuisineMap[ck];break;}}
+
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+
+    if(brand){
+      tips.push(brand+'品牌门店，出品有保障，口味统一标准化');
+      if(brand.indexOf('海底捞')>=0){tips.push('海底捞服务好但价格偏高，学生党建议团购套餐更划算，有学生证可打折');}
+      else if(brand.indexOf('星巴克')>=0){tips.push('星巴克有学生证优惠，门店环境适合自习和小组讨论');}
+      else if(brand.indexOf('瑞幸')>=0){tips.push('瑞幸价格亲民，App下单比门店更便宜，新品经常有9.9元活动');}
+      else if(brand.indexOf('蜜雪冰城')>=0){tips.push('蜜雪冰城极致性价比，柠檬水2元/冰淇淋3元，学生友好');}
+    }
+
+    if(cuisine){
+      if(cuisine.indexOf('火锅')>=0||cuisine.indexOf('串串')>=0){
+        tips.push('主营'+cuisine+'，成都吃火锅记得点微辣/鸳鸯锅，不能吃辣务必跟服务员说明');
+        tips.push('锅底+油碟是标配，人均消费建议提前看美团套餐估算');
+      }else if(cuisine.indexOf('烧烤')>=0||cuisine.indexOf('烤肉')>=0){
+        tips.push('主营'+cuisine+'，晚上翻台快但排队可能久，建议6点前到店');
+      }else if(cuisine.indexOf('茶饮')>=0||cuisine.indexOf('咖啡')>=0){
+        tips.push('主营'+cuisine+'，下午茶好去处，课间或自习可以来一杯');
+      }
+    }
+
+    if(numRating>=4.5){tips.push('评分'+rating+'，附近口碑最佳的店，味道和分量都靠谱');}
+    else if(numRating>=4.0){tips.push('评分'+rating+'，值得一试，性价比可以');}
+    else if(numRating>0){tips.push('评分'+rating+'，建议看最新评价再决定');}
+    else{tips.push('暂无评分，可以探店试试，说不定是宝藏小店');}
+
+    tips.push('饭点12:00-13:00和18:00-19:00人最多，建议错峰前往');
+    if(typeLabel)tips.push('标签：'+typeLabel);
+
+    // 美食拍照攻略
     extraTitle='拍照攻略';extraIcon='📷';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
-    extraTip='菜品上桌趁热拍，俯拍最有食欲感；店面招牌+美食合照是标准打卡照';
+    var foodPhotoTips=[];
+    if(cuisine){
+      if(cuisine.indexOf('火锅')>=0||cuisine.indexOf('串串')>=0){
+        foodPhotoTips.push('火锅沸腾时俯拍最有食欲，红油锅底+摆满菜品的桌面是经典构图');
+      }else if(cuisine.indexOf('烧烤')>=0||cuisine.indexOf('烤肉')>=0){
+        foodPhotoTips.push('烤肉上炉时拍烟火气，趁热拍肉串特写，背景虚化突出食物');
+      }else if(cuisine.indexOf('茶饮')>=0||cuisine.indexOf('咖啡')>=0){
+        foodPhotoTips.push('饮品+店面logo合照是标准打卡，逆光拍杯壁水珠很有氛围感');
+      }else{
+        foodPhotoTips.push('菜品上桌趁热拍，俯拍45度角最能体现食物层次和分量');
+      }
+    }else{
+      foodPhotoTips.push('菜品上桌趁热俯拍最有食欲感');
+    }
+    foodPhotoTips.push('店面招牌+美食合照是朋友圈标配');
+    if(brand){foodPhotoTips.push(brand+'品牌logo入镜更有辨识度');}
+    extraTip=foodPhotoTips.join('；');
+
   }else if(cat==='scenic'){
     rank='清水河校区周边拍照打卡地';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    if(numRating>=4.5)tips.push('评分'+rating+'，出片率超高，热门打卡地');
-    else if(numRating>=4.0)tips.push('评分'+rating+'，风景不错适合拍照');
-    tips.push('上午10点前或下午4点后光线最柔和，拍人像最佳');
-    tips.push('周末人多，工作日去体验更好');
-    if(tag)tips.push('场景标签：'+tag.split(';').slice(-1)[0]);
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+
+    if(brand){
+      tips.push(brand+'是知名打卡地标，适合拍照发朋友圈');
+    }
+    if(numRating>=4.5){tips.push('评分'+rating+'，出片率超高，热门拍照打卡地');}
+    else if(numRating>=4.0){tips.push('评分'+rating+'，风景不错适合出片');}
+    else{tips.push('暂无评分，可能人少反而更好取景');}
+
+    // 根据景点类型给不同建议
+    if(tagStr.indexOf('湖')>=0){tips.push('湖边适合拍倒影和远景，清晨水面平静时出片最佳');}
+    else if(tagStr.indexOf('公园')>=0){tips.push('公园绿地适合拍人像，树荫下漫射光最柔和');}
+    else if(tagStr.indexOf('广场')>=0){tips.push('广场空间开阔，适合拍全景和建筑线条');}
+    else if(tagStr.indexOf('寺')>=0){tips.push('寺庙古建筑适合拍飞檐斗拱特写，注意是否允许拍照');}
+
+    tips.push('周末人多影响取景，工作日去拍照体验更好');
+    if(typeLabel)tips.push('场景：'+typeLabel);
+
     extraTitle='拍照攻略';extraIcon='📷';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
-    extraTip='利用自然光线拍剪影/侧脸，带点前景（树叶/花朵）更有层次感';
+    var scenicPhotoTips=[];
+    if(tagStr.indexOf('湖')>=0){scenicPhotoTips.push('湖面倒影+人物剪影是经典构图，低角度拍摄效果最佳');}
+    else if(tagStr.indexOf('公园')>=0||tagStr.indexOf('绿地')>=0){scenicPhotoTips.push('利用树影斑驳做前景拍人像，自然光下肤色最通透');}
+    else if(tagStr.indexOf('广场')>=0){scenicPhotoTips.push('广角镜头拍建筑全景，对称构图最有气势');}
+    else if(tagStr.indexOf('寺')>=0){scenicPhotoTips.push('飞檐/红墙/光影特写最出彩，注意殿堂内是否禁拍');}
+    else{scenicPhotoTips.push('利用自然光线拍剪影/侧脸，带点前景（树叶/花朵）更有层次感');}
+    scenicPhotoTips.push('上午10点前或下午4点后光线最柔和，拍人像最佳');
+    if(numRating>=4.5){scenicPhotoTips.push('高评分打卡地建议带道具（花/气球）避免撞片');}
+    extraTip=scenicPhotoTips.join('；');
+
   }else if(cat==='shop'){
     rank='清水河校区周边购物推荐';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    tips.push('日用品/零食/文具一站式采购，比校内商业街选择更多');
-    if(tag)tips.push('类型：'+tag.split(';').slice(-1)[0]);
-    extraTitle='拍照攻略';extraIcon='📷';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
-    extraTip='购物袋+战利品摆拍，很有大学生活日常感';
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+    if(brand){tips.push(brand+'品牌门店，品质有保障');}
+    tips.push('比校内商业街选择更多价格更优，适合批量采购日用品');
+    if(tagStr.indexOf('超市')>=0){tips.push('大超市适合采购零食/日用品/文具，开学囤货首选');}
+    else if(tagStr.indexOf('便利')>=0){tips.push('便利店24小时营业，夜宵和急用首选');}
+    else if(tagStr.indexOf('商场')>=0){tips.push('商场一站式购物，吃饭逛街一条龙');}
+    if(typeLabel)tips.push('类型：'+typeLabel);
+
+    extraTitle='拍照攻略';extraIcon='🛒';extraColor='#e67e00';extraBg='rgba(255,193,7,0.06)';extraBorder='rgba(255,193,7,0.15)';
+    extraTip='购物袋+战利品摆拍，很有大学生活日常感；超市货架走廊纵深构图也很出片';
+
+  }else if(cat==='entertainment'){
+    rank='清水河校区周边娱乐推荐';
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+    if(brand){tips.push(brand+'品牌门店，设施和服务有保障');}
+
+    if(numRating>=4.5){tips.push('评分'+rating+'，附近热门娱乐去处，环境好体验佳');}
+    else if(numRating>=4.0){tips.push('评分'+rating+'，值得一去，性价比可以');}
+    else if(numRating>0){tips.push('评分'+rating+'，建议提前看评价再决定');}
+    else{tips.push('暂无评分，可以团一份试试');}
+
+    tips.push('周末/晚上人多排队久，建议提前预约或错峰前往');
+    if(typeLabel)tips.push('类型：'+typeLabel);
+
+    extraTitle='消费攻略';extraIcon='🎮';extraColor='#7c3aed';extraBg='rgba(124,58,237,0.05)';extraBorder='rgba(124,58,237,0.15)';
+    var entTips=[];
+    if(tagStr.indexOf('ktv')>=0){
+      entTips.push('团购套餐更划算（美团/抖音），提前预订包厢');
+      entTips.push('工作日白天价格最低，周末晚上最贵，学生证部分门店可打折');
+    }else if(tagStr.indexOf('影院')>=0||tagStr.indexOf('电影')>=0){
+      entTips.push('猫眼/淘票票购票比柜台便宜，学生证有半价优惠');
+      entTips.push('周二半价日最划算，早场票价比晚场便宜');
+    }else if(tagStr.indexOf('健身')>=0){
+      entTips.push('先体验再办卡，注意合同期限和退卡条款');
+      entTips.push('很多健身房有学生季卡/月卡优惠，别被推销办年卡');
+    }else if(tagStr.indexOf('网吧')>=0){
+      entTips.push('注意上网时间，保持坐姿，包夜套餐更便宜但注意休息');
+    }else if(tagStr.indexOf('足浴')>=0||tagStr.indexOf('按摩')>=0||tagStr.indexOf('洗浴')>=0){
+      entTips.push('团购套餐比到店便宜很多，提前1天预约有折扣');
+      entTips.push('注意选择正规门店，学生证部分可享优惠');
+    }else{
+      entTips.push('建议在美团/抖音搜团购套餐，比到店消费更划算');
+      entTips.push('学生证部分场所可享优惠，结账前主动询问');
+    }
+    extraTip=entTips.join('；');
+
   }else if(cat==='medical'){
     rank='清水河校区周边医疗';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    tips.push('校内校医院可看小病，严重情况建议去校外大医院');
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+    tips.push('校内校医院可看小病常见病，严重情况建议去校外大医院');
     if(tel)tips.push('咨询电话：'+tel.split(';')[0]);
+    if(tagStr.indexOf('药店')>=0){tips.push('药店可购常备药品，感冒药/创可贴/藿香正气水建议宿舍常备');}
+    if(typeLabel)tips.push('类型：'+typeLabel);
   }else{
     rank='清水河校区周边推荐';
-    tips.push('距学校'+(dist||'附近')+(addr?'，位于'+addr:''));
-    if(numRating>0)tips.push('评分'+rating);
-    if(tag)tips.push('标签：'+tag.split(';').slice(-1)[0]);
+    tips.push(distDesc||('距学校'+(dist||'附近')));
+    if(addr)tips.push('地址：'+addr);
+    if(brand){tips.push(brand+'品牌门店');}
+    if(numRating>0)tips.push('评分'+rating+'，口碑'+(numRating>=4.0?'不错':'一般'));
+    else{tips.push('暂无评分数据');}
+    if(typeLabel)tips.push('标签：'+typeLabel);
   }
 
   // 按校园生活圈同模板渲染
