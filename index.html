@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>成电圈主全能版新生指南</title>
 <style>
 :root{--gold:#0080FF;--gold2:#40A0FF;--blue:#165DFF;--dark:#D6E8F7;--card:rgba(248,252,255,0.92);--text:#0d2a4a;--text2:rgba(13,42,74,0.72);--text3:rgba(13,42,74,0.45);--safe-b:env(safe-area-inset-bottom,0px)}
@@ -20,8 +20,8 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 @keyframes mottoGlow{0%,100%{opacity:0.4;text-shadow:0 0 4px rgba(0,128,255,0.3),0 0 8px rgba(0,128,255,0.15)}50%{opacity:1;text-shadow:0 0 8px rgba(0,128,255,0.8),0 0 16px rgba(0,128,255,0.4),0 0 24px rgba(0,128,255,0.2)}}
 
 /* === 页面容器 === */
-.pages{position:fixed;top:44px;left:0;right:0;bottom:50px;overflow:hidden}
-.page{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateX(100%);opacity:0;transition:transform .3s,opacity .3s;pointer-events:none;padding:0 0 20px}
+.pages{position:fixed;top:44px;left:0;right:0;bottom:calc(50px + var(--safe-b));overflow:hidden}
+.page{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateX(100%);opacity:0;transition:transform .3s,opacity .3s;pointer-events:none;padding:0 0 calc(20px + var(--safe-b))}
 .page.active{transform:translateX(0);opacity:1;pointer-events:auto}
 .page.from-left{transform:translateX(-100%)}
 
@@ -312,9 +312,13 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .schedule-banner-desc{font-size:11px;color:var(--text2);margin-top:1px}
 .schedule-banner-arrow{color:var(--gold);font-size:18px;flex-shrink:0}
 /* 功能网格 */
-.func-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
-.func-grid .func-card{margin-bottom:0}
-.func-grid .func-card .func-desc{white-space:normal;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+.func-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.func-grid .func-card{margin-bottom:0;padding:12px 10px;gap:8px;min-width:0}
+.func-grid .func-card .func-icon{font-size:24px}
+.func-grid .func-card .func-info{min-width:0;flex:1;overflow:hidden}
+.func-grid .func-card .func-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.func-grid .func-card .func-desc{font-size:11px;white-space:normal;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all;line-height:1.4}
+.func-grid .func-card .func-arrow{font-size:12px}
 /* 分区分隔 */
 .home-divider{height:1px;margin:20px 16px;background:linear-gradient(90deg,transparent,rgba(0,128,255,0.15),transparent)}
 /* 新生爆照样式 */
