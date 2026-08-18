@@ -6392,7 +6392,7 @@ function renderAiMsg(result){
       var poiLng=locParts[0]||'';
       var poiLat=locParts[1]||'';
       var gisUrl='https://gis.uestc.edu.cn/cmipsh5/#/';
-      var html='<div style="margin:6px 0;padding:10px;background:rgba(0,128,255,0.06);border-radius:10px;border:1px solid rgba(0,128,255,0.12)">';
+      html+='<div style="margin:6px 0;padding:10px;background:rgba(0,128,255,0.06);border-radius:10px;border:1px solid rgba(0,128,255,0.12)">';
       if(photoUrl){
         html+='<div style="width:100%;height:120px;border-radius:8px;overflow:hidden;margin-bottom:8px;background:rgba(0,0,0,0.3)"><img src="'+photoUrl+'" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>';
       }
@@ -6403,7 +6403,7 @@ function renderAiMsg(result){
       html+='<div style="font-size:12px;color:rgba(13,42,74,0.75);line-height:1.5">';
       if(addr) html+='<div style="margin:2px 0;color:var(--gold)">📍 '+addr+'</div>';
       if(dist) html+='<div style="margin:2px 0;display:inline-block;margin-right:12px;color:var(--text2)">📏 距学校'+dist+'</div>';
-      if(firstTel) html+='<a href="tel:'+firstTel+'" style="margin:2px 0;display:inline-block;color:var(--gold);text-decoration:none;cursor:pointer;font-weight:600">📞 '+tel.split(';')[0]+'</a>';
+      if(tel) html+='<a href="tel:'+tel.split(';')[0]+'" style="margin:2px 0;display:inline-block;color:var(--gold);text-decoration:none;cursor:pointer;font-weight:600">📞 '+tel.split(';')[0]+'</a>';
       if(tag) html+='<div style="margin:2px 0">🏷️ '+tag.split(';').slice(-1)[0]+'</div>';
       html+='</div>';
       // 导航按钮 - 指向校园GIS地图
