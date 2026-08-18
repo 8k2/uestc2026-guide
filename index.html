@@ -6206,7 +6206,7 @@ function generatePoiGuide(poi,keyword){
 // 检测是否为"周边/附近"类问题
 function isNearbyQuery(q){
   var kw=['附近','周边','旁边','周围','就近','离学校近','学校外','校外','清水河附近','清水河周边','附近有','周边有','学校附近','学校周边'];
-  var types=['酒店','住宿','宾馆','旅馆','美食','餐厅','吃饭','小吃','火锅','烧烤','奶茶','咖啡','超市','药店','理发','打印','快递','医院','银行','ATM','KTV','影院','电影院','健身房','游泳','网吧','书店','水果','面包','蛋糕','洗衣服','干洗','修手机','修电脑','配眼镜','驾校','瑜伽','台球','电玩','棋牌','足浴','按摩','拍照','好玩','景点','公园','风景','游玩','娱乐','逛街','看电影','出片','打卡','好玩的地方'];
+  var types=['酒店','住宿','宾馆','旅馆','民宿','日租','美食','餐厅','吃饭','小吃','火锅','烧烤','奶茶','咖啡','超市','药店','药房','买药','理发','美发','美容','美甲','打印','复印','文印','快递','驿站','医院','诊所','牙科','口腔','眼科','银行','ATM','KTV','ktv','影院','电影院','电影','健身房','健身','瑜伽','游泳','网吧','网咖','书店','水果','面包','蛋糕','便利店','商场','市场','菜场','修手机','修电脑','配眼镜','配钥匙','修鞋','干洗','洗衣','驾校','台球','电玩','棋牌','足浴','按摩','洗浴','桑拿','SPA','spa','密室','剧本杀','桌游','游乐场','拍照','好玩','景点','公园','风景','游玩','娱乐','逛街','看电影','出片','打卡','好玩的地方','酒吧','果汁','甜品','冰淇淋','炸鸡','汉堡','冒菜','串串','烤肉','面馆','米粉','饺子','卤味','彩票','花店','鲜花','五金','文具','数码','电器','服装','家具','家居','宠物医院','照相','证件照','羽毛球','篮球','乒乓球','网球'];
   var ql=q.toLowerCase();
   var hasKw=false,hasType=false;
   kw.forEach(function(k){if(ql.indexOf(k)>=0)hasKw=true;});
@@ -6216,68 +6216,79 @@ function isNearbyQuery(q){
 
 // 从问题中提取搜索类型关键词
 function extractNearbyKeyword(q){
+  // 注意：高德API types参数用 | 分隔多个类型，单个类型用纯文本（不含;)
   var typeMap={
-    '酒店':['住宿服务;宾馆酒店;宾馆酒店','酒店'],
-    '住宿':['住宿服务;宾馆酒店;宾馆酒店','住宿'],
-    '宾馆':['住宿服务;宾馆酒店;宾馆酒店','宾馆'],
-    '旅馆':['住宿服务;旅馆招待所;旅馆招待所','旅馆'],
-    '民宿':['住宿服务;宾馆酒店;宾馆酒店','民宿'],
-    '美食':['餐饮服务;餐饮相关场所','美食'],
-    '餐厅':['餐饮服务;餐饮相关场所','餐厅'],
-    '吃饭':['餐饮服务;餐饮相关场所','吃饭'],
-    '好吃':['餐饮服务;餐饮相关场所','美食'],
-    '好吃的':['餐饮服务;餐饮相关场所','美食'],
-    '觅食':['餐饮服务;餐饮相关场所','觅食'],
-    '小吃':['餐饮服务;餐饮相关场所','小吃'],
-    '火锅':['餐饮服务;餐饮相关场所','火锅'],
-    '串串':['餐饮服务;餐饮相关场所','串串'],
-    '烧烤':['餐饮服务;餐饮相关场所','烧烤'],
-    '外卖':['餐饮服务;餐饮相关场所','外卖'],
-    '饭馆':['餐饮服务;餐饮相关场所','饭馆'],
-    '餐馆':['餐饮服务;餐饮相关场所','餐馆'],
-    '喝的':['餐饮服务;冷饮店','饮品'],
-    '奶茶':['餐饮服务;冷饮店','奶茶'],
-    '茶':['餐饮服务;冷饮店','茶饮'],
-    '咖啡':['餐饮服务;咖啡馆','咖啡'],
-    '甜品':['餐饮服务;甜品店','甜品'],
-    '超市':['购物服务;超级市场','超市'],
-    '便利店':['购物服务;便利店','便利店'],
-    '药店':['医疗保健服务;药店','药店'],
-    '理发':['体育休闲服务;美容美发店','理发'],
-    '美发':['体育休闲服务;美容美发店','美发'],
-    '美容':['体育休闲服务;美容美发店','美容'],
-    '打印':['购物服务;文印店','打印'],
-    '复印':['购物服务;文印店','打印'],
-    '快递':['购物服务;物流速递','快递'],
-    '医院':['医疗保健服务;综合医院','医院'],
-    '银行':['金融服务;银行','银行'],
-    'ATM':['金融服务;自动提款机','ATM'],
-    'KTV':['体育休闲服务;KTV','KTV'],
-    '影院':['体育休闲服务;电影院','影院'],
-    '电影院':['体育休闲服务;电影院','电影院'],
-    '健身':['体育休闲服务;健身房','健身'],
-    '健身房':['体育休闲服务;健身房','健身房'],
-    '网吧':['体育休闲服务;网吧','网吧'],
-    '书店':['购物服务;书店','书店'],
-    '水果':['购物服务;水果店','水果'],
-    '面包':['餐饮服务;面包店','面包'],
-    '蛋糕':['餐饮服务;蛋糕店','蛋糕'],
-    '驾校':['教育服务;驾校','驾校'],
-    '洗浴':['体育休闲服务;洗浴','洗浴'],
-    '干洗':['购物服务;洗衣店','干洗']
+    // 住宿
+    '酒店':['住宿服务','酒店'],'住宿':['住宿服务','住宿'],'宾馆':['住宿服务','宾馆'],'旅馆':['住宿服务','旅馆'],'民宿':['住宿服务','民宿'],
+    '日租':['住宿服务','日租'],'短租':['住宿服务','短租'],'客栈':['住宿服务','客栈'],
+    // 餐饮
+    '美食':['餐饮服务','美食'],'餐厅':['餐饮服务','餐厅'],'吃饭':['餐饮服务','吃饭'],
+    '好吃':['餐饮服务','美食'],'好吃的':['餐饮服务','美食'],'觅食':['餐饮服务','美食'],
+    '小吃':['餐饮服务','小吃'],'火锅':['餐饮服务','火锅'],'串串':['餐饮服务','串串'],
+    '烧烤':['餐饮服务','烧烤'],'烤肉':['餐饮服务','烤肉'],'外卖':['餐饮服务','外卖'],
+    '饭馆':['餐饮服务','饭馆'],'餐馆':['餐饮服务','餐馆'],'面馆':['餐饮服务','面馆'],
+    '米粉':['餐饮服务','米粉'],'饺子':['餐饮服务','饺子'],'冒菜':['餐饮服务','冒菜'],
+    '中餐':['餐饮服务','中餐'],'西餐':['餐饮服务','西餐'],'日料':['餐饮服务','日料'],
+    '韩餐':['餐饮服务','韩餐'],'快餐':['餐饮服务','快餐'],'汉堡':['餐饮服务','汉堡'],
+    '炸鸡':['餐饮服务','炸鸡'],'小龙虾':['餐饮服务','小龙虾'],'卤味':['餐饮服务','卤味'],
+    '喝的':['餐饮服务','饮品'],'奶茶':['餐饮服务','奶茶'],'茶':['餐饮服务','茶饮'],
+    '咖啡':['餐饮服务','咖啡'],'甜品':['餐饮服务','甜品'],'面包':['餐饮服务','面包'],
+    '蛋糕':['餐饮服务','蛋糕'],'冰淇淋':['餐饮服务','冰淇淋'],'果汁':['餐饮服务','果汁'],
+    '酒吧':['餐饮服务','酒吧'],'酒':['餐饮服务','酒吧'],
+    // 购物
+    '超市':['购物服务','超市'],'便利店':['购物服务','便利店'],'商场':['购物服务','商场'],
+    '购物中心':['购物服务','购物中心'],'市场':['购物服务','市场'],'菜场':['购物服务','菜市场'],
+    '菜市场':['购物服务','菜市场'],'水果':['购物服务','水果'],'水果店':['购物服务','水果店'],
+    '书店':['购物服务','书店'],'文具':['购物服务','文具'],'办公用品':['购物服务','办公用品'],
+    '眼镜':['购物服务','眼镜'],'配眼镜':['购物服务','眼镜'],'数码':['购物服务','数码'],
+    '手机'=>['购物服务','手机'],'修手机':['购物服务|生活服务','修手机'],'修电脑':['购物服务|生活服务','修电脑'],
+    '电脑':['购物服务','电脑'],'电器':['购物服务','电器'],'服装':['购物服务','服装'],
+    '鞋':['购物服务','鞋'],'花店':['购物服务','花店'],'鲜花':['购物服务','鲜花'],
+    '五金':['购物服务','五金'],'家居':['购物服务','家居'],'家具':['购物服务','家具'],
+    '彩票':['购物服务','彩票'],'玩具':['购物服务','玩具'],
+    // 生活服务
+    '药店':['医疗保健服务','药店'],'药房':['医疗保健服务','药店'],'买药':['医疗保健服务','药店'],
+    '医院':['医疗保健服务','医院'],'诊所':['医疗保健服务','诊所'],'牙科':['医疗保健服务','牙科'],
+    '口腔':['医疗保健服务','口腔'],'眼科':['医疗保健服务','眼科'],'宠物医院':['医疗保健服务','宠物医院'],
+    '理发':['生活服务','理发'],'美发':['生活服务','美发'],'美容':['生活服务','美容'],
+    '美甲':['生活服务','美甲'],'剪头':['生活服务','理发'],'剪发':['生活服务','理发'],
+    '打印':['生活服务','打印'],'复印':['生活服务','打印'],'文印':['生活服务','文印'],
+    '快递':['生活服务','快递'],'驿站':['生活服务','快递'],'取快递':['生活服务','快递'],
+    '干洗':['生活服务','干洗'],'洗衣':['生活服务','洗衣'],'洗衣服':['生活服务','洗衣'],
+    '配钥匙':['生活服务','配钥匙'],'修鞋':['生活服务','修鞋'],'改衣服':['生活服务','改衣'],
+    '缝纫':['生活服务','缝纫'],'照片':['生活服务','照相'],'照相':['生活服务','照相'],
+    '拍证件照':['生活服务','证件照'],'复印店':['生活服务','文印'],
+    // 休闲娱乐
+    'KTV':['体育休闲服务','KTV'],'ktv':['体育休闲服务','KTV'],
+    '影院':['体育休闲服务','影院'],'电影院':['体育休闲服务','电影院'],'电影':['体育休闲服务','电影'],
+    '健身':['体育休闲服务','健身'],'健身房':['体育休闲服务','健身房'],'瑜伽':['体育休闲服务','瑜伽'],
+    '游泳':['体育休闲服务','游泳'],'泳池':['体育休闲服务','游泳'],'羽毛球'=>['体育休闲服务','羽毛球'],
+    '篮球':['体育休闲服务','篮球'],'乒乓球':['体育休闲服务','乒乓球'],'网球'=>['体育休闲服务','网球'],
+    '网吧':['体育休闲服务','网吧'],'网咖':['体育休闲服务','网咖'],
+    '台球':['体育休闲服务','台球'],'电玩':['体育休闲服务','电玩'],'棋牌':['体育休闲服务','棋牌'],
+    '足浴':['体育休闲服务','足浴'],'按摩':['体育休闲服务','按摩'],'洗浴':['体育休闲服务','洗浴'],
+    '桑拿':['体育休闲服务','桑拿'],'SPA':['体育休闲服务','SPA'],'spa':['体育休闲服务','SPA'],
+    '密室':['体育休闲服务','密室'],'剧本杀':['体育休闲服务','剧本杀'],
+    '桌游'=>['体育休闲服务','桌游'],'游乐场':['体育休闲服务','游乐场'],
+    // 教育交通
+    '驾校':['教育服务','驾校'],'驾考':['教育服务','驾校'],
+    '银行':['金融服务','银行'],'ATM':['金融服务','ATM'],'atm':['金融服务','ATM'],
+    // 风景
+    '景点':['风景名胜','景点'],'公园':['风景名胜','公园'],'广场':['风景名胜','广场'],
+    '风景':['风景名胜','风景'],'好玩':['风景名胜','好玩的地方']
   };
   var ql=q.toLowerCase();
   // 先精确匹配typeMap
   for(var k in typeMap){
     if(ql.indexOf(k)>=0) return {types:typeMap[k][0],keyword:typeMap[k][1]};
   }
-  // 泛化餐饮关键词：好吃/吃/喝/味道 等没有精确匹配时，归入餐饮类
-  var foodWords=['吃','喝','味','馋','饿','宵夜','夜宵','早','午','晚','饭','面','菜','饮'];
+  // 泛化餐饮关键词：好吃/吃/喝/味道 等
+  var foodWords=['吃','喝','味','馋','饿','宵夜','夜宵','早饭','午饭','晚饭','早餐','午餐','晚餐','饭','面','菜','饮','馆子','解馋'];
   for(var i=0;i<foodWords.length;i++){
     if(ql.indexOf(foodWords[i])>=0) return {types:'餐饮服务;餐饮相关场所',keyword:'美食'};
   }
   // 泛化购物关键词：买/卖/逛/东西 等
-  var shopWords=['买','逛','购物','东西','商品'];
+  var shopWords=['买','逛','购物','东西','商品','卖场','采购'];
   for(var i=0;i<shopWords.length;i++){
     if(ql.indexOf(shopWords[i])>=0) return {types:'购物服务',keyword:'购物'};
   }
@@ -6287,12 +6298,12 @@ function extractNearbyKeyword(q){
     if(ql.indexOf(scenicWords[i])>=0) return {types:'风景名胜;风景名胜相关|公园广场;公园',keyword:'拍照'};
   }
   // 好玩/娱乐/游玩 → 搜索体育休闲服务
-  var funWords=['好玩','娱乐','游玩','逛街','看电影'];
+  var funWords=['好玩','娱乐','游玩','逛街','看电影','放松','解压','消遣'];
   for(var i=0;i<funWords.length;i++){
     if(ql.indexOf(funWords[i])>=0) return {types:'体育休闲服务',keyword:'娱乐'};
   }
   // fallback：清理关键词后用通用搜索
-  var cleaned=q.replace(/附近|周边|旁边|周围|就近|有没有|哪儿|哪里|哪里有|推荐一下/g,'').trim();
+  var cleaned=q.replace(/附近|周边|旁边|周围|就近|有没有|哪儿|哪里|哪里有|推荐一下|学校|清水河|校区|大学/g,'').trim();
   return {types:'',keyword:cleaned||'生活服务'};
 }
 
@@ -6317,7 +6328,7 @@ function searchAmapNearby(query,callback){
       'sortrule=distance',
       'output=json'
     ];
-    if(useTypes) params.push('types='+encodeURIComponent(useTypes));
+    if(useTypes) params.push('types='+encodeURIComponent(useTypes.replace(/\|/g,'|')));
     if(useKeyword) params.push('keywords='+encodeURIComponent(useKeyword));
     var url=AMAP_CONFIG.baseUrl+'?'+params.join('&');
     var xhr=new XMLHttpRequest();
@@ -6357,13 +6368,55 @@ function searchAmapNearby(query,callback){
 // 生成AI问答多平台搜索链接
 function buildAiPlatformLinks(query){
   var q=encodeURIComponent(query);
-  var links=[
-    {name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q},
-    {name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q},
-    {name:'B站',icon:'📺',url:'https://search.bilibili.com/all?keyword='+q},
-    {name:'百度',icon:'🔍',url:'https://www.baidu.com/s?wd='+q},
-    {name:'知乎',icon:'💡',url:'https://www.zhihu.com/search?q='+q}
-  ];
+  var links=[];
+  var ql=query.toLowerCase();
+  // 根据搜索内容智能匹配平台
+  var isFood=/(吃|喝|美食|餐厅|饭|面|火锅|烧烤|奶茶|咖啡|小吃|外卖|早餐|午餐|晚餐|宵夜|夜宵|串串|冒菜|烤肉|汉堡|炸鸡|甜品|面包|蛋糕|果汁|酒吧)/.test(ql);
+  var isHotel=/(酒店|宾馆|住宿|旅馆|民宿|日租|客栈)/.test(ql);
+  var isShop=/(超市|便利店|商场|购物|买|东西|商品|市场|菜场|水果|文具|数码|手机|电脑|电器|服装|鞋|花|五金|家居|家具|玩具|彩票)/.test(ql);
+  var isLife=/(药店|医院|诊所|理发|美发|美容|美甲|打印|复印|快递|干洗|洗衣|配钥匙|修鞋|修手机|修电脑|配眼镜|照相|证件照|银行|ATM|驾校)/.test(ql);
+  var isFun=/(ktv|影院|电影|健身|瑜伽|游泳|羽毛球|篮球|乒乓|网球|网吧|台球|电玩|棋牌|足浴|按摩|洗浴|桑拿|spa|密室|剧本杀|桌游|游乐|好玩|娱乐|游玩|逛街)/.test(ql);
+  var isScenic=/(景点|公园|广场|风景|拍照|打卡|好看的地方)/.test(ql);
+
+  if(isFood){
+    links.push({name:'美团',icon:'🍔',url:'https://me.meituan.com/category/list?keyword='+q});
+    links.push({name:'大众点评',icon:'⭐',url:'https://www.dianping.com/search/keyword/8/g2'+q});
+    links.push({name:'饿了么',icon:'🛵',url:'https://www.ele.me/search/'+q});
+    links.push({name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q});
+    links.push({name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q});
+  }else if(isHotel){
+    links.push({name:'携程',icon:'🏨',url:'https://m.ctrip.com/webapp/hotel/hoteldetail/search?keyword='+q});
+    links.push({name:'美团',icon:'🍔',url:'https://me.meituan.com/category/list?keyword='+q});
+    links.push({name:'飞猪',icon:'✈',url:'https://m.fliggy.com/hotel/search?keyword='+q});
+    links.push({name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q});
+  }else if(isShop){
+    links.push({name:'淘宝',icon:'🛒',url:'https://s.taobao.com/search?q='+q});
+    links.push({name:'京东',icon:'📦',url:'https://search.jd.com/Search?keyword='+q});
+    links.push({name:'拼多多',icon:'💰',url:'https://mobile.yangkeduo.com/goods.html?search_key_list='+q});
+    links.push({name:'美团',icon:'🍔',url:'https://me.meituan.com/category/list?keyword='+q});
+  }else if(isLife){
+    links.push({name:'美团',icon:'🍔',url:'https://me.meituan.com/category/list?keyword='+q});
+    links.push({name:'大众点评',icon:'⭐',url:'https://www.dianping.com/search/keyword/8/g2'+q});
+    links.push({name:'百度',icon:'🔍',url:'https://www.baidu.com/s?wd='+q});
+    links.push({name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q});
+  }else if(isFun){
+    links.push({name:'美团',icon:'🍔',url:'https://me.meituan.com/category/list?keyword='+q});
+    links.push({name:'大众点评',icon:'⭐',url:'https://www.dianping.com/search/keyword/8/g2'+q});
+    links.push({name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q});
+    links.push({name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q});
+  }else if(isScenic){
+    links.push({name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q});
+    links.push({name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q});
+    links.push({name:'大众点评',icon:'⭐',url:'https://www.dianping.com/search/keyword/8/g2'+q});
+    links.push({name:'百度',icon:'🔍',url:'https://www.baidu.com/s?wd='+q});
+  }else{
+    // 默认：通用搜索
+    links.push({name:'百度',icon:'🔍',url:'https://www.baidu.com/s?wd='+q});
+    links.push({name:'小红书',icon:'📕',url:'https://www.xiaohongshu.com/search_result?keyword='+q});
+    links.push({name:'抖音',icon:'🎵',url:'https://www.douyin.com/search/'+q});
+    links.push({name:'知乎',icon:'💡',url:'https://www.zhihu.com/search?q='+q});
+    links.push({name:'B站',icon:'📺',url:'https://search.bilibili.com/all?keyword='+q});
+  }
   return links;
 }
 
@@ -6446,7 +6499,9 @@ function aiSend(){
           renderAiMsg({answer:'',sources:[],isQA:false,isAmap:true,amapPois:amapResult.pois,amapKeyword:amapResult.keyword});
           renderPlatformLinks(q);
         }else{
-          // 高德无结果：走大模型
+          // 高德无结果：先展示平台搜索链接，同时走大模型尝试回答
+          renderAiMsg({answer:'高德地图暂未搜到"'+q+'"的周边结果，你可以点击下方平台直达搜索：',sources:[],isQA:false});
+          renderPlatformLinks(q);
           if(AI_MODELS.glm.apiKey){
             var dsTyping2=document.createElement('div');
             dsTyping2.className='ai-typing';
@@ -6460,11 +6515,7 @@ function aiSend(){
               if(dsText){
                 renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
               }
-              renderPlatformLinks(q);
             });
-          }else{
-            renderAiMsg({answer:'抱歉，暂未找到周边相关信息，请尝试换关键词搜索',sources:[],isQA:false});
-            renderPlatformLinks(q);
           }
         }
       });
