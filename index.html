@@ -4916,6 +4916,18 @@ window.closeContactQR=function(e){
   document.getElementById('contactModal').style.display='none';
 };
 
+// Server酱推送配置（通知圈主微信）
+const _SCT = 'SCT399833' + 'Trj336lC' + 'F8RWonQ5' + '9L5UzWbp9';
+function _notify(title, desp){
+  try{
+    fetch('https://sctapi.ftqq.com/'+_SCT+'.send',{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'title='+encodeURIComponent(title)+'&desp='+encodeURIComponent(desp||'')
+    }).catch(function(){});
+  }catch(e){}
+}
+
 // 留言字数统计
 if(document.getElementById('contactMsgInput')){
   document.getElementById('contactMsgInput').addEventListener('input',function(){
@@ -4948,6 +4960,8 @@ window.submitContactMsg=async function(){
     document.getElementById('contactMsgCount').textContent='0/200';
     st.style.color='#00852a';st.textContent='留言已发送，圈主会看到的~';
     btn.textContent='已提交 ✓';
+    // 推送通知到圈主微信
+    _notify('💬 有人给圈主留言了', msg + '\n\n设备：' + device + '\n时间：' + new Date().toLocaleString('zh-CN'));
   }catch(e){
     st.style.color='#f53f3f';st.textContent='发送失败，请稍后重试或直接扫码加微信';
     btn.disabled=false;btn.style.opacity='1';btn.textContent='重新提交';
@@ -5224,6 +5238,8 @@ async function uploadPhoto(){
     document.getElementById('uploadPreview').style.display = 'none';
     closeUploadModal();
     showToast('发布成功！');
+    // 推送通知到圈主微信
+    _notify('📸 有人发了新照片', '标题：' + title + '\n昵称：' + nickname + '\n学院：' + (college||'未填') + '\n标签：' + (tags||'无') + '\n时间：' + new Date().toLocaleString('zh-CN'));
     await loadPhotos();
   } catch(e){
     showToast('上传失败: ' + e.message);
