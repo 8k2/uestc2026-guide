@@ -5925,23 +5925,36 @@ function generatePoiGuide(poi,keyword){
   var dist=poi.distance?poi.distance+'m':'';
   var photoUrl=(poi.photos&&poi.photos.length>0&&poi.photos[0].url)?poi.photos[0].url:'';
 
-  // 根据tag/keyword判断类型
+  // 根据tag/keyword判断类型（优先用高德类型标签，名称单字匹配放最后）
   var cat='other';
   var tagStr=(tag+' '+keyword+' '+name).toLowerCase();
-  if(tagStr.indexOf('ktv')>=0||tagStr.indexOf('影院')>=0||tagStr.indexOf('电影')>=0||tagStr.indexOf('健身')>=0||tagStr.indexOf('网吧')>=0||tagStr.indexOf('台球')>=0||tagStr.indexOf('电玩')>=0||tagStr.indexOf('棋牌')>=0||tagStr.indexOf('足浴')>=0||tagStr.indexOf('按摩')>=0||tagStr.indexOf('洗浴')>=0||tagStr.indexOf('娱乐')>=0||tagStr.indexOf('休闲')>=0){
-    cat='entertainment';
-  }else if(tagStr.indexOf('酒店')>=0||tagStr.indexOf('宾馆')>=0||tagStr.indexOf('住宿')>=0||tagStr.indexOf('旅馆')>=0||tagStr.indexOf('民宿')>=0){
-    cat='hotel';
-  }else if(tagStr.indexOf('餐饮')>=0||tagStr.indexOf('美食')>=0||tagStr.indexOf('餐厅')>=0||tagStr.indexOf('火锅')>=0||tagStr.indexOf('烧烤')>=0||tagStr.indexOf('奶茶')>=0||tagStr.indexOf('咖啡')>=0||tagStr.indexOf('小吃')>=0||tagStr.indexOf('面')>=0){
-    cat='food';
-  }else if(tagStr.indexOf('景点')>=0||tagStr.indexOf('公园')>=0||tagStr.indexOf('广场')>=0||tagStr.indexOf('湖')>=0||tagStr.indexOf('山')>=0||tagStr.indexOf('寺')>=0||tagStr.indexOf('馆')>=0||tagStr.indexOf('拍照')>=0||tagStr.indexOf('打卡')>=0||tagStr.indexOf('风景')>=0){
-    cat='scenic';
-  }else if(tagStr.indexOf('超市')>=0||tagStr.indexOf('购物')>=0||tagStr.indexOf('商场')>=0||tagStr.indexOf('便利店')>=0){
-    cat='shop';
-  }else if(tagStr.indexOf('医院')>=0||tagStr.indexOf('药店')>=0||tagStr.indexOf('医疗')>=0){
+  // 1. 先用高德类型标签精确匹配（优先级最高）
+  if(tagStr.indexOf('药店')>=0||tagStr.indexOf('医疗')>=0||tagStr.indexOf('医院')>=0||tagStr.indexOf('诊所')>=0||tagStr.indexOf('牙科')>=0||tagStr.indexOf('口腔')>=0||tagStr.indexOf('药房')>=0){
     cat='medical';
+  }else if(tagStr.indexOf('酒店')>=0||tagStr.indexOf('宾馆')>=0||tagStr.indexOf('住宿')>=0||tagStr.indexOf('旅馆')>=0||tagStr.indexOf('民宿')>=0||tagStr.indexOf('客栈')>=0){
+    cat='hotel';
+  }else if(tagStr.indexOf('餐饮')>=0||tagStr.indexOf('美食')>=0||tagStr.indexOf('餐厅')>=0||tagStr.indexOf('火锅')>=0||tagStr.indexOf('烧烤')>=0||tagStr.indexOf('奶茶')>=0||tagStr.indexOf('咖啡')>=0||tagStr.indexOf('面包')>=0||tagStr.indexOf('蛋糕')>=0||tagStr.indexOf('小吃')>=0||tagStr.indexOf('冷饮')>=0||tagStr.indexOf('甜品')>=0){
+    cat='food';
+  }else if(tagStr.indexOf('ktv')>=0||tagStr.indexOf('影院')>=0||tagStr.indexOf('电影')>=0||tagStr.indexOf('健身')>=0||tagStr.indexOf('网吧')>=0||tagStr.indexOf('台球')>=0||tagStr.indexOf('电玩')>=0||tagStr.indexOf('棋牌')>=0||tagStr.indexOf('足浴')>=0||tagStr.indexOf('按摩')>=0||tagStr.indexOf('洗浴')>=0||tagStr.indexOf('娱乐')>=0||tagStr.indexOf('休闲')>=0||tagStr.indexOf('spa')>=0||tagStr.indexOf('密室')>=0||tagStr.indexOf('剧本')>=0){
+    cat='entertainment';
+  }else if(tagStr.indexOf('超市')>=0||tagStr.indexOf('购物')>=0||tagStr.indexOf('商场')>=0||tagStr.indexOf('便利店')>=0||tagStr.indexOf('市场')>=0||tagStr.indexOf('书店')>=0||tagStr.indexOf('水果')>=0||tagStr.indexOf('数码')>=0||tagStr.indexOf('电器')>=0){
+    cat='shop';
   }else if(tagStr.indexOf('银行')>=0||tagStr.indexOf('atm')>=0){
     cat='bank';
+  }else if(tagStr.indexOf('风景名胜')>=0||tagStr.indexOf('公园广场')>=0||tagStr.indexOf('景点')>=0||tagStr.indexOf('公园')>=0||tagStr.indexOf('风景')>=0||tagStr.indexOf('拍照')>=0||tagStr.indexOf('打卡')>=0){
+    cat='scenic';
+  }else{
+    // 2. 名称模糊匹配（去掉"龙湖"等干扰词后的单字匹配）
+    var nameClean=name.replace(/龙湖|时代天街|电子科大|清水河|校区|成都|高新|西区|郫都|红光/gi,'');
+    if(nameClean.indexOf('湖')>=0||nameClean.indexOf('公园')>=0||nameClean.indexOf('广场')>=0||nameClean.indexOf('山')>=0||nameClean.indexOf('寺')>=0){
+      cat='scenic';
+    }else if(nameClean.indexOf('馆')>=0&&nameClean.indexOf('饭馆')<0&&nameClean.indexOf('餐馆')<0){
+      cat='scenic';
+    }else if(name.indexOf('面')>=0||name.indexOf('饭')>=0||name.indexOf('菜')>=0||name.indexOf('味')>=0||name.indexOf('饮')>=0){
+      cat='food';
+    }else if(name.indexOf('店')>=0){
+      cat='hotel';
+    }
   }
 
   // 星级评定
