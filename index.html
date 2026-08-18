@@ -4235,6 +4235,142 @@ var AMAP_CONFIG={
   baseUrl:'https://restapi.amap.com/v3/place/around'
 };
 
+// 高德天气缓存（避免频繁请求）
+var _weatherCache={data:null,time:0};
+var _weatherCallbacks=[];
+var _weatherLoading=false;
+
+// 获取清水河校区实时天气（高德天气API v3）
+function fetchWeather(callback){
+  var now=Date.now();
+  // 10分钟缓存
+  if(_weatherCache.data&&now-_weatherCache.time<600000){
+    callback(_weatherCache.data);
+    return;
+  }
+  if(_weatherLoading){
+    _weatherCallbacks.push(callback);
+    return;
+  }
+  _weatherLoading=true;
+  var url='https://restapi.amap.com/v3/weather/weatherInfo?key='+AMAP_CONFIG.key+'&city=510122&extensions=all&output=json';
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',url,true);
+  xhr.timeout=8000;
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4){
+      _weatherLoading=false;
+      var data=null;
+      if(xhr.status===200){
+        try{
+          var resp=JSON.parse(xhr.responseText);
+          if(resp.status==='1'&&resp.forecasts&&resp.forecasts[0]){
+            var f=resp.forecasts[0];
+            var today=f.casts&&f.casts[0];
+            if(today){
+              data={
+                city:f.city,
+                dayWeather:today.dayweather,
+                nightWeather:today.nightweather,
+                dayTemp:today.daytemp,
+                nightTemp:today.nighttemp,
+                dayWind:today.daywind,
+                dayPower:today.daypower,
+                date:today.date,
+                week:today.week,
+                casts:f.casts
+              };
+            }
+          }
+        }catch(e){}
+      }
+      _weatherCache.data=data;
+      _weatherCache.time=now;
+      callback(data);
+      // 处理排队的回调
+      while(_weatherCallbacks.length){
+        var cb=_weatherCallbacks.shift();
+        cb(data);
+      }
+    }
+  };
+  xhr.onerror=function(){
+    _weatherLoading=false;
+    callback(null);
+  };
+  xhr.ontimeout=function(){
+    _weatherLoading=false;
+    callback(null);
+  };
+  try{xhr.send();}catch(e){_weatherLoading=false;callback(null);}
+}
+
+// 根据天气生成出行/穿搭/拍照建议笔记
+function generateWeatherGuide(weather,placeName,poiCat){
+  if(!weather)return '';
+  var w=weather.dayWeather||'';
+  var dayT=parseInt(weather.dayTemp)||25;
+  var nightT=parseInt(weather.nightTemp)||15;
+  var tips=[];
+
+  // 天气描述
+  var weatherIcon='☀️';
+  if(w.indexOf('雨')>=0)weatherIcon='🌧️';
+  else if(w.indexOf('阴')>=0)weatherIcon='☁️';
+  else if(w.indexOf('多云')>=0)weatherIcon='⛅';
+  else if(w.indexOf('雪')>=0)weatherIcon='❄️';
+  else if(w.indexOf('雾')>=0||w.indexOf('霾')>=0)weatherIcon='🌫️';
+
+  tips.push(weatherIcon+' 今日天气：'+w+'，白天'+weather.dayTemp+'°C / 夜间'+weather.nightTemp+'°C');
+
+  // 穿搭建议
+  if(dayT>=30){
+    tips.push('👕 天气炎热，穿短袖短裤即可，建议带遮阳伞');
+  }else if(dayT>=22){
+    tips.push('👕 白天穿短袖/薄长袖，早晚加件薄外套');
+  }else if(dayT>=15){
+    tips.push('🧥 气温适中偏凉，长袖+薄外套/卫衣合适');
+  }else if(dayT>=8){
+    tips.push('🧥 天气较冷，需穿厚外套/棉服，围巾手套安排上');
+  }else{
+    tips.push('🧥 天气寒冷，羽绒服+保暖内衣+围巾手套全副武装');
+  }
+  if(nightT<10&&dayT>=15){
+    tips.push('🌡️ 昼夜温差大（'+(dayT-nightT)+'°C），晚上出门务必加衣');
+  }
+
+  // 雨天/晴天特殊建议
+  if(w.indexOf('雨')>=0){
+    tips.push('☔ 今天有雨，记得带伞；雨天路面湿滑注意安全');
+    if(poiCat==='户外'||poiCat==='运动'||poiCat==='拍照'){
+      tips.push('📸 雨天户外活动受限，建议改去室内场所；雨后空气通透反而适合拍风景');
+    }
+  }else if(w.indexOf('晴')>=0&&dayT>=25){
+    tips.push('🧴 晴天紫外线强，外出注意防晒，涂防晒霜/戴帽子');
+    if(poiCat==='拍照'||poiCat==='户外'){
+      tips.push('📸 晴天光线充足适合拍照，但正午阳光太硬，建议上午10点前或下午4点后拍');
+    }
+  }else if(w.indexOf('阴')>=0||w.indexOf('多云')>=0){
+    tips.push('📸 阴天光线柔和均匀，反而最适合拍人像，不用怕过曝');
+  }
+
+  // 风力提醒
+  if(weather.dayPower&&parseInt(weather.dayPower)>=4){
+    tips.push('💨 风力较大（'+weather.dayPower+'级），户外注意防风，轻便物品收好');
+  }
+
+  // 拍照地点专属建议
+  if(placeName){
+    if(w.indexOf('雨')>=0){
+      tips.push('📷 雨天可以拍水面倒影/雨中撑伞的场景，'+placeName+'附近很有氛围感');
+    }else if(w.indexOf('晴')>=0){
+      tips.push('📷 晴天在'+placeName+'拍蓝天白云做背景，出片率超高');
+    }
+  }
+
+  return tips;
+}
+
 // 检测是否为"周边/附近"类问题
 function isNearbyQuery(q){
   var kw=['附近','周边','旁边','周围','就近','离学校近','学校外','校外','清水河附近','清水河周边','附近有','周边有','学校附近','学校周边'];
@@ -4587,6 +4723,33 @@ function renderAiMsg(result){
       html+='</div>';
     });
     html+='<div style="margin-top:6px;font-size:11px;color:rgba(13,42,74,0.5)">📎 来源：高德地图</div>';
+    // 天气攻略笔记占位（异步加载）
+    html+='<div id="weatherGuide_'+Date.now()+'" style="margin-top:8px;padding:10px 12px;background:rgba(0,180,100,0.04);border-radius:10px;border:1px solid rgba(0,180,100,0.12)"><div style="font-size:12px;color:rgba(13,42,74,0.5)">🌤️ 正在获取实时天气和出行建议...</div></div>';
+    var weatherElId='weatherGuide_'+Date.now();
+    // 异步获取天气
+    var amapKw=result.amapKeyword||'';
+    fetchWeather(function(wData){
+      var wEl=document.getElementById(weatherElId);
+      if(!wEl)return;
+      if(!wData){
+        wEl.innerHTML='<div style="font-size:12px;color:rgba(13,42,74,0.4)">⚠️ 天气获取失败，建议出行前查看天气预报</div>';
+        return;
+      }
+      var wTips=generateWeatherGuide(wData,amapKw,'拍照');
+      var tipsHtml=wTips.map(function(t){
+        return '<div style="padding:3px 0 3px 14px;position:relative;font-size:12.5px;color:var(--text);line-height:1.6"><span style="position:absolute;left:0;top:3px;color:var(--gold)">•</span>'+t+'</div>';
+      }).join('');
+      wEl.innerHTML=
+        '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'+
+          '<span style="font-size:13px;font-weight:700;color:#00852a">📋 出行攻略笔记</span>'+
+          '<span style="font-size:11px;color:rgba(13,42,74,0.5)">'+wData.date+' 更新</span>'+
+        '</div>'+
+        tipsHtml;
+      wEl.style.background='rgba(0,180,100,0.06)';
+      wEl.style.borderColor='rgba(0,180,100,0.2)';
+      var chat=document.getElementById('aiChat');
+      if(chat)chat.scrollTop=chat.scrollHeight;
+    });
   }else{
     // 普通回答渲染
     var lines=result.answer.split('\n');
@@ -4661,18 +4824,18 @@ function renderPlatformLinks(query){
 // === 附近搜索：清水河校区全能地点数据库 ===
 var NEARBY_PLACES=[
   // 餐饮美食
-  {cat:'food',name:'银桦餐厅',desc:'银杏苑一楼，清水河主食堂，菜品丰富，麻辣干锅/小炒一绝',tags:['食堂','正餐','干锅'],rating:4.5,score:'4.5',distance:'50m',dist_text:'距学生活动中心50m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1565299624946-b28f0a3c91d3?w=400',comments:[{user:'成电干饭人',text:'麻辣干锅绝绝子！荤菜入味素菜爽口，宵夜首选',time:'2024-09-15'},{user:'银桦常客',text:'二楼酸菜肉丝面3-4元，配蜜雪冰城蜜桃四季春，完美搭配',time:'2024-10-02'}]},
-  {cat:'food',name:'学子餐厅',desc:'思学苑一楼，学生常用就餐点，早餐6:35开始供应',tags:['食堂','正餐','早餐'],rating:4.3,score:'4.3',distance:'100m',dist_text:'距学生活动中心100m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400',comments:[{user:'学子老粉',text:'二楼草莓吸吸冻6元，夏天来一杯太爽了',time:'2024-09-20'},{user:'早起鸟',text:'早餐很丰盛，包子油条豆浆应有尽有',time:'2024-10-05'}]},
+  {cat:'food',name:'银桦餐厅',desc:'银杏苑一楼，清水河主食堂，菜品丰富，麻辣干锅/小炒一绝',tags:['食堂','正餐','干锅'],rating:4.5,score:'4.5',distance:'50m',dist_text:'距学生活动中心50m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1565299624946-b28f0a3c91d3?w=400',guide:{rank:'校内食堂人气第1名',level:'⭐⭐⭐⭐⭐ 必吃',tips:['麻辣干锅是招牌，荤素搭配可自选，人均12-15元','二楼酸菜肉丝面3-4元，汤鲜面滑，冬天暖胃首选','早餐6:35开始，包子油条豆浆粥品类齐全','饭点11:30-12:30人最多，建议错峰11:00或12:45后去','下雨天室内就餐不挤，靠窗位子能看到银杏大道'],photo:'餐厅内靠窗位置光线柔和，适合拍美食特写；秋天银杏黄了在餐厅门口拍人像超有氛围感'},comments:[{user:'成电干饭人',text:'麻辣干锅绝绝子！荤菜入味素菜爽口，宵夜首选',time:'2024-09-15'},{user:'银桦常客',text:'二楼酸菜肉丝面3-4元，配蜜雪冰城蜜桃四季春，完美搭配',time:'2024-10-02'}]},
+  {cat:'food',name:'学子餐厅',desc:'思学苑一楼，学生常用就餐点，早餐6:35开始供应',tags:['食堂','正餐','早餐'],rating:4.3,score:'4.3',distance:'100m',dist_text:'距学生活动中心100m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400',guide:{rank:'校内食堂人气第3名',level:'⭐⭐⭐⭐ 推荐',tips:['早餐品种最全的食堂之一，豆浆油条包子粥全有','二楼草莓吸吸冻6元，夏天消暑神器','离教学楼近，课间10分钟就能买完带走','中午12点人多需排队，建议11:50前到'],photo:'早餐摆台色彩丰富，俯拍一盘子包子油条豆浆很有生活感'},comments:[{user:'学子老粉',text:'二楼草莓吸吸冻6元，夏天来一杯太爽了',time:'2024-09-20'},{user:'早起鸟',text:'早餐很丰盛，包子油条豆浆应有尽有',time:'2024-10-05'}]},
   {cat:'food',name:'学知苑食堂',desc:'20栋旁，后勤服务中心所在地，供应日常三餐',tags:['食堂','后勤'],rating:4.1,score:'4.1',distance:'200m',dist_text:'距学生宿舍20栋旁',hot:false,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1517248135467-4c7edcad346d?w=400',comments:[{user:'20栋住户',text:'就在楼下很方便，菜量足价格便宜',time:'2024-09-18'}]},
-  {cat:'food',name:'朝阳餐厅',desc:'春晖苑，分一二楼，多种风味小吃，改造后环境升级',tags:['商业街','小吃','风味'],rating:4.4,score:'4.4',distance:'150m',dist_text:'距商业街150m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1579871494447-9815cf73e9b8?w=400',comments:[{user:'风味爱好者',text:'各种地方小吃都有，冒菜/米线/铁板烧选不过来',time:'2024-10-01'},{user:'朝阳粉',text:'改造后环境好多了，一楼冒菜窗口排队最长',time:'2024-09-25'}]},
-  {cat:'food',name:'西北餐厅',desc:'银杏苑旁圆形建筑，兰州拉面/烧茄子/炸蘑菇，口味偏北方',tags:['面食','西北','拉面'],rating:4.6,score:'4.6',distance:'80m',dist_text:'距银杏苑旁',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400',comments:[{user:'面食爱好者',text:'兰州拉面5.5元，汤好喝面劲道，冬天暖胃神器',time:'2024-10-03'},{user:'西北粉丝',text:'烧茄子+炸蘑菇绝配，偏甜口很特别',time:'2024-09-28'}]},
-  {cat:'food',name:'品悦吧',desc:'图书馆旁休闲餐饮，自助图书馆旁，适合学习间隙小憩',tags:['咖啡','休闲','图书馆旁'],rating:4.0,score:'4.0',distance:'50m',dist_text:'图书馆旁',hot:false,hours:'8:00-22:00',img:'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400',comments:[{user:'图书馆常客',text:'自习累了来杯咖啡歇会，氛围不错',time:'2024-09-22'}]},
-  {cat:'food',name:'商业街美食街',desc:'校内商业综合体，火锅/烧烤/奶茶/简餐一应俱全，改善伙食首选',tags:['商业街','美食','聚餐'],rating:4.5,score:'4.5',distance:'100m',dist_text:'校内商业街',hot:true,hours:'10:00-22:00',img:'https://images.unsplash.com/photo-1555396273-363ea8779d1d?w=400',comments:[{user:'美食探店者',text:'商业街简直是吃货天堂，火锅烧烤奶茶什么都有',time:'2024-10-10'},{user:'聚餐达人',text:'班级聚会经常来这，选择多价格也还行',time:'2024-09-30'}]},
+  {cat:'food',name:'朝阳餐厅',desc:'春晖苑，分一二楼，多种风味小吃，改造后环境升级',tags:['商业街','小吃','风味'],rating:4.4,score:'4.4',distance:'150m',dist_text:'距商业街150m',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1579871494447-9815cf73e9b8?w=400',guide:{rank:'校内风味小吃第1名',level:'⭐⭐⭐⭐ 推荐',tips:['一楼冒菜窗口排队最长，但味道确实好，微辣/中辣可选','铁板烧现场制作，视觉+味觉双享受','二楼米线汤底浓郁，冬天来一碗暖全身','改造后环境明亮干净，比以前舒适太多','饭点人多但翻台快，等位不超过5分钟'],photo:'铁板烧制作过程火光四溅很出片；改造后的明亮装修做背景拍美食有日系感'},comments:[{user:'风味爱好者',text:'各种地方小吃都有，冒菜/米线/铁板烧选不过来',time:'2024-10-01'},{user:'朝阳粉',text:'改造后环境好多了，一楼冒菜窗口排队最长',time:'2024-09-25'}]},
+  {cat:'food',name:'西北餐厅',desc:'银杏苑旁圆形建筑，兰州拉面/烧茄子/炸蘑菇，口味偏北方',tags:['面食','西北','拉面'],rating:4.6,score:'4.6',distance:'80m',dist_text:'距银杏苑旁',hot:true,hours:'6:35-21:00',img:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400',guide:{rank:'校内面食第1名 · 口味评分最高',level:'⭐⭐⭐⭐⭐ 必吃',tips:['兰州拉面5.5元一碗，汤清面筋，全校性价比之王','烧茄子+炸蘑菇是隐藏CP，偏甜口很特别，一定要试试','圆形建筑很有辨识度，第一次去不会走错','冬天来碗热汤面，暖胃又暖心，下雨天尤其舒服','师傅现场拉面，看制作过程就很治愈'],photo:'圆形建筑外观独特，拍全景很有设计感；师傅拉面的动作抓拍很有烟火气'},comments:[{user:'面食爱好者',text:'兰州拉面5.5元，汤好喝面劲道，冬天暖胃神器',time:'2024-10-03'},{user:'西北粉丝',text:'烧茄子+炸蘑菇绝配，偏甜口很特别',time:'2024-09-28'}]},
+  {cat:'food',name:'品悦吧',desc:'图书馆旁休闲餐饮，自助图书馆旁，适合学习间隙小憩',tags:['咖啡','休闲','图书馆旁'],rating:4.0,score:'4.0',distance:'50m',dist_text:'图书馆旁',hot:false,hours:'8:00-22:00',img:'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400',guide:{rank:'校内学习间隙小憩第1名',level:'⭐⭐⭐ 一般',tips:['自习累了来杯咖啡歇会，氛围安静适合放空','比瑞幸安静，比图书馆有吃的，中间地带','简餐/咖啡/茶饮都有，选择不算多但够用','靠窗位子可以看到银杏大道，秋天边喝边看银杏','晚上图书馆关了但品悦吧还开着，赶DDL可以续杯'],photo:'窗外银杏+咖啡杯的组合，秋天拍出来很有文艺感'},comments:[{user:'图书馆常客',text:'自习累了来杯咖啡歇会，氛围不错',time:'2024-09-22'}]},
+  {cat:'food',name:'商业街美食街',desc:'校内商业综合体，火锅/烧烤/奶茶/简餐一应俱全，改善伙食首选',tags:['商业街','美食','聚餐'],rating:4.5,score:'4.5',distance:'100m',dist_text:'校内商业街',hot:true,hours:'10:00-22:00',img:'https://images.unsplash.com/photo-1555396273-363ea8779d1d?w=400',guide:{rank:'校内聚餐首选地 · 综合评分第2名',level:'⭐⭐⭐⭐⭐ 必逛',tips:['火锅/烧烤/奶茶/简餐全覆盖，班级聚会首选','晚上灯光氛围好，边逛边吃很有夜市感','周末人最多，工作日下午去体验最好','雨天走廊有遮蔽，不用淋雨也能逛吃','人均20-40元，改善伙食不心疼'],photo:'晚上霓虹灯牌亮起，拍街景很有赛博朋克感；美食摊位排排站俯拍很有冲击力'},comments:[{user:'美食探店者',text:'商业街简直是吃货天堂，火锅烧烤奶茶什么都有',time:'2024-10-10'},{user:'聚餐达人',text:'班级聚会经常来这，选择多价格也还行',time:'2024-09-30'}]},
   {cat:'food',name:'瑞幸咖啡',desc:'商业街1楼16号铺位，校内咖啡连锁，价格亲民品质稳定',tags:['咖啡','连锁','商业街'],rating:4.3,score:'4.3',distance:'120m',dist_text:'商业街1楼16号',hot:true,hours:'7:30-22:00',img:'https://images.unsplash.com/photo-1485808191679-5f86568fda8e?w=400',comments:[{user:'瑞幸粉',text:'生椰拿铁永远的神，9.9元券经常有',time:'2024-10-08'},{user:'早八人',text:'上课前顺手买一杯，比图书馆品悦吧选择多',time:'2024-09-19'}]},
-  {cat:'food',name:'蜜雪冰城',desc:'商业街内，平价奶茶冰淇淋，柠檬水2元、蜜桃四季春6元',tags:['奶茶','平价','商业街'],rating:4.2,score:'4.2',distance:'100m',dist_text:'商业街内',hot:true,hours:'9:00-22:30',img:'https://images.unsplash.com/photo-1558857563-b371033873b8?w=400',comments:[{user:'蜜雪铁粉',text:'2元柠檬水yyds，蜜桃四季春可以不要茶',time:'2024-10-12'},{user:'省钱小能手',text:'全校最便宜的饮品店，没有之一',time:'2024-09-26'}]},
-  {cat:'food',name:'鞠婆婆绵绵冰',desc:'乐山非遗品牌，手搓冰粉/凉糕/绵绵冰，2026年新入驻',tags:['甜品','非遗','冰粉'],rating:4.7,score:'4.7',distance:'100m',dist_text:'商业街内',hot:true,hours:'10:00-22:00',img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400',comments:[{user:'甜品控',text:'手搓冰粉Q弹有气泡，绵绵冰入口即化，太绝了',time:'2026-03-15'},{user:'非遗粉丝',text:'20年品牌老店，0添加配方吃得放心',time:'2026-03-20'}]},
-  {cat:'food',name:'紫荆餐厅',desc:'银杏苑二楼，川菜风味为主，中午供餐至14:00',tags:['食堂','川菜'],rating:4.2,score:'4.2',distance:'50m',dist_text:'银杏苑二楼',hot:false,hours:'6:35-14:00',img:'https://images.unsplash.com/photo-1546069901-ba9599a7e93c?w=400',comments:[{user:'紫荆常客',text:'中午供餐到两点很贴心，下午课不赶时间',time:'2024-09-29'}]},
-  {cat:'food',name:'芙蓉餐厅',desc:'银杏苑三楼，中午供餐至14:00，环境较安静',tags:['食堂','三楼'],rating:4.0,score:'4.0',distance:'50m',dist_text:'银杏苑三楼',hot:false,hours:'6:35-14:00',img:'https://images.unsplash.com/photo-1559847844-5315695dacef?w=400',comments:[{user:'安静党',text:'三楼人少清净，适合慢慢吃',time:'2024-09-17'}]},
+  {cat:'food',name:'蜜雪冰城',desc:'商业街内，平价奶茶冰淇淋，柠檬水2元、蜜桃四季春6元',tags:['奶茶','平价','商业街'],rating:4.2,score:'4.2',distance:'100m',dist_text:'商业街内',hot:true,hours:'9:00-22:30',img:'https://images.unsplash.com/photo-1558857563-b371033873b8?w=400',guide:{rank:'校内饮品性价比第1名',level:'⭐⭐⭐⭐ 推荐',tips:['2元柠檬水yyds，全校最便宜的快乐水','蜜桃四季春可以不要茶，纯果味更清爽','夏天来个冰淇淋甜筒3元，简单快乐','排队人多但出杯快，等2-3分钟就行','冬天热饮也很便宜，奶茶6元暖手暖胃'],photo:'雪王IP拍照很可爱，举着柠檬水对镜自拍有种大学生的小确幸感'},comments:[{user:'蜜雪铁粉',text:'2元柠檬水yyds，蜜桃四季春可以不要茶',time:'2024-10-12'},{user:'省钱小能手',text:'全校最便宜的饮品店，没有之一',time:'2024-09-26'}]},
+  {cat:'food',name:'鞠婆婆绵绵冰',desc:'乐山非遗品牌，手搓冰粉/凉糕/绵绵冰，2026年新入驻',tags:['甜品','非遗','冰粉'],rating:4.7,score:'4.7',distance:'100m',dist_text:'商业街内',hot:true,hours:'10:00-22:00',img:'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400',guide:{rank:'校内甜品评分第1名 · 2026新入驻',level:'⭐⭐⭐⭐⭐ 必吃',tips:['手搓冰粉是招牌，Q弹有气泡，和冲泡的完全不同','绵绵冰入口即化，夏天吃一碗整个人都凉快了','凉糕配红糖水，乐山正宗做法，校外很难吃到','20年非遗品牌，0添加配方，吃得放心','夏天下午人最多，建议10:00刚开门去或21:00后去'],photo:'绵绵冰颜色缤纷，俯拍特写很出片；手搓冰粉的气泡纹理拍微距有手作感'},comments:[{user:'甜品控',text:'手搓冰粉Q弹有气泡，绵绵冰入口即化，太绝了',time:'2026-03-15'},{user:'非遗粉丝',text:'20年品牌老店，0添加配方吃得放心',time:'2026-03-20'}]},
+  {cat:'food',name:'紫荆餐厅',desc:'银杏苑二楼，川菜风味为主，中午供餐至14:00',tags:['食堂','川菜'],rating:4.2,score:'4.2',distance:'50m',dist_text:'银杏苑二楼',hot:false,hours:'6:35-14:00',img:'https://images.unsplash.com/photo-1546069901-ba9599a7e93c?w=400',guide:{rank:'校内川菜风味第2名',level:'⭐⭐⭐⭐ 推荐',tips:['川菜风味为主，回锅肉/麻婆豆腐/水煮鱼片是常驻菜','中午供餐到14:00，下午有课不赶时间就去这','二楼比一楼人少，就餐环境更安静','口味偏辣，不吃辣的同学跟阿姨说少放辣椒','13:00后菜品会减少，建议12:30前到'],photo:'川菜摆盘色彩红亮，俯拍很有食欲感；二楼窗户光线好，靠窗拍人像自然光柔美'},comments:[{user:'紫荆常客',text:'中午供餐到两点很贴心，下午课不赶时间',time:'2024-09-29'}]},
+  {cat:'food',name:'芙蓉餐厅',desc:'银杏苑三楼，中午供餐至14:00，环境较安静',tags:['食堂','三楼'],rating:4.0,score:'4.0',distance:'50m',dist_text:'银杏苑三楼',hot:false,hours:'6:35-14:00',img:'https://images.unsplash.com/photo-1559847844-5315695dacef?w=400',guide:{rank:'校内安静就餐第1名',level:'⭐⭐⭐ 一般',tips:['三楼人少清净，想慢慢吃不被打扰就来这','适合带电脑/书边吃边看，没人催你走','菜品比一楼少但味道不差，小炒现做','下雨天人更少，靠窗听雨吃饭很惬意','中午13:00后部分窗口关，建议12:30前到'],photo:'三楼大窗户+空旷桌椅，拍出来有种电影里的安静食堂感'},comments:[{user:'安静党',text:'三楼人少清净，适合慢慢吃',time:'2024-09-17'}]},
   {cat:'food',name:'布蕾德西点屋',desc:'校内连锁西点屋，面包蛋糕甜品，早餐好去处',tags:['西点','面包','早餐'],rating:4.3,score:'4.3',distance:'100m',dist_text:'校内',hot:false,hours:'7:00-21:00',img:'https://images.unsplash.com/photo-1517433670267-086d286eedd5?w=400',comments:[{user:'面包控',text:'早上来不及去食堂就来这买个面包，新鲜好吃',time:'2024-10-06'}]},
   {cat:'food',name:'桃园餐厅',desc:'便捷自助餐厅，7:30开始供应早餐，快速就餐',tags:['食堂','自助','快'],rating:4.1,score:'4.1',distance:'200m',dist_text:'校内',hot:false,hours:'7:30-21:00',img:'https://images.unsplash.com/photo-1574870110600-3754f4c105a6?w=400',comments:[{user:'快枪手',text:'自助取餐不用排队，赶时间就选桃园',time:'2024-09-23'}]},
   // 生活服务
@@ -4700,14 +4863,14 @@ var NEARBY_PLACES=[
   {cat:'study',name:'校史馆',desc:'9:30-11:30/14:30-16:30，预约讲解61830771，了解成电历史',tags:['校史','参观','讲解'],rating:4.3,score:'4.3',distance:'400m',dist_text:'校园内',hot:false,hours:'9:30-11:30 14:30-16:30',img:'https://images.unsplash.com/photo-1574732340737-65c5c5c5c5c5?w=400',comments:[{user:'校史迷',text:'预约讲解很值得，了解成电60多年历史',time:'2024-10-08'}]},
   // 校园建筑
   {cat:'building',name:'行政主楼',desc:'学校行政办公中心，B2区1楼自助打印，标志性建筑',tags:['行政','办公','地标'],rating:4.0,score:'4.0',distance:'300m',dist_text:'校园中心',hot:false,hours:'工作日8:30-17:30',img:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400',comments:[{user:'办事达人',text:'盖章/证明/自助打印都在这，很方便',time:'2024-09-15'}]},
-  {cat:'building',name:'学生活动中心',desc:'新生报到点，社团活动场地，各类晚会/比赛举办地',tags:['报到','活动','社团'],rating:4.4,score:'4.4',distance:'50m',dist_text:'校园中心',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400',comments:[{user:'社团达人',text:'社团活动/晚会/比赛都在这，新生报到也在这',time:'2024-09-01'},{user:'新生',text:'报到第一站就是学活，找不到就问路',time:'2024-08-25'}]},
+  {cat:'building',name:'学生活动中心',desc:'新生报到点，社团活动场地，各类晚会/比赛举办地',tags:['报到','活动','社团'],rating:4.4,score:'4.4',distance:'50m',dist_text:'校园中心',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400',guide:{rank:'校内活动核心地标',level:'⭐⭐⭐⭐ 推荐',tips:['新生报到第一站，找不到就问路','社团招新/晚会/比赛都在这，大学社交中心','晚上灯光亮起时外观最美，适合拍打卡照','秋天门口银杏黄了，拍人像绝绝子','下雨天走廊可以避雨，也有室内活动场地'],photo:'晚上灯光亮起拍外观最有氛围感；秋天银杏+学活建筑拍人像超级出片'},comments:[{user:'社团达人',text:'社团活动/晚会/比赛都在这，新生报到也在这',time:'2024-09-01'},{user:'新生',text:'报到第一站就是学活，找不到就问路',time:'2024-08-25'}]},
   {cat:'building',name:'商业街',desc:'校内商业综合体，餐饮/快递/超市/营业厅/理发一应俱全',tags:['商业','购物','餐饮','快递'],rating:4.5,score:'4.5',distance:'100m',dist_text:'校内',hot:true,hours:'7:00-23:00',img:'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400',comments:[{user:'商业街常客',text:'吃喝玩乐一站式解决，校内生活核心区',time:'2024-10-12'},{user:'新生家长',text:'送孩子来学校第一件事就是逛商业街，什么都有',time:'2024-08-30'}]},
   {cat:'building',name:'硕丰苑',desc:'硕士宿舍区，21-28栋为五期/六期新建，2人间为主',tags:['宿舍','硕士','新建'],rating:4.3,score:'4.3',distance:'400m',dist_text:'宿舍区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1555854877-bab0e4c5c5c5?w=400',comments:[{user:'硕丰苑住户',text:'21-28栋新宿舍条件好，2人间有独卫',time:'2024-09-10'}]},
   {cat:'building',name:'博翰苑',desc:'博士生宿舍区，环境安静，配套设施完善',tags:['宿舍','博士'],rating:4.2,score:'4.2',distance:'500m',dist_text:'宿舍区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=400',comments:[{user:'博翰苑住户',text:'博士宿舍安静，适合搞科研',time:'2024-09-18'}]},
   {cat:'building',name:'本科宿舍组团',desc:'多个组团，刷一卡通进出，入口设门禁，4人间为主',tags:['宿舍','本科','门禁'],rating:4.0,score:'4.0',distance:'200m',dist_text:'宿舍区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1521577432336-c4c5c5c5c5c5?w=400',comments:[{user:'本科住户',text:'4人间上床下桌，有空调独卫，条件还行',time:'2024-09-05'}]},
   // 运动场馆
   {cat:'sport',name:'体育馆',desc:'室内运动场，篮球/羽毛球/乒乓球，可预约',tags:['室内','篮球','羽毛球'],rating:4.4,score:'4.4',distance:'300m',dist_text:'运动区',hot:false,hours:'6:00-22:00',img:'https://images.unsplash.com/photo-1517649763962-0c6230660d5c?w=400',comments:[{user:'篮球爱好者',text:'室内打球不怕刮风下雨，需要提前预约',time:'2024-09-28'}]},
-  {cat:'sport',name:'体育场',desc:'标准田径场，户外运动，夜跑/晨跑好去处',tags:['田径','跑步','户外'],rating:4.5,score:'4.5',distance:'250m',dist_text:'运动区',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400',comments:[{user:'跑步爱好者',text:'标准400米跑道，晚上跑步的人很多，氛围好',time:'2024-10-05'},{user:'体测选手',text:'体测就在这，1000米/800米/50米都有',time:'2024-09-20'}]},
+  {cat:'sport',name:'体育场',desc:'标准田径场，户外运动，夜跑/晨跑好去处',tags:['田径','跑步','户外'],rating:4.5,score:'4.5',distance:'250m',dist_text:'运动区',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400',guide:{rank:'校内运动第1名',level:'⭐⭐⭐⭐ 推荐',tips:['标准400米跑道，晚上跑步的人很多氛围好','体测就在这，1000米/800米/50米都有','晚上有灯，夜跑安全不用担心','看台可以坐，累了歇脚看星星','雨天/大雨后场地湿滑不建议跑步，可转去体育馆'],photo:'傍晚夕阳+跑道拍剪影超级出片；看台高处俯拍体育场全景很有气势'},comments:[{user:'跑步爱好者',text:'标准400米跑道，晚上跑步的人很多，氛围好',time:'2024-10-05'},{user:'体测选手',text:'体测就在这，1000米/800米/50米都有',time:'2024-09-20'}]},
   {cat:'sport',name:'游泳馆',desc:'室内游泳馆，需预约/购票，水质不错',tags:['游泳','室内'],rating:4.2,score:'4.2',distance:'350m',dist_text:'运动区',hot:false,hours:'需预约',img:'https://images.unsplash.com/photo-1565299624946-b28f0a3c91d3?w=400',comments:[{user:'游泳爱好者',text:'校内游泳馆水质还行，价格比外面便宜',time:'2024-09-15'}]},
   {cat:'sport',name:'网球场',desc:'室外网球场，需要自带球拍/球，免费使用',tags:['网球','室外'],rating:4.0,score:'4.0',distance:'300m',dist_text:'运动区',hot:false,hours:'全天',img:'https://images.unsplash.com/photo-1622279457486-62dcc4a93c5c?w=400',comments:[{user:'网球爱好者',text:'场地免费但需要自带装备，周末人多',time:'2024-09-22'}]},
   {cat:'sport',name:'篮球场',desc:'室外篮球场，多个场地，白天夜晚均可使用',tags:['篮球','室外'],rating:4.3,score:'4.3',distance:'200m',dist_text:'运动区',hot:true,hours:'全天',img:'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400',comments:[{user:'篮球少年',text:'室外场随时能打，晚上有灯，氛围超好',time:'2024-10-01'}]}
@@ -4875,9 +5038,26 @@ function openNearbyDetail(p){
         '<p style="font-size:14px;color:var(--text);line-height:1.7">'+p.desc+'</p>'+
       '</div>'+
       '<a class="nearby-detail-map-link" href="'+mapLink+'" target="_blank">🗺️ 在GIS校园地图上查看位置</a>'+
+      (p.guide?(function(g){
+        var tipsHtml=g.tips.map(function(t){return '<div style="padding:4px 0 4px 14px;position:relative;font-size:13px;color:var(--text);line-height:1.6"><span style="position:absolute;left:0;top:4px;color:var(--gold)">•</span>'+t+'</div>'}).join('');
+        var photoHtml=g.photo?'<div style="margin-top:8px;padding:8px 10px;background:rgba(255,193,7,0.06);border-radius:8px;border:1px solid rgba(255,193,7,0.15)"><div style="font-size:12px;color:#e67e00;font-weight:600;margin-bottom:4px">📷 拍照攻略</div><div style="font-size:12.5px;color:var(--text2);line-height:1.6">'+g.photo+'</div></div>':'';
+        return '<div class="nearby-detail-section">'+
+          '<div class="nearby-detail-section-title">📋 攻略笔记</div>'+
+          '<div style="margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap">'+
+            '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;background:linear-gradient(135deg,rgba(0,128,255,0.12),rgba(64,160,255,0.06));color:var(--gold);border:1px solid rgba(0,128,255,0.2)">🏆 '+g.rank+'</span>'+
+            '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;background:rgba(255,193,7,0.1);color:#e67e00;border:1px solid rgba(255,193,7,0.2)">'+g.level+'</span>'+
+          '</div>'+
+          '<div style="margin-top:4px">'+tipsHtml+'</div>'+
+          photoHtml+
+        '</div>';
+      })(p.guide):'')+
       '<div class="nearby-detail-section">'+
         '<div class="nearby-detail-section-title">💬 校友点评</div>'+
         commentsHtml+
+      '</div>'+
+      '<div class="nearby-detail-section" id="nearbyWeatherSection">'+
+        '<div class="nearby-detail-section-title">🌤️ 实时天气 & 出行建议</div>'+
+        '<div id="nearbyWeatherContent" style="font-size:12.5px;color:rgba(13,42,74,0.5)">正在获取天气...</div>'+
       '</div>'+
       '<div class="nearby-detail-section">'+
         '<div class="nearby-detail-section-title">🔎 社交平台搜索</div>'+
@@ -4886,6 +5066,23 @@ function openNearbyDetail(p){
       '</div>'+
     '</div>';
   overlay.classList.add('open');
+  // 异步获取天气填充出行建议
+  var placeName=p.name;
+  var placeCat=p.cat;
+  fetchWeather(function(wData){
+    var wEl=document.getElementById('nearbyWeatherContent');
+    if(!wEl)return;
+    if(!wData){
+      wEl.innerHTML='<div style="color:rgba(13,42,74,0.4)">⚠️ 天气获取失败，建议出行前查看天气预报</div>';
+      return;
+    }
+    var catLabel=placeCat==='food'?'美食':placeCat==='sport'?'运动':placeCat==='study'?'学习':placeCat==='building'?'校园建筑':'生活';
+    var wTips=generateWeatherGuide(wData,placeName,catLabel);
+    var tipsHtml=wTips.map(function(t){
+      return '<div style="padding:4px 0 4px 14px;position:relative;font-size:13px;color:var(--text);line-height:1.6"><span style="position:absolute;left:0;top:4px;color:var(--gold)">•</span>'+t+'</div>';
+    }).join('');
+    wEl.innerHTML=tipsHtml;
+  });
 }
 
 function closeNearbyDetail(){
