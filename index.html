@@ -4556,6 +4556,13 @@ function renderAiMsg(result){
       var tel=poi.tel||'';
       if(Array.isArray(tel))tel=tel.join(';');
       if(typeof tel!=='string')tel=String(tel||'');
+      var poiLoc=poi.location||'';
+      if(typeof poiLoc!=='string')poiLoc=String(poiLoc||'');
+      var locParts=poiLoc.split(',');
+      var poiLng=locParts[0]||'';
+      var poiLat=locParts[1]||'';
+      var amapNavUrl=poiLng&&poiLat?('https://uri.amap.com/marker?position='+poiLng+','+poiLat+'&name='+encodeURIComponent(poiName)):('https://uri.amap.com/search?keyword='+encodeURIComponent(poiName+' 成都高新区西源大道'));
+      var firstTel=tel?tel.split(';')[0].replace(/[^\d\+\-]/g,''):'';
       html+='<div style="margin:6px 0;padding:10px;background:rgba(0,128,255,0.06);border-radius:10px;border:1px solid rgba(0,128,255,0.12)">';
       if(photoUrl){
         html+='<div style="width:100%;height:120px;border-radius:8px;overflow:hidden;margin-bottom:8px;background:rgba(0,0,0,0.3)"><img src="'+photoUrl+'" style="width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.parentElement.style.display=\'none\'"></div>';
@@ -4565,11 +4572,19 @@ function renderAiMsg(result){
       if(rating) html+='<div style="font-size:12px;color:#ffc107;background:rgba(255,193,7,0.1);border-radius:10px;padding:2px 8px">⭐ '+rating+'</div>';
       html+='</div>';
       html+='<div style="font-size:12px;color:rgba(13,42,74,0.75);line-height:1.5">';
-      if(addr) html+='<div style="margin:2px 0">📍 '+addr+'</div>';
-      if(dist) html+='<div style="margin:2px 0;display:inline-block;margin-right:12px">📏 距学校'+dist+'</div>';
-      if(tel) html+='<div style="margin:2px 0;display:inline-block">📞 '+tel.split(';')[0]+'</div>';
+      if(addr) html+='<a href="'+amapNavUrl+'" target="_blank" style="margin:2px 0;display:block;color:var(--gold);text-decoration:none;cursor:pointer">📍 '+addr+'</a>';
+      if(dist) html+='<a href="'+amapNavUrl+'" target="_blank" style="margin:2px 0;display:inline-block;margin-right:12px;color:var(--text2);text-decoration:none;cursor:pointer">📏 距学校'+dist+'</a>';
+      if(firstTel) html+='<a href="tel:'+firstTel+'" style="margin:2px 0;display:inline-block;color:var(--gold);text-decoration:none;cursor:pointer;font-weight:600">📞 '+tel.split(';')[0]+'</a>';
       if(tag) html+='<div style="margin:2px 0">🏷️ '+tag.split(';').slice(-1)[0]+'</div>';
-      html+='</div></div>';
+      html+='</div>';
+      html+='<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">';
+      html+='<a href="'+amapNavUrl+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:rgba(0,128,255,0.12);color:var(--gold);text-decoration:none;border:1px solid rgba(0,128,255,0.2)">🗺️ 导航前往</a>';
+      if(firstTel) html+='<a href="tel:'+firstTel+'" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:linear-gradient(135deg,#0080FF,#40A0FF);color:#fff;text-decoration:none;border:none">📱 拨打电话</a>';
+      var searchKw=encodeURIComponent(poiName+' 电子科技大学清水河校区');
+      html+='<a href="https://www.douyin.com/search/'+searchKw+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:rgba(13,42,74,0.06);color:var(--text);text-decoration:none;border:1px solid rgba(13,42,74,0.1)">🎵 打卡视频</a>';
+      html+='<a href="https://www.xiaohongshu.com/search_result?keyword='+searchKw+'" target="_blank" style="display:inline-flex;align-items:center;gap:3px;padding:5px 11px;border-radius:16px;font-size:11.5px;font-weight:600;background:rgba(255,64,129,0.08);color:#e91e63;text-decoration:none;border:1px solid rgba(255,64,129,0.15)">📕 攻略笔记</a>';
+      html+='</div>';
+      html+='</div>';
     });
     html+='<div style="margin-top:6px;font-size:11px;color:rgba(13,42,74,0.5)">📎 来源：高德地图</div>';
   }else{
