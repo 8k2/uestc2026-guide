@@ -5055,10 +5055,6 @@ function openNearbyDetail(p){
         '<div class="nearby-detail-section-title">💬 校友点评</div>'+
         commentsHtml+
       '</div>'+
-      '<div class="nearby-detail-section" id="nearbyWeatherSection">'+
-        '<div class="nearby-detail-section-title">🌤️ 实时天气 & 出行建议</div>'+
-        '<div id="nearbyWeatherContent" style="font-size:12.5px;color:rgba(13,42,74,0.5)">正在获取天气...</div>'+
-      '</div>'+
       '<div class="nearby-detail-section">'+
         '<div class="nearby-detail-section-title">🔎 社交平台搜索</div>'+
         '<p style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.6">优先搜索<b style="color:var(--gold)">校内打卡</b> → 3公里内同类场所 → 更远区域。点击对应按钮直达各平台搜索结果。</p>'+
@@ -5066,23 +5062,6 @@ function openNearbyDetail(p){
       '</div>'+
     '</div>';
   overlay.classList.add('open');
-  // 异步获取天气填充出行建议
-  var placeName=p.name;
-  var placeCat=p.cat;
-  fetchWeather(function(wData){
-    var wEl=document.getElementById('nearbyWeatherContent');
-    if(!wEl)return;
-    if(!wData){
-      wEl.innerHTML='<div style="color:rgba(13,42,74,0.4)">⚠️ 天气获取失败，建议出行前查看天气预报</div>';
-      return;
-    }
-    var catLabel=placeCat==='food'?'美食':placeCat==='sport'?'运动':placeCat==='study'?'学习':placeCat==='building'?'校园建筑':'生活';
-    var wTips=generateWeatherGuide(wData,placeName,catLabel);
-    var tipsHtml=wTips.map(function(t){
-      return '<div style="padding:4px 0 4px 14px;position:relative;font-size:13px;color:var(--text);line-height:1.6"><span style="position:absolute;left:0;top:4px;color:var(--gold)">•</span>'+t+'</div>';
-    }).join('');
-    wEl.innerHTML=tipsHtml;
-  });
 }
 
 function closeNearbyDetail(){
