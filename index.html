@@ -73,6 +73,22 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .func-name{font-size:15px;font-weight:600;color:var(--gold)}
 .func-desc{font-size:12px;color:var(--text2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .func-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
+/* 电话卡片展开面板 */
+.tel-card{display:flex;flex-direction:column;margin-bottom:10px;background:var(--card);border:1px solid rgba(0,128,255,0.06);border-radius:14px;overflow:hidden;transition:all .2s}
+.tel-card.expanded{border-color:rgba(0,128,255,0.25);box-shadow:0 2px 12px rgba(0,128,255,0.08)}
+.tel-card-header{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;transition:all .2s;-webkit-user-select:none;user-select:none}
+.tel-card-header:active{background:rgba(0,128,255,0.04)}
+.tel-card.expanded .tel-card-header{padding-bottom:10px}
+.tel-card-arrow{color:var(--text3);font-size:14px;flex-shrink:0;transition:transform .25s}
+.tel-card.expanded .tel-card-arrow{transform:rotate(180deg)}
+.tel-panel{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.tel-card.expanded .tel-panel{max-height:200px}
+.tel-panel-inner{padding:0 16px 12px;display:flex;gap:8px;flex-wrap:wrap}
+.tel-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;-webkit-user-select:none;user-select:none;white-space:nowrap}
+.tel-btn:active{transform:scale(.95)}
+.tel-btn-call{background:linear-gradient(135deg,#0080FF,#40A0FF);color:#fff;border:none}
+.tel-btn-nav{background:rgba(0,128,255,0.1);color:var(--gold);border:1px solid rgba(0,128,255,0.2)}
+.tel-btn-web{background:rgba(13,42,74,0.06);color:var(--text);border:1px solid rgba(13,42,74,0.1)}
 
 /* === 详情页（全屏覆盖，z-index高于tabbar） === */
 #detailPanel{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);background:var(--dark);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
@@ -676,14 +692,83 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <a href="https://www.jwc.uestc.edu.cn/" target="_blank" class="func-card" style="text-decoration:none;color:inherit"><div class="func-icon">📱</div><div class="func-info"><div class="func-name">电子科技大学教务处</div><div class="func-desc">选课通知/成绩查询</div></div><div class="func-arrow">›</div></a>
   </div>
 
-  <div class="section-title">相关部门电话</div>
-  <div class="func-list">
-    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">学生工作部</div><div class="func-desc">028-61830078（报到咨询）</div></div></div>
-    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">教务处</div><div class="func-desc">028-61831137（招生咨询）</div></div></div>
-    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">后勤保障部</div><div class="func-desc">清水河028-61830144 / 沙河028-83201090</div></div></div>
-    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">保卫处24小时</div><div class="func-desc">清水河028-61830110 / 沙河028-83200110</div></div></div>
-    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">校医院</div><div class="func-desc">清水河028-61830397 / 夜间13518194790</div></div></div>
-    <div class="func-card"><div class="func-icon">📞</div><div class="func-info"><div class="func-name">信息中心</div><div class="func-desc">028-61831184</div></div></div>
+  <div class="section-title">相关部门电话<span style="font-size:12px;color:var(--text3);font-weight:400"> 点击展开更多操作</span></div>
+  <div class="func-list" id="telList">
+    <div class="tel-card" data-tel="02861830078" data-nav="30.7447,103.9337" data-web="https://xgb.uestc.edu.cn/">
+      <div class="tel-card-header" onclick="toggleTelCard(this)">
+        <div class="func-icon">📞</div>
+        <div class="func-info"><div class="func-name">学生工作部</div><div class="func-desc">028-61830078（报到咨询）</div></div>
+        <div class="tel-card-arrow">›</div>
+      </div>
+      <div class="tel-panel"><div class="tel-panel-inner">
+        <a class="tel-btn tel-btn-call" href="tel:02861830078">📱 拨打电话</a>
+        <a class="tel-btn tel-btn-nav" href="https://uri.amap.com/marker?position=103.9337,30.7447&name=学生工作部" target="_blank">🗺️ 导航前往</a>
+        <a class="tel-btn tel-btn-web" href="https://xgb.uestc.edu.cn/" target="_blank">🌐 官网</a>
+      </div></div>
+    </div>
+    <div class="tel-card" data-tel="02861831137" data-nav="30.7447,103.9337" data-web="https://www.jwc.uestc.edu.cn/">
+      <div class="tel-card-header" onclick="toggleTelCard(this)">
+        <div class="func-icon">📞</div>
+        <div class="func-info"><div class="func-name">教务处</div><div class="func-desc">028-61831137（招生咨询）</div></div>
+        <div class="tel-card-arrow">›</div>
+      </div>
+      <div class="tel-panel"><div class="tel-panel-inner">
+        <a class="tel-btn tel-btn-call" href="tel:02861831137">📱 拨打电话</a>
+        <a class="tel-btn tel-btn-nav" href="https://uri.amap.com/marker?position=103.9337,30.7447&name=教务处(主楼B2-214)" target="_blank">🗺️ 导航前往</a>
+        <a class="tel-btn tel-btn-web" href="https://www.jwc.uestc.edu.cn/" target="_blank">🌐 官网</a>
+      </div></div>
+    </div>
+    <div class="tel-card" data-tel="02861830144" data-nav="30.7451,103.9318" data-web="https://hq.uestc.edu.cn/">
+      <div class="tel-card-header" onclick="toggleTelCard(this)">
+        <div class="func-icon">📞</div>
+        <div class="func-info"><div class="func-name">后勤保障部</div><div class="func-desc">清水河028-61830144 / 沙河028-83201090</div></div>
+        <div class="tel-card-arrow">›</div>
+      </div>
+      <div class="tel-panel"><div class="tel-panel-inner">
+        <a class="tel-btn tel-btn-call" href="tel:02861830144">📱 拨打清水河</a>
+        <a class="tel-btn tel-btn-call" href="tel:02883201090">📱 拨打沙河</a>
+        <a class="tel-btn tel-btn-nav" href="https://uri.amap.com/marker?position=103.9318,30.7451&name=后勤保障部" target="_blank">🗺️ 导航前往</a>
+        <a class="tel-btn tel-btn-web" href="https://hq.uestc.edu.cn/" target="_blank">🌐 官网</a>
+      </div></div>
+    </div>
+    <div class="tel-card" data-tel="02861830110" data-nav="30.7462,103.9348" data-web="https://www.bwc.uestc.edu.cn/">
+      <div class="tel-card-header" onclick="toggleTelCard(this)">
+        <div class="func-icon">📞</div>
+        <div class="func-info"><div class="func-name">保卫处24小时</div><div class="func-desc">清水河028-61830110 / 沙河028-83200110</div></div>
+        <div class="tel-card-arrow">›</div>
+      </div>
+      <div class="tel-panel"><div class="tel-panel-inner">
+        <a class="tel-btn tel-btn-call" href="tel:02861830110">📱 拨打清水河</a>
+        <a class="tel-btn tel-btn-call" href="tel:02883200110">📱 拨打沙河</a>
+        <a class="tel-btn tel-btn-nav" href="https://uri.amap.com/marker?position=103.9348,30.7462&name=保卫处" target="_blank">🗺️ 导航前往</a>
+        <a class="tel-btn tel-btn-web" href="https://www.bwc.uestc.edu.cn/" target="_blank">🌐 官网</a>
+      </div></div>
+    </div>
+    <div class="tel-card" data-tel="02861830397" data-nav="30.7482,103.9372" data-web="https://hospital.uestc.edu.cn/">
+      <div class="tel-card-header" onclick="toggleTelCard(this)">
+        <div class="func-icon">📞</div>
+        <div class="func-info"><div class="func-name">校医院</div><div class="func-desc">清水河028-61830397 / 夜间13518194790</div></div>
+        <div class="tel-card-arrow">›</div>
+      </div>
+      <div class="tel-panel"><div class="tel-panel-inner">
+        <a class="tel-btn tel-btn-call" href="tel:02861830397">📱 拨打白天</a>
+        <a class="tel-btn tel-btn-call" href="tel:13518194790">📱 拨打夜间</a>
+        <a class="tel-btn tel-btn-nav" href="https://uri.amap.com/marker?position=103.9372,30.7482&name=校医院(东北角)" target="_blank">🗺️ 导航前往</a>
+        <a class="tel-btn tel-btn-web" href="https://hospital.uestc.edu.cn/" target="_blank">🌐 官网</a>
+      </div></div>
+    </div>
+    <div class="tel-card" data-tel="02861831184" data-nav="30.7447,103.9337" data-web="https://info.uestc.edu.cn/">
+      <div class="tel-card-header" onclick="toggleTelCard(this)">
+        <div class="func-icon">📞</div>
+        <div class="func-info"><div class="func-name">信息中心</div><div class="func-desc">028-61831184（VPN/网络）</div></div>
+        <div class="tel-card-arrow">›</div>
+      </div>
+      <div class="tel-panel"><div class="tel-panel-inner">
+        <a class="tel-btn tel-btn-call" href="tel:02861831184">📱 拨打电话</a>
+        <a class="tel-btn tel-btn-nav" href="https://uri.amap.com/marker?position=103.9337,30.7447&name=信息中心" target="_blank">🗺️ 导航前往</a>
+        <a class="tel-btn tel-btn-web" href="https://info.uestc.edu.cn/" target="_blank">🌐 官网</a>
+      </div></div>
+    </div>
   </div>
 
   <div style="text-align:center;padding:30px 16px;color:var(--text3);font-size:12px">
@@ -4896,6 +4981,19 @@ panel.addEventListener('touchend',function(e){
     }
   };
 })();
+
+// 电话卡片展开/折叠
+window.toggleTelCard=function(headerEl){
+  var card=headerEl.parentElement;
+  var wasExpanded=card.classList.contains('expanded');
+  // 关闭其他已展开的卡片
+  var allCards=document.querySelectorAll('#telList .tel-card.expanded');
+  for(var i=0;i<allCards.length;i++){
+    if(allCards[i]!==card){allCards[i].classList.remove('expanded');}
+  }
+  if(wasExpanded){card.classList.remove('expanded');}
+  else{card.classList.add('expanded');}
+};
 
 // 圈主联系方式弹窗
 window.openContactQR=function(){
