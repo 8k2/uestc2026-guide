@@ -5796,11 +5796,15 @@ function autoResize(el){
 // AI附件处理
 function aiHandleFile(files){
   if(!files||!files.length)return;
-  for(var i=0;i<files.length;i++){
-    var f=files[i];
-    if(f.size>2*1024*1024){
-      alert(f.name+' 超过2MB限制，请压缩后再上传');
-      continue;
+  var fileList=Array.prototype.slice.call(files);
+  var processed=0;
+  var total=fileList.length;
+  fileList.forEach(function(f){
+    if(f.size>4*1024*1024){
+      alert(f.name+' 超过4MB限制，请压缩后再传');
+      processed++;
+      if(processed>=total)document.getElementById('aiFileInput').value='';
+      return;
     }
     var isImg=f.type.indexOf('image/')===0;
     var reader=new FileReader();
@@ -5809,10 +5813,16 @@ function aiHandleFile(files){
       var attach={name:f.name,type:isImg?'image':'file',dataUrl:dataUrl,size:f.size};
       aiAttachments.push(attach);
       renderAttachPreview();
+      processed++;
+      if(processed>=total)document.getElementById('aiFileInput').value='';
+    };
+    reader.onerror=function(){
+      alert('读取 '+f.name+' 失败，请重试');
+      processed++;
+      if(processed>=total)document.getElementById('aiFileInput').value='';
     };
     reader.readAsDataURL(f);
-  }
-  document.getElementById('aiFileInput').value='';
+  });
 }
 
 function renderAttachPreview(){
@@ -5898,18 +5908,13 @@ function renderMarkdown(text){
 
 
 
-// 大模型配置（智谱GLM-4-Flash + GLM-4V，完全免费）
+// 大模型配置（通过本地 TeleAgent 代理服务器访问，解决 CORS 跨域问题）
 var AI_MODELS={
-  glm:{
-    apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
-    baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-    model:'glm-4-flash'
-  },
-  glmv:{
-    apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
-    baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-    model:'glm-4v-flash'
-  }
+  proxyUrl:'http://localhost:3456/ai',
+  apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
+  baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+  model:'glm-4-flash',
+  modelV:'glm-4v-flash'
 };
 var AI_ENGINE='glm';
 
@@ -6581,25 +6586,61 @@ function buildAiPlatformLinks(query){
   return links;
 }
 
-// 调用大模型（支持多模态图片+文本文件）
+// 调用大模型（优先本地 TeleAgent 代理，回退直连智谱API）
 function callAIModel(query,localAnswer,callback,attachments){
+  // 先尝试本地代理
+  callAIModelViaProxy(query,localAnswer,callback,attachments,function(){
+    // 代理失败，回退直连智谱API
+    callAIModelDirect(query,localAnswer,callback,attachments);
+  });
+}
+
+// 方式一：通过本地 TeleAgent 代理（支持多模态，无 CORS 问题）
+function callAIModelViaProxy(query,localAnswer,callback,attachments,failCb){
+  var reqBody=JSON.stringify({
+    query:query||'',
+    localAnswer:localAnswer||null,
+    attachments:(attachments||[]).map(function(a){
+      return {name:a.name,type:a.type,dataUrl:a.dataUrl};
+    })
+  });
+  var xhr=new XMLHttpRequest();
+  xhr.open('POST',AI_MODELS.proxyUrl,true);
+  xhr.setRequestHeader('Content-Type','application/json');
+  xhr.timeout=60000;
+  var done=false;
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4){
+      if(xhr.status===200){
+        try{
+          var resp=JSON.parse(xhr.responseText);
+          if(resp.success){
+            done=true;
+            callback(resp.text||null);
+          }
+        }catch(e){}
+      }
+      if(!done)failCb();
+    }
+  };
+  xhr.onerror=function(){ if(!done)failCb(); };
+  xhr.ontimeout=function(){ if(!done)failCb(); };
+  try{xhr.send(reqBody);}catch(e){ if(!done)failCb(); }
+}
+
+// 方式二：直连智谱API（备用，可能受 CORS 限制）
+function callAIModelDirect(query,localAnswer,callback,attachments){
   var hasImg=attachments&&attachments.length>0&&attachments.some(function(a){return a.type==='image'});
-  var hasFile=attachments&&attachments.length>0&&attachments.some(function(a){return a.type!=='image'});
-  var engine=hasImg?AI_MODELS.glmv:AI_MODELS.glm;
-  if(!engine||!engine.apiKey){callback(null);return;}
-  var systemPrompt='你是"成电AI"，一个全能型AI助手。用户让你写代码时直接写出完整代码，不要啰嗦。校园问题优先参考本地知识库。支持Markdown格式输出。';
-  // 构建user message content
+  var model=hasImg?AI_MODELS.modelV:AI_MODELS.model;
+  var systemPrompt='你是"成电AI"，一个全能型AI助手。用户让你写代码时直接写出完整代码，不要嗘嗦。校园问题优先参考本地知识库。支持Markdown格式输出。';
   var userParts=[];
   userParts.push({type:'text',text:'本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query});
-  // 添加附件内容
   if(attachments&&attachments.length>0){
     attachments.forEach(function(att){
       if(att.type==='image'){
         userParts.push({type:'image_url',image_url:{url:att.dataUrl}});
       }else{
-        // 文本文件内容直接拼入
         var fileContent=att.dataUrl;
-        // 如果是data URL格式，提取文本部分
         if(fileContent.indexOf('data:')===0){
           var commaIdx=fileContent.indexOf(',');
           if(commaIdx>0)fileContent=decodeURIComponent(escape(atob(fileContent.substring(commaIdx+1))));
@@ -6609,7 +6650,7 @@ function callAIModel(query,localAnswer,callback,attachments){
     });
   }
   var body=JSON.stringify({
-    model:engine.model,
+    model:model,
     messages:[
       {role:'system',content:systemPrompt},
       {role:'user',content:userParts}
@@ -6618,9 +6659,9 @@ function callAIModel(query,localAnswer,callback,attachments){
     temperature:0.8
   });
   var xhr=new XMLHttpRequest();
-  xhr.open('POST',engine.baseUrl,true);
+  xhr.open('POST',AI_MODELS.baseUrl,true);
   xhr.setRequestHeader('Content-Type','application/json');
-  xhr.setRequestHeader('Authorization','Bearer '+engine.apiKey);
+  xhr.setRequestHeader('Authorization','Bearer '+AI_MODELS.apiKey);
   xhr.timeout=30000;
   xhr.onreadystatechange=function(){
     if(xhr.readyState===4){
@@ -6709,7 +6750,7 @@ function aiSend(){
     /(写一个|写段|写个|编写|帮我写|请写|实现一个|给我写|生成).*(代码|程序|函数|脚本|类|方法|排序|算法)/i.test(q)||
     /^(搜题|做题|解题|这题|这道题|帮我做|帮我解|求答案)/i.test(q)||
     /^(解释|分析|debug|调试|报错|error|bug|运行不了|为什么不对).*(代码|程序|函数|脚本)/i.test(q);
-  if(isCodeQuery && AI_MODELS.glm.apiKey){
+  if(isCodeQuery && AI_MODELS.proxyUrl){
     setTimeout(function(){
       callAIModel(q,null,function(dsText){
         typing.remove();
@@ -6735,7 +6776,7 @@ function aiSend(){
         }else{
           renderAiMsg({answer:'高德地图暂未搜到"'+q+'"的周边结果，你可以点击下方平台直达搜索：',sources:[],isQA:false});
           renderPlatformLinks(q);
-          if(AI_MODELS.glm.apiKey){
+          if(AI_MODELS.proxyUrl){
             var dsTyping2=document.createElement('div');
             dsTyping2.className='ai-typing';
             dsTyping2.id='aiDsTyping';
@@ -6765,7 +6806,7 @@ function aiSend(){
     // 本地有结果就先展示
     renderAiMsg(result);
     // 本地没有强匹配 → 统一走大模型
-    if(!isLocalStrong && AI_MODELS.glm.apiKey){
+    if(!isLocalStrong && AI_MODELS.proxyUrl){
       var dsTyping=document.createElement('div');
       dsTyping.className='ai-typing';
       dsTyping.id='aiDsTyping';
@@ -6780,7 +6821,7 @@ function aiSend(){
         }
         renderPlatformLinks(q);
       });
-    }else if(!hasGoodLocalResult && AI_MODELS.glm.apiKey){
+    }else if(!hasGoodLocalResult && AI_MODELS.proxyUrl){
       // 本地完全无结果 → 统一走大模型
       var dsTyping3=document.createElement('div');
       dsTyping3.className='ai-typing';
