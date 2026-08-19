@@ -865,7 +865,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     </div>
     <div class="ai-welcome" id="aiWelcome">
       <div class="ai-welcome-title">成电AI 智能体</div>
-      <div class="ai-welcome-desc">AI+本地知识库双引擎，更懂成电<br>搜题、写代码、解析文件、校园问答…什么都能问</div>
+      <div class="ai-welcome-desc">多模型智能路由：本地知识库优先检索，AI大模型自动掌底<br>搜题用GLM、做PPT用Kimi、逻辑推理用DeepSeek、建站用TeleAgent、看图用豆包</div>
       <div class="ai-quick-tags" style="margin-top:10px">
         <div class="ai-quick-tag" onclick="aiQuickAsk('帮我搜一道C语言期末题')">📝 搜题</div>
         <div class="ai-quick-tag" onclick="aiQuickAsk('帮我写一个C语言冒泡排序')">💻 写代码</div>
@@ -5908,13 +5908,58 @@ function renderMarkdown(text){
 
 
 
-// 大模型配置（通过本地 TeleAgent 代理服务器访问，解决 CORS 跨域问题）
+// ============ 多模型AI配置 ============
+// 所有模型均支持浏览器直连（已测试CORS允许），无需代理
+// 智能路由：根据用户需求自动选择最强模型
 var AI_MODELS={
-  proxyUrl:'http://localhost:3456/ai',
-  apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
-  baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
-  model:'glm-4-flash',
-  modelV:'glm-4v-flash'
+  // 智谱GLM：通用全能（免费），支持图片多模态
+  glm:{
+    name:'智谱GLM',
+    apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
+    baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+    model:'glm-4-flash',
+    modelV:'glm-4v-flash',
+    maxTokens:1024, // GLM-4V-Flash 上限1024
+    tags:['通用','图片','搜题','附件','多模态','全能']
+  },
+  // DeepSeek（逻辑推理/数学/代码强）
+  deepseek:{
+    name:'DeepSeek',
+    apiKey:'sk-', // 需要用户填写自己的DeepSeek API Key
+    baseUrl:'https://api.deepseek.com/chat/completions',
+    model:'deepseek-chat',
+    maxTokens:2048,
+    tags:['推理','逻辑','数学','分析','深度','复杂','思考']
+  },
+  // Kimi（PPT/长文/创作强）
+  kimi:{
+    name:'Kimi',
+    apiKey:'sk-', // 需要用户填写自己的Kimi API Key
+    baseUrl:'https://api.moonshot.cn/v1/chat/completions',
+    model:'moonshot-v1-8k',
+    maxTokens:2048,
+    tags:['PPT','演示','文案','创作','文章','长文','报告']
+  },
+  // 豆包/火山方舟（图片/视觉/多模态强）
+  doubao:{
+    name:'豆包',
+    apiKey:'', // 需要用户填写自己的火山方舟 API Key
+    baseUrl:'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+    model:'doubao-1.5-vision-pro-32k-250115',
+    maxTokens:2048,
+    tags:['P图','图片','照片','设计','视觉','作图']
+  },
+  // TeleAgent（智能体/建站/自动化强）
+  teleagent:{
+    name:'TeleAgent',
+    apiKey:'',
+    baseUrl:'',
+    model:'',
+    maxTokens:2048,
+    tags:['智能网页','网站','TeleAgent','自动化','智能体','助手','网页']
+  },
+  // 本地代理（TeleAgent后端，可选）
+  proxyUrl:'http://localhost:3456/ai'
 };
 var AI_ENGINE='glm';
 
@@ -6586,55 +6631,85 @@ function buildAiPlatformLinks(query){
   return links;
 }
 
-// 调用大模型（优先本地 TeleAgent 代理，回退直连智谱API）
-function callAIModel(query,localAnswer,callback,attachments){
-  // 先尝试本地代理
-  callAIModelViaProxy(query,localAnswer,callback,attachments,function(){
-    // 代理失败，回退直连智谱API
-    callAIModelDirect(query,localAnswer,callback,attachments);
-  });
-}
+// ============ 多模型智能路由 ============
+// 根据用户需求自动选择最强的AI模型
+// 优先级：本地知识库 → 智能选模 → 通用GLM
 
-// 方式一：通过本地 TeleAgent 代理（支持多模态，无 CORS 问题）
-function callAIModelViaProxy(query,localAnswer,callback,attachments,failCb){
-  var reqBody=JSON.stringify({
-    query:query||'',
-    localAnswer:localAnswer||null,
-    attachments:(attachments||[]).map(function(a){
-      return {name:a.name,type:a.type,dataUrl:a.dataUrl};
-    })
-  });
-  var xhr=new XMLHttpRequest();
-  xhr.open('POST',AI_MODELS.proxyUrl,true);
-  xhr.setRequestHeader('Content-Type','application/json');
-  xhr.timeout=60000;
-  var done=false;
-  xhr.onreadystatechange=function(){
-    if(xhr.readyState===4){
-      if(xhr.status===200){
-        try{
-          var resp=JSON.parse(xhr.responseText);
-          if(resp.success){
-            done=true;
-            callback(resp.text||null);
-          }
-        }catch(e){}
-      }
-      if(!done)failCb();
+// 识别用户需求类型，返回最适合的模型key
+function selectBestModel(query,attachments){
+  // 有图片附件 → 多模态模型（GLM-4V 或 豆包视觉）
+  if(attachments&&attachments.length>0){
+    var hasImg=attachments.some(function(a){return a.type==='image'});
+    if(hasImg){
+      // 豆包视觉更强，有key就用豆包，否则用GLM-4V
+      if(AI_MODELS.doubao.apiKey)return 'doubao';
+      return 'glm';
     }
-  };
-  xhr.onerror=function(){ if(!done)failCb(); };
-  xhr.ontimeout=function(){ if(!done)failCb(); };
-  try{xhr.send(reqBody);}catch(e){ if(!done)failCb(); }
+  }
+  var q=String(query||'').toLowerCase();
+  // 1. 做PPT/演示 → Kimi
+  if(/(ppt|演示文稿|幻灯片|slides|做ppt|做个ppt|演讲稿)/.test(q)){
+    if(AI_MODELS.kimi.apiKey)return 'kimi';
+  }
+  // 2. 逻辑推理/数学/分析 → DeepSeek
+  if(/(推理|逻辑|数学|分析|思考|复杂|证明|算法分析|为什么|原理|深度|规划)/.test(q)){
+    if(AI_MODELS.deepseek.apiKey)return 'deepseek';
+  }
+  // 3. 建站/智能网页/自动化 → TeleAgent
+  if(/(智能网页|网站|建站|自动化|智能体|teleagent|网页制作|做网页|建个网站)/.test(q)){
+    if(modelReady('teleagent'))return 'teleagent';
+  }
+  // 4. P图/设计/视觉 → 豆包
+  if(/(p图|修图|图片|照片|设计|作图|海报|视觉)/.test(q)){
+    if(AI_MODELS.doubao.apiKey)return 'doubao';
+  }
+  // 5. 创作/长文/报告 → Kimi
+  if(/(写.*(文章|文案|故事|小说|剧本)|长文|报告|总结|摘要|作文)/.test(q)){
+    if(AI_MODELS.kimi.apiKey)return 'kimi';
+  }
+  // 默认：GLM通用
+  return 'glm';
 }
 
-// 方式二：直连智谱API（备用，可能受 CORS 限制）
-function callAIModelDirect(query,localAnswer,callback,attachments){
+// 获取模型可用性
+function modelReady(key){
+  var m=AI_MODELS[key];
+  if(!m)return false;
+  if(key==='glm')return !!(m.apiKey&&m.baseUrl);
+  if(key==='teleagent')return !!AI_MODELS.proxyUrl;
+  // 其他模型：必须有真实key（非sk-占位符）
+  return !!(m.apiKey&&m.baseUrl&&m.apiKey.indexOf('sk-')!==0);
+}
+
+// 调用大模型（智能路由）
+function callAIModel(query,localAnswer,callback,attachments){
+  // 智能选择模型
+  var modelKey=selectBestModel(query,attachments);
+  if(!modelReady(modelKey))modelKey='glm';
+  if(modelKey==='glm'&&!modelReady('glm')){callback(null);return;}
+  // 执行调用
+  callModelEngine(modelKey,query,localAnswer,callback,attachments);
+}
+
+// 调用指定模型引擎
+function callModelEngine(modelKey,query,localAnswer,callback,attachments){
+  if(modelKey==='teleagent'){
+    // TeleAgent 通过本地代理（仅本机可用，手机上不可用）
+    callAIModelViaProxy(query,localAnswer,callback,attachments);
+    return;
+  }
+  var engine=AI_MODELS[modelKey];
   var hasImg=attachments&&attachments.length>0&&attachments.some(function(a){return a.type==='image'});
-  var model=hasImg?AI_MODELS.modelV:AI_MODELS.model;
-  var systemPrompt='你是"成电AI"，一个全能型AI助手。用户让你写代码时直接写出完整代码，不要嗘嗦。校园问题优先参考本地知识库。支持Markdown格式输出。';
+  // 图片走多模态模型
+  var model=engine.model;
+  if(hasImg&&engine.modelV)model=engine.modelV;
+  if(hasImg&&modelKey==='glm')model='glm-4v-flash';
+  if(hasImg&&modelKey==='doubao')model=engine.model;
+
+  var systemPrompt='你是"成电AI"，一个全能型AI助手。用户让你写代码时直接写出完整代码，不要啰嗦。校园问题优先参考本地知识库。支持Markdown格式输出。';
   var userParts=[];
   userParts.push({type:'text',text:'本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query});
+  // 添加附件
   if(attachments&&attachments.length>0){
     attachments.forEach(function(att){
       if(att.type==='image'){
@@ -6655,14 +6730,14 @@ function callAIModelDirect(query,localAnswer,callback,attachments){
       {role:'system',content:systemPrompt},
       {role:'user',content:userParts}
     ],
-    max_tokens:2048,
+    max_tokens:engine.maxTokens||2048,
     temperature:0.8
   });
   var xhr=new XMLHttpRequest();
-  xhr.open('POST',AI_MODELS.baseUrl,true);
+  xhr.open('POST',engine.baseUrl,true);
   xhr.setRequestHeader('Content-Type','application/json');
-  xhr.setRequestHeader('Authorization','Bearer '+AI_MODELS.apiKey);
-  xhr.timeout=30000;
+  xhr.setRequestHeader('Authorization','Bearer '+engine.apiKey);
+  xhr.timeout=45000;
   xhr.onreadystatechange=function(){
     if(xhr.readyState===4){
       if(xhr.status===200){
@@ -6671,12 +6746,65 @@ function callAIModelDirect(query,localAnswer,callback,attachments){
           var text=resp.choices&&resp.choices[0]&&resp.choices[0].message?resp.choices[0].message.content:'';
           callback(text||null);
         }catch(e){callback(null);}
-      }else{callback(null);}
+      }else{
+        console.log(modelKey+' API错误:',xhr.status,xhr.responseText.substring(0,200));
+        // 有图片时GLM-4V失败回退豆包，反之亦然
+        if(hasImg&&modelKey==='glm'&&AI_MODELS.doubao.apiKey){
+          callModelEngine('doubao',query,localAnswer,callback,attachments);
+        }else if(hasImg&&modelKey==='doubao'){
+          callModelEngine('glm',query,localAnswer,callback,attachments);
+        }else{
+          callback(null);
+        }
+      }
     }
   };
-  xhr.onerror=function(){callback(null);};
+  xhr.onerror=function(){
+    // 网络错误回退
+    if(hasImg&&modelKey==='glm'&&AI_MODELS.doubao.apiKey){
+      callModelEngine('doubao',query,localAnswer,callback,attachments);
+    }else if(hasImg&&modelKey==='doubao'){
+      callModelEngine('glm',query,localAnswer,callback,attachments);
+    }else{
+      callback(null);
+    }
+  };
   xhr.ontimeout=function(){callback(null);};
   try{xhr.send(body);}catch(e){callback(null);}
+}
+
+// TeleAgent 本地代理调用
+function callAIModelViaProxy(query,localAnswer,callback,attachments){
+  var reqBody=JSON.stringify({
+    query:query||'',
+    localAnswer:localAnswer||null,
+    attachments:(attachments||[]).map(function(a){
+      return {name:a.name,type:a.type,dataUrl:a.dataUrl};
+    })
+  });
+  var xhr=new XMLHttpRequest();
+  xhr.open('POST',AI_MODELS.proxyUrl,true);
+  xhr.setRequestHeader('Content-Type','application/json');
+  xhr.timeout=60000;
+  var done=false;
+  xhr.onreadystatechange=function(){
+    if(xhr.readyState===4){
+      if(xhr.status===200){
+        try{
+          var resp=JSON.parse(xhr.responseText);
+          if(resp.success){
+            done=true;
+            callback(resp.text||null);
+            return;
+          }
+        }catch(e){}
+      }
+      if(!done)callback(null);
+    }
+  };
+  xhr.onerror=function(){ if(!done)callback(null); };
+  xhr.ontimeout=function(){ if(!done)callback(null); };
+  try{xhr.send(reqBody);}catch(e){ if(!done)callback(null); }
 }
 
 function aiSend(){
@@ -6750,7 +6878,7 @@ function aiSend(){
     /(写一个|写段|写个|编写|帮我写|请写|实现一个|给我写|生成).*(代码|程序|函数|脚本|类|方法|排序|算法)/i.test(q)||
     /^(搜题|做题|解题|这题|这道题|帮我做|帮我解|求答案)/i.test(q)||
     /^(解释|分析|debug|调试|报错|error|bug|运行不了|为什么不对).*(代码|程序|函数|脚本)/i.test(q);
-  if(isCodeQuery && AI_MODELS.proxyUrl){
+  if(isCodeQuery && modelReady('glm')){
     setTimeout(function(){
       callAIModel(q,null,function(dsText){
         typing.remove();
@@ -6776,7 +6904,7 @@ function aiSend(){
         }else{
           renderAiMsg({answer:'高德地图暂未搜到"'+q+'"的周边结果，你可以点击下方平台直达搜索：',sources:[],isQA:false});
           renderPlatformLinks(q);
-          if(AI_MODELS.proxyUrl){
+          if(modelReady('glm')){
             var dsTyping2=document.createElement('div');
             dsTyping2.className='ai-typing';
             dsTyping2.id='aiDsTyping';
@@ -6806,7 +6934,7 @@ function aiSend(){
     // 本地有结果就先展示
     renderAiMsg(result);
     // 本地没有强匹配 → 统一走大模型
-    if(!isLocalStrong && AI_MODELS.proxyUrl){
+    if(!isLocalStrong && modelReady('glm')){
       var dsTyping=document.createElement('div');
       dsTyping.className='ai-typing';
       dsTyping.id='aiDsTyping';
@@ -6821,7 +6949,7 @@ function aiSend(){
         }
         renderPlatformLinks(q);
       });
-    }else if(!hasGoodLocalResult && AI_MODELS.proxyUrl){
+    }else if(!hasGoodLocalResult && modelReady('glm')){
       // 本地完全无结果 → 统一走大模型
       var dsTyping3=document.createElement('div');
       dsTyping3.className='ai-typing';
