@@ -865,7 +865,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     </div>
     <div class="ai-welcome" id="aiWelcome">
       <div class="ai-welcome-title">成电AI 智能体</div>
-      <div class="ai-welcome-desc">多模型智能路由：本地知识库优先检索，AI大模型自动掌底<br>搜题用GLM、做PPT用Kimi、逻辑推理用DeepSeek、建站用TeleAgent、看图用豆包</div>
+      <div class="ai-welcome-desc">多模型智能路由：本地知识库优先检索，AI大模型自动掌底<br>搜题/通用用GLM、做PPT用Kimi、逻辑推理用DeepSeek、看图用豆包</div>
       <div class="ai-quick-tags" style="margin-top:10px">
         <div class="ai-quick-tag" onclick="aiQuickAsk('帮我搜一道C语言期末题')">📝 搜题</div>
         <div class="ai-quick-tag" onclick="aiQuickAsk('帮我写一个C语言冒泡排序')">💻 写代码</div>
@@ -5949,17 +5949,15 @@ var AI_MODELS={
     maxTokens:2048,
     tags:['P图','图片','照片','设计','视觉','作图']
   },
-  // TeleAgent（智能体/建站/自动化强）
+  // TeleAgent（智能体/建站/自动化强）——需用户配置后启用
   teleagent:{
     name:'TeleAgent',
     apiKey:'',
     baseUrl:'',
     model:'',
     maxTokens:2048,
-    tags:['智能网页','网站','TeleAgent','自动化','智能体','助手','网页']
-  },
-  // 本地代理（TeleAgent后端，可选）
-  proxyUrl:'http://localhost:3456/ai'
+    tags:['智能网页','网站','建站','自动化','智能体','助手','网页']
+  }
 };
 var AI_ENGINE='glm';
 
@@ -6655,7 +6653,7 @@ function selectBestModel(query,attachments){
   if(/(推理|逻辑|数学|分析|思考|复杂|证明|算法分析|为什么|原理|深度|规划)/.test(q)){
     if(AI_MODELS.deepseek.apiKey)return 'deepseek';
   }
-  // 3. 建站/智能网页/自动化 → TeleAgent
+  // 3. 建站/智能网页/自动化 → TeleAgent（未配置则降级GLM）
   if(/(智能网页|网站|建站|自动化|智能体|teleagent|网页制作|做网页|建个网站)/.test(q)){
     if(modelReady('teleagent'))return 'teleagent';
   }
@@ -6676,8 +6674,7 @@ function modelReady(key){
   var m=AI_MODELS[key];
   if(!m)return false;
   if(key==='glm')return !!(m.apiKey&&m.baseUrl);
-  if(key==='teleagent')return !!AI_MODELS.proxyUrl;
-  // 其他模型：必须有真实key（非sk-占位符）
+  // 其他模型：必须有真实key和baseUrl
   return !!(m.apiKey&&m.baseUrl&&m.apiKey.indexOf('sk-')!==0);
 }
 
@@ -6693,11 +6690,6 @@ function callAIModel(query,localAnswer,callback,attachments){
 
 // 调用指定模型引擎
 function callModelEngine(modelKey,query,localAnswer,callback,attachments){
-  if(modelKey==='teleagent'){
-    // TeleAgent 通过本地代理（仅本机可用，手机上不可用）
-    callAIModelViaProxy(query,localAnswer,callback,attachments);
-    return;
-  }
   var engine=AI_MODELS[modelKey];
   var hasImg=attachments&&attachments.length>0&&attachments.some(function(a){return a.type==='image'});
   // 图片走多模态模型
@@ -6773,39 +6765,6 @@ function callModelEngine(modelKey,query,localAnswer,callback,attachments){
   try{xhr.send(body);}catch(e){callback(null);}
 }
 
-// TeleAgent 本地代理调用
-function callAIModelViaProxy(query,localAnswer,callback,attachments){
-  var reqBody=JSON.stringify({
-    query:query||'',
-    localAnswer:localAnswer||null,
-    attachments:(attachments||[]).map(function(a){
-      return {name:a.name,type:a.type,dataUrl:a.dataUrl};
-    })
-  });
-  var xhr=new XMLHttpRequest();
-  xhr.open('POST',AI_MODELS.proxyUrl,true);
-  xhr.setRequestHeader('Content-Type','application/json');
-  xhr.timeout=60000;
-  var done=false;
-  xhr.onreadystatechange=function(){
-    if(xhr.readyState===4){
-      if(xhr.status===200){
-        try{
-          var resp=JSON.parse(xhr.responseText);
-          if(resp.success){
-            done=true;
-            callback(resp.text||null);
-            return;
-          }
-        }catch(e){}
-      }
-      if(!done)callback(null);
-    }
-  };
-  xhr.onerror=function(){ if(!done)callback(null); };
-  xhr.ontimeout=function(){ if(!done)callback(null); };
-  try{xhr.send(reqBody);}catch(e){ if(!done)callback(null); }
-}
 
 function aiSend(){
   var input=document.getElementById('aiInput');
