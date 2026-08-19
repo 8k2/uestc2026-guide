@@ -6671,15 +6671,17 @@ function callAIModel(query,localAnswer,callback,attachments){
   var hasFile=attachments&&attachments.length>0&&attachments.some(function(a){return a.type!=='image'});
   var engine=hasImg?AI_MODELS.glmv:AI_MODELS.glm;
   if(!engine||!engine.apiKey){callback(null);return;}
-  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的能力包括：\n'+
-    '1. 优先参考本地知识库的答案，如果本地有匹配就直接用\n'+
-    '2. 本地知识库没有答案时，基于你对成电的了解和对通用知识的掌握来回答\n'+
-    '3. 可以回答搜题、编程写代码、解析文件内容等通用问题\n'+
-    '4. 回答要简洁、实用、口语化，可以使用Markdown格式（加粗、列表、代码块、表格等）\n'+
-    '5. 如果不确定，请诚实说明\n'+
-    '6. 如果用户上传了图片，请描述图片内容并回答相关问题\n'+
-    '7. 如果用户上传了代码文件，请分析代码并回答相关问题\n'+
-    '8. 校园相关问题结合电子科技大学清水河校区的实际情况回答';
+  var systemPrompt='你是"成电AI"，一个全能型AI助手，服务于电子科技大学学生。你的能力包括：\n'+
+    '1. 校园问题：报到、宿舍、选课、校园生活等——优先参考本地知识库答案\n'+
+    '2. 编程写代码：C/C++/Python/Java/JS等——直接写出完整代码并解释\n'+
+    '3. 搜题做题：如果用户发题目图片或文字，直接给出答案和解析\n'+
+    '4. 文件解析：分析用户上传的代码文件、文本文件并回答相关问题\n'+
+    '5. 图片理解：描述用户上传的图片内容并回答相关问题\n'+
+    '6. 通用问答：天气、新闻、翻译、写作、数学等任何问题都能回答\n'+
+    '7. 回答使用Markdown格式，代码用```包裹，支持加粗、列表、表格\n'+
+    '8. 回答要详细、准确、有条理，不要过度简短\n'+
+    '9. 如果用户问编程题，直接给出完整代码，不要说"我可以帮你"然后不写\n'+
+    '10. 校园相关问题结合电子科技大学清水河校区的实际情况回答';
   // 构建user message content
   var userParts=[];
   userParts.push({type:'text',text:'本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query});
@@ -6706,8 +6708,8 @@ function callAIModel(query,localAnswer,callback,attachments){
       {role:'system',content:systemPrompt},
       {role:'user',content:userParts}
     ],
-    max_tokens:1024,
-    temperature:0.7
+    max_tokens:2048,
+    temperature:0.8
   });
   var xhr=new XMLHttpRequest();
   xhr.open('POST',engine.baseUrl,true);
@@ -6792,6 +6794,26 @@ function aiSend(){
     setTimeout(function(){
       typing.remove();
       renderAiMsg(campusNetAnswer(q));
+    },400);
+    return;
+  }
+
+  // 1.5 编程/代码/搜题/做题类问题 → 直接走大模型，跳过本地知识库
+  var isCodeQuery=/^(写|帮我写|用|请用|编写|实现|怎么写|如何写).*(代码|程序|函数|排序|算法|代码|python|c语言|c\+\+|java|javascript|js|html|css|sql|递归|链表|栈|队列|树|图|二叉|冒泡|快排|归并|查找|动态规划|贪心|回溯| bfs|dfs)/i.test(q)||
+    /(写一个|写段|写个|编写|帮我写|请写|实现一个|给我写|生成).*(代码|程序|函数|脚本|类|方法|排序|算法)/i.test(q)||
+    /^(搜题|做题|解题|这题|这道题|帮我做|帮我解|求答案)/i.test(q)||
+    /^(解释|分析|debug|调试|报错|error|bug|运行不了|为什么不对).*(代码|程序|函数|脚本)/i.test(q);
+  if(isCodeQuery && AI_MODELS.glm.apiKey){
+    setTimeout(function(){
+      callAIModel(q,null,function(dsText){
+        typing.remove();
+        if(dsText){
+          renderAiMsg({answer:dsText,sources:['AI大模型(联网)'],isQA:false});
+        }else{
+          renderAiMsg({answer:'抱歉，AI回复超时，请重试。',sources:[],isQA:false});
+        }
+        renderPlatformLinks(q);
+      });
     },400);
     return;
   }
