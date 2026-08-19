@@ -32,8 +32,8 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .tabbar-icon{font-size:22px;line-height:1}
 .tabbar-label{font-size:10px}
 
-/* === 首页英雄区（含背景视频） === */
-.hero{text-align:center;padding:40px 20px 24px;position:relative;overflow:hidden;min-height:320px}
+/* === 首页英雄区（含背景视频，多级兜底确保背景图不丢） === */
+.hero{text-align:center;padding:40px 20px 24px;position:relative;overflow:hidden;min-height:320px;background:linear-gradient(135deg,#D6E8F7,#B8D0EC,#A0C8E8,#B8D0EC,#D6E8F7)}
 .hero-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.75;z-index:0;display:block}
 .hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(135deg,#D6E8F7,#B8D0EC,#B8D0EC,#B8D0EC,#D6E8F7);background-size:400% 400%;animation:heroBgFlow 12s ease-in-out infinite}
 @keyframes heroBgFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
@@ -495,8 +495,8 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="hero-bg"></div>
-    <video class="hero-video" id="heroVideo" autoplay loop playsinline webkit-playsinline muted>
-      <source src="bg_video.mp4" type="video/mp4">
+    <video class="hero-video" id="heroVideo" autoplay loop playsinline webkit-playsinline muted poster="https://8k2.github.io/uestc2026-guide/uestc_badge.jpg">
+      <source src="https://8k2.github.io/uestc2026-guide/bg_video.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -7367,16 +7367,18 @@ panel.addEventListener('touchend',function(e){
   swipeStarted=false;
 },{passive:true});
 
-// === 背景视频：移动端兜底播放 + 音量控制 ===
+// === 背景视频：移动端兜底播放 + 加载失败保底 + 音量控制 ===
 (function(){
   const v=document.getElementById('heroVideo');
   var volBtn=document.getElementById('heroVol');
   var soundOn=false;
-  // 移动端兜底：首次触摸触发播放
   v.style.display='block';
+  // 视频加载失败时隐藏video，露出CSS渐变背景
+  v.addEventListener('error',function(){v.style.display='none';},true);
+  // 移动端兜底：首次触摸触发播放
   v.play().catch(function(){
-    document.addEventListener('touchstart',function(){v.play();},{once:true});
-    document.addEventListener('click',function(){v.play();},{once:true});
+    document.addEventListener('touchstart',function(){v.play().catch(function(){});},{once:true});
+    document.addEventListener('click',function(){v.play().catch(function(){});},{once:true});
   });
   // 音量控制
   window.toggleVol=function(){
@@ -7391,7 +7393,6 @@ panel.addEventListener('touchend',function(e){
       soundOn=true;
       volBtn.textContent='🔊';
       volBtn.classList.remove('off');
-      // 某些浏览器需要用户交互后才能播放带声音的视频
       if(v.paused){v.play().catch(function(){});}
     }
   };
