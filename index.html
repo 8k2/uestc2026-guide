@@ -34,12 +34,12 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 
 /* === 首页英雄区（含背景视频） === */
 .hero{text-align:center;padding:40px 20px 24px;position:relative;overflow:hidden;min-height:320px}
-.hero-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.6;z-index:0;display:block}
+.hero-video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.75;z-index:0;display:block}
 .hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(135deg,#D6E8F7,#B8D0EC,#B8D0EC,#B8D0EC,#D6E8F7);background-size:400% 400%;animation:heroBgFlow 12s ease-in-out infinite}
 @keyframes heroBgFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 .hero-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 40%,rgba(0,128,255,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(0,128,255,0.06) 0%,transparent 50%);animation:heroGlow 8s ease-in-out infinite alternate;z-index:0}
 @keyframes heroGlow{from{transform:rotate(0deg) scale(1)}to{transform:rotate(180deg) scale(1.1)}}
-.hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(200,225,245,0.15) 0%,rgba(200,225,245,0.65) 100%);z-index:1}
+.hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(214,232,247,0.1) 0%,rgba(214,232,247,0.35) 100%);z-index:1}
 .hero-content{position:relative;z-index:2}
 .hero-logo{font-size:52px;margin-bottom:8px}
 .hero-title{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--gold2),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px}
@@ -482,6 +482,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
+      <img src="https://8k2.github.io/uestc2026-guide/uestc_badge.jpg" alt="成电校徽" style="width:64px;height:64px;border-radius:50%;border:2px solid rgba(0,128,255,0.3);box-shadow:0 4px 16px rgba(0,128,255,0.15);margin-bottom:6px">
       <div style="display:flex;align-items:center;justify-content:center;gap:8px">
         <div class="hero-title">成电圈主全能版</div>
         <div class="hero-logo" style="font-size:36px;margin:0">🎓</div>
