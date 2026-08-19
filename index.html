@@ -244,12 +244,30 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .ai-welcome-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .ai-welcome-tag{padding:8px 16px;background:rgba(0,128,255,0.08);border:1px solid rgba(0,128,255,0.12);border-radius:20px;font-size:13px;color:var(--gold);cursor:pointer;transition:all .2s}
 .ai-welcome-tag:active{background:rgba(0,128,255,0.15);transform:scale(.95)}
-.ai-input-bar{display:flex;gap:8px;padding:8px 16px;background:rgba(200,225,245,0.95);border-top:1px solid rgba(0,128,255,0.08);position:absolute;bottom:0;left:0;right:0;z-index:10;align-items:flex-end}
+.ai-input-bar{display:flex;gap:8px;padding:8px 12px;background:rgba(200,225,245,0.95);border-top:1px solid rgba(0,128,255,0.08);position:absolute;bottom:0;left:0;right:0;z-index:10;align-items:flex-end}
 .ai-input-field{flex:1;padding:10px 14px;background:rgba(13,42,74,0.75);border:1px solid rgba(0,128,255,0.15);border-radius:12px;color:var(--text);font-size:14px;outline:none;resize:none;max-height:80px;line-height:1.5}
 .ai-input-field:focus{border-color:rgba(0,128,255,0.3)}
+.ai-attach-btn{width:36px;height:36px;flex-shrink:0;border-radius:10px;background:rgba(0,128,255,0.1);border:1px solid rgba(0,128,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:var(--gold);transition:all .2s}
+.ai-attach-btn:active{transform:scale(.9)}
+.ai-attach-preview{display:flex;flex-wrap:wrap;gap:6px;padding:6px 12px 0;background:rgba(200,225,245,0.95);position:relative;z-index:10}
+.ai-attach-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;background:rgba(0,128,255,0.1);border:1px solid rgba(0,128,255,0.2);border-radius:8px;font-size:11px;color:var(--gold);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai-attach-chip .remove{cursor:pointer;opacity:0.6;font-size:14px;margin-left:2px}
+.ai-attach-chip .remove:active{opacity:1}
+.ai-attach-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid rgba(0,128,255,0.2);position:relative}
 .ai-send-btn{width:42px;height:42px;flex-shrink:0;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;color:#D6E8F7;font-weight:700;transition:all .2s}
 .ai-send-btn:active{transform:scale(.9)}
 .ai-send-btn.disabled{opacity:0.4;pointer-events:none}
+.ai-msg.bot pre{background:rgba(13,42,74,0.06);border:1px solid rgba(0,128,255,0.1);border-radius:8px;padding:10px 12px;overflow-x:auto;font-size:12px;line-height:1.5;margin:8px 0;font-family:'Courier New',monospace}
+.ai-msg.bot code{background:rgba(0,128,255,0.08);padding:1px 4px;border-radius:4px;font-size:13px;font-family:'Courier New',monospace}
+.ai-msg.bot pre code{background:none;padding:0}
+.ai-msg.bot table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px}
+.ai-msg.bot th,.ai-msg.bot td{border:1px solid rgba(0,128,255,0.15);padding:6px 8px;text-align:left}
+.ai-msg.bot th{background:rgba(0,128,255,0.06);font-weight:600;color:var(--gold)}
+.ai-msg.bot blockquote{border-left:3px solid var(--gold);padding-left:10px;margin:6px 0;color:var(--text2);font-size:13px}
+.ai-msg.bot img{max-width:100%;border-radius:8px;margin:6px 0}
+.ai-quick-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 16px 12px}
+.ai-quick-tag{padding:6px 14px;background:rgba(0,128,255,0.08);border:1px solid rgba(0,128,255,0.12);border-radius:16px;font-size:12px;color:var(--gold);cursor:pointer;transition:all .2s}
+.ai-quick-tag:active{background:rgba(0,128,255,0.15);transform:scale(.95)}
 
 /* === 外部链接卡片 === */
 .link-card{display:flex;align-items:center;gap:10px;padding:12px 14px;margin:6px 16px;background:var(--card);border:1px solid rgba(0,180,220,0.1);border-radius:12px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
@@ -847,11 +865,22 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     </div>
     <div class="ai-welcome" id="aiWelcome">
       <div class="ai-welcome-title">成电AI 智能体</div>
-      <div class="ai-welcome-desc">基于本指南全部内容+大模型联网搜索，实时一问一答<br>报到、宿舍、选课、校园生活…什么都能问<br>AI+本地知识库双引擎，更懂成电</div>
+      <div class="ai-welcome-desc">AI+本地知识库双引擎，更懂成电<br>搜题、写代码、解析文件、校园问答…什么都能问</div>
+      <div class="ai-quick-tags" style="margin-top:10px">
+        <div class="ai-quick-tag" onclick="aiQuickAsk('帮我搜一道C语言期末题')">📝 搜题</div>
+        <div class="ai-quick-tag" onclick="aiQuickAsk('帮我写一个C语言冒泡排序')">💻 写代码</div>
+        <div class="ai-quick-tag" onclick="aiQuickAsk('新生报到需要带什么？')">🎒 新生报到</div>
+        <div class="ai-quick-tag" onclick="aiQuickAsk('宿舍条件怎么样？')">🏠 宿舍</div>
+        <div class="ai-quick-tag" onclick="aiQuickAsk('选课有什么技巧？')">📚 选课</div>
+        <div class="ai-quick-tag" onclick="aiQuickAsk('食堂哪个最好吃？')">🍜 食堂</div>
+      </div>
     </div>
   </div>
+  <div class="ai-attach-preview" id="aiAttachPreview" style="display:none"></div>
   <div class="ai-input-bar" id="aiInputBar" style="display:none">
-    <textarea class="ai-input-field" id="aiInput" placeholder="问点什么…  回车发送" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea>
+    <div class="ai-attach-btn" onclick="document.getElementById('aiFileInput').click()">📎</div>
+    <input type="file" id="aiFileInput" style="display:none" accept="image/*,.txt,.md,.c,.cpp,.py,.java,.js,.html,.css,.json,.csv" onchange="aiHandleFile(this.files)">
+    <textarea class="ai-input-field" id="aiInput" placeholder="问点什么… 回车发送，📎可上传图片/文件" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}" oninput="autoResize(this)"></textarea>
     <div class="ai-send-btn" id="aiSendBtn" onclick="aiSend()">➤</div>
   </div>
   <div class="nearby-section" id="nearbySection">
@@ -5758,15 +5787,218 @@ function aiQuickAsk(q){
   aiSend();
 }
 
-// 大模型配置（智谱GLM-4-Flash，完全免费）
+// textarea自动增高
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,80)+'px';
+}
+
+// AI附件处理
+function aiHandleFile(files){
+  if(!files||!files.length)return;
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    if(f.size>2*1024*1024){
+      alert(f.name+' 超过2MB限制，请压缩后再上传');
+      continue;
+    }
+    var isImg=f.type.indexOf('image/')===0;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var dataUrl=e.target.result;
+      var attach={name:f.name,type:isImg?'image':'file',dataUrl:dataUrl,size:f.size};
+      aiAttachments.push(attach);
+      renderAttachPreview();
+    };
+    reader.readAsDataURL(f);
+  }
+  document.getElementById('aiFileInput').value='';
+}
+
+function renderAttachPreview(){
+  var box=document.getElementById('aiAttachPreview');
+  if(aiAttachments.length===0){box.style.display='none';return;}
+  box.style.display='flex';
+  var html='';
+  aiAttachments.forEach(function(att,idx){
+    if(att.type==='image'){
+      html+='<div style="position:relative">';
+      html+='<img class="ai-attach-thumb" src="'+att.dataUrl+'" alt="'+att.name+'">';
+      html+='<span class="remove" style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:rgba(255,70,70,0.85);border-radius:50%;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="aiRemoveAttach('+idx+')">✕</span>';
+      html+='</div>';
+    }else{
+      html+='<div class="ai-attach-chip">📄 '+att.name;
+      html+='<span class="remove" onclick="aiRemoveAttach('+idx+')">✕</span></div>';
+    }
+  });
+  box.innerHTML=html;
+}
+
+function aiRemoveAttach(idx){
+  aiAttachments.splice(idx,1);
+  renderAttachPreview();
+}
+
+// 简易Markdown渲染
+function renderMarkdown(text){
+  if(!text)return'';
+  var html=String(text);
+  html=html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // 代码块 ```lang\ncode```
+  html=html.replace(/```(\w*)\n?([\s\S]*?)```/g,function(m,lang,code){
+    return '<pre><code>'+code.replace(/\n$/,'')+'</code></pre>';
+  });
+  // 行内代码 `code`
+  html=html.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // 表格
+  if(html.indexOf('|---')>=0||html.indexOf('|:--')>=0||html.indexOf('|--:')>=0){
+    var lines=html.split('\n');
+    var tableHtml='';
+    var inTable=false;
+    for(var i=0;i<lines.length;i++){
+      var line=lines[i].trim();
+      if(line.indexOf('|')===0&&line.indexOf('|',1)>0){
+        var cells=line.split('|');
+        cells=cells.slice(1,cells.length-1);
+        if(line.indexOf('---')>=0||line.indexOf(':--')>=0){
+          continue; // 分隔行跳过
+        }
+        if(!inTable){tableHtml+='<table>';inTable=true;}
+        var tag=tableHtml==='<table>'?'th':'td';
+        tableHtml+='<tr>';
+        cells.forEach(function(c){tableHtml+='<'+tag+'>'+c.trim()+'</'+tag+'>';});
+        tableHtml+='</tr>';
+      }else{
+        if(inTable){tableHtml+='</table>';inTable=false;tableHtml='';}
+      }
+    }
+    if(inTable)tableHtml+='</table>';
+  }
+  // 加粗 **text**
+  html=html.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
+  // 标题
+  html=html.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  html=html.replace(/^## (.+)$/gm,'<h3>$1</h3>');
+  html=html.replace(/^# (.+)$/gm,'<h3>$1</h3>');
+  // 引用
+  html=html.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  // 无序列表
+  html=html.replace(/^- (.+)$/gm,'<li style="margin:2px 0;list-style:none;padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">•</span>$1</li>');
+  // 有序列表
+  html=html.replace(/^\d+\. (.+)$/gm,'<li style="margin:2px 0;list-style:none;padding-left:20px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">$&</span></li>');
+  // 换行
+  html=html.replace(/\n/g,'<br>');
+  // 清理pre/code内的br
+  html=html.replace(/<pre>([\s\S]*?)<\/pre>/g,function(m,c){
+    return '<pre>'+c.replace(/<br>/g,'\n').replace(/&lt;/g,'<').replace(/&gt;/g,'>')+'</pre>';
+  });
+  return html;
+}
+
+// textarea自动高度
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,80)+'px';
+}
+
+// AI附件处理
+function aiHandleFile(files){
+  if(!files||files.length===0)return;
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    if(f.size>4*1024*1024){
+      alert(f.name+' 超过4MB，请压缩后再上传');
+      continue;
+    }
+    var reader=new FileReader();
+    reader.onload=(function(file){
+      return function(e){
+        var isImg=file.type.indexOf('image')>=0;
+        aiAttachments.push({
+          name:file.name,
+          type:file.type,
+          size:file.size,
+          data:e.target.result,
+          isImg:isImg
+        });
+        aiRenderAttachments();
+      };
+    })(f);
+    if(f.type.indexOf('image')>=0){
+      reader.readAsDataURL(f);
+    }else{
+      reader.readAsText(f);
+    }
+  }
+  document.getElementById('aiFileInput').value='';
+}
+
+function aiRenderAttachments(){
+  var box=document.getElementById('aiAttachPreview');
+  if(aiAttachments.length===0){box.style.display='none';return;}
+  box.style.display='flex';
+  var html='';
+  aiAttachments.forEach(function(att,idx){
+    if(att.isImg){
+      html+='<div style="position:relative"><img class="ai-attach-thumb" src="'+att.data+'"><span class="remove" style="position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,0.6);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer" onclick="aiRemoveAttach('+idx+')">✕</span></div>';
+    }else{
+      html+='<div class="ai-attach-chip">📄 '+att.name+'<span class="remove" onclick="aiRemoveAttach('+idx+')">✕</span></div>';
+    }
+  });
+  box.innerHTML=html;
+}
+
+function aiRemoveAttach(idx){
+  aiAttachments.splice(idx,1);
+  aiRenderAttachments();
+}
+
+// 简易Markdown→HTML渲染
+function aiMarkdown(md){
+  if(!md)return '';
+  var html=md;
+  // 代码块
+  html=html.replace(/```([\s\S]*?)```/g,function(m,p1){
+    return '<pre><code>'+p1.replace(/^\n/,'').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre>';
+  });
+  // 行内代码
+  html=html.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // 加粗
+  html=html.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
+  // 标题
+  html=html.replace(/^### (.+)$/gm,'<h3 style="font-size:14px;color:var(--gold);margin:8px 0 4px">$1</h3>');
+  html=html.replace(/^## (.+)$/gm,'<h3 style="font-size:15px;color:var(--gold);margin:8px 0 4px">$1</h3>');
+  // 引用
+  html=html.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  // 无序列表
+  html=html.replace(/^- (.+)$/gm,'<li style="margin:3px 0;list-style:none;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">•</span>$1</li>');
+  // 有序列表
+  html=html.replace(/^\d+\. (.+)$/gm,'<li style="margin:3px 0;list-style:none;padding-left:20px">$1</li>');
+  // 段落
+  html=html.split('\n\n').map(function(p){
+    if(p.indexOf('<')===0)return p;
+    return '<p style="font-size:13px;line-height:1.7;margin:4px 0;color:rgba(13,42,74,0.85)">'+p.replace(/\n/g,'<br>')+'</p>';
+  }).join('');
+  return html;
+}
+
+// 大模型配置（智谱GLM-4-Flash + GLM-4V，完全免费）
 var AI_MODELS={
   glm:{
     apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
     baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
     model:'glm-4-flash'
+  },
+  glmv:{
+    apiKey:'e855920125564ba4aea2c8685c6c8e90.6AA9IudpMNVVCgKr',
+    baseUrl:'https://open.bigmodel.cn/api/paas/v4/chat/completions',
+    model:'glm-4v-flash'
   }
 };
 var AI_ENGINE='glm';
+
+// AI附件管理
+var aiAttachments=[];
 
 // 高德地图周边搜索配置
 var AMAP_CONFIG={
@@ -6433,26 +6665,55 @@ function buildAiPlatformLinks(query){
   return links;
 }
 
-// 调用大模型
-function callAIModel(query,localAnswer,callback){
-  var engine=AI_MODELS[AI_ENGINE];
+// 调用大模型（支持多模态图片+文本文件）
+function callAIModel(query,localAnswer,callback,attachments){
+  var hasImg=attachments&&attachments.length>0&&attachments.some(function(a){return a.type==='image'});
+  var hasFile=attachments&&attachments.length>0&&attachments.some(function(a){return a.type!=='image'});
+  var engine=hasImg?AI_MODELS.glmv:AI_MODELS.glm;
   if(!engine||!engine.apiKey){callback(null);return;}
-  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的回答应该：\n1. 优先参考本地知识库的答案\n2. 如果本地知识库没有答案或答案不完整，你可以基于对成电的了解补充回答\n3. 回答要简洁、实用、口语化\n4. 如果不确定，请诚实说明\n5. 回答格式用纯文本，不要用markdown\n6. 如果用户问的是周边/附近/吃喝玩乐等生活问题，请结合你对成都高新西区/郫都区的了解推荐';
-  var userContent='本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query;
+  var systemPrompt='你是电子科技大学（成电）清水河校区的新生入学指南AI助手"成电AI"。你的能力包括：\n'+
+    '1. 优先参考本地知识库的答案，如果本地有匹配就直接用\n'+
+    '2. 本地知识库没有答案时，基于你对成电的了解和对通用知识的掌握来回答\n'+
+    '3. 可以回答搜题、编程写代码、解析文件内容等通用问题\n'+
+    '4. 回答要简洁、实用、口语化，可以使用Markdown格式（加粗、列表、代码块、表格等）\n'+
+    '5. 如果不确定，请诚实说明\n'+
+    '6. 如果用户上传了图片，请描述图片内容并回答相关问题\n'+
+    '7. 如果用户上传了代码文件，请分析代码并回答相关问题\n'+
+    '8. 校园相关问题结合电子科技大学清水河校区的实际情况回答';
+  // 构建user message content
+  var userParts=[];
+  userParts.push({type:'text',text:'本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query});
+  // 添加附件内容
+  if(attachments&&attachments.length>0){
+    attachments.forEach(function(att){
+      if(att.type==='image'){
+        userParts.push({type:'image_url',image_url:{url:att.dataUrl}});
+      }else{
+        // 文本文件内容直接拼入
+        var fileContent=att.dataUrl;
+        // 如果是data URL格式，提取文本部分
+        if(fileContent.indexOf('data:')===0){
+          var commaIdx=fileContent.indexOf(',');
+          if(commaIdx>0)fileContent=decodeURIComponent(escape(atob(fileContent.substring(commaIdx+1))));
+        }
+        userParts.push({type:'text',text:'附件 '+att.name+' 内容：\n'+fileContent.substring(0,2000)});
+      }
+    });
+  }
   var body=JSON.stringify({
     model:engine.model,
     messages:[
       {role:'system',content:systemPrompt},
-      {role:'user',content:userContent}
+      {role:'user',content:userParts}
     ],
-    max_tokens:512,
+    max_tokens:1024,
     temperature:0.7
   });
   var xhr=new XMLHttpRequest();
   xhr.open('POST',engine.baseUrl,true);
   xhr.setRequestHeader('Content-Type','application/json');
   xhr.setRequestHeader('Authorization','Bearer '+engine.apiKey);
-  xhr.timeout=15000;
+  xhr.timeout=30000;
   xhr.onreadystatechange=function(){
     if(xhr.readyState===4){
       if(xhr.status===200){
@@ -6472,18 +6733,36 @@ function callAIModel(query,localAnswer,callback){
 function aiSend(){
   var input=document.getElementById('aiInput');
   var q=input.value.trim();
-  if(!q)return;
+  if(!q&&aiAttachments.length===0)return;
   input.value='';
   input.style.height='auto';
   var chat=document.getElementById('aiChat');
   // 隐藏欢迎页
   var welcome=document.getElementById('aiWelcome');
   if(welcome)welcome.style.display='none';
-  // 添加用户消息
+  // 添加用户消息（含附件预览）
   var userMsg=document.createElement('div');
   userMsg.className='ai-msg user';
-  userMsg.textContent=q;
+  var userHtml='';
+  if(q)userHtml+='<div>'+q+'</div>';
+  // 显示附件预览
+  if(aiAttachments.length>0){
+    userHtml+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">';
+    aiAttachments.forEach(function(att){
+      if(att.type==='image'){
+        userHtml+='<img src="'+att.dataUrl+'" style="width:50px;height:50px;border-radius:6px;object-fit:cover">';
+      }else{
+        userHtml+='<div style="padding:3px 8px;background:rgba(255,255,255,0.15);border-radius:6px;font-size:11px">📄 '+att.name+'</div>';
+      }
+    });
+    userHtml+='</div>';
+  }
+  userMsg.innerHTML=userHtml;
   chat.appendChild(userMsg);
+  // 保存附件副本并清空
+  var currentAttachments=aiAttachments.slice();
+  aiAttachments=[];
+  renderAttachPreview();
   // 添加typing动画
   var typing=document.createElement('div');
   typing.className='ai-typing';
@@ -6491,6 +6770,22 @@ function aiSend(){
   typing.innerHTML='<span></span><span></span><span></span>';
   chat.appendChild(typing);
   chat.scrollTop=chat.scrollHeight;
+
+  // 有附件时直接走大模型
+  if(currentAttachments.length>0){
+    setTimeout(function(){
+      typing.remove();
+      callAIModel(q||'请分析上传的内容',null,function(dsText){
+        if(dsText){
+          renderAiMsg({answer:dsText,sources:['AI大模型(多模态)'],isQA:false});
+        }else{
+          renderAiMsg({answer:'抱歉，AI处理附件时出了点问题，请重试。',sources:[],isQA:false});
+        }
+        renderPlatformLinks(q);
+      },currentAttachments);
+    },400);
+    return;
+  }
 
   // 1. 校园网/校园卡关键词拦截
   if(isCampusNetQuery(q)){
@@ -6505,14 +6800,11 @@ function aiSend(){
   if(isNearbyQuery(q)){
     setTimeout(function(){
       typing.remove();
-      // 先调用高德地图
       searchAmapNearby(q,function(amapResult){
         if(amapResult.success&&amapResult.pois.length>0){
-          // 高德有结果：卡片式渲染（含图片+完整信息）
           renderAiMsg({answer:'',sources:[],isQA:false,isAmap:true,amapPois:amapResult.pois,amapKeyword:amapResult.keyword});
           renderPlatformLinks(q);
         }else{
-          // 高德无结果：先展示平台搜索链接，同时走大模型尝试回答
           renderAiMsg({answer:'高德地图暂未搜到"'+q+'"的周边结果，你可以点击下方平台直达搜索：',sources:[],isQA:false});
           renderPlatformLinks(q);
           if(AI_MODELS.glm.apiKey){
@@ -6544,7 +6836,7 @@ function aiSend(){
     var hasGoodLocalResult=result.sources.length>0;
     // 本地有结果就先展示
     renderAiMsg(result);
-    // 无论本地强弱，只要没有强匹配就调大模型补充
+    // 本地没有强匹配 → 统一走大模型
     if(!isLocalStrong && AI_MODELS.glm.apiKey){
       var dsTyping=document.createElement('div');
       dsTyping.className='ai-typing';
@@ -6561,7 +6853,7 @@ function aiSend(){
         renderPlatformLinks(q);
       });
     }else if(!hasGoodLocalResult && AI_MODELS.glm.apiKey){
-      // 本地完全无结果，调大模型
+      // 本地完全无结果 → 统一走大模型
       var dsTyping3=document.createElement('div');
       dsTyping3.className='ai-typing';
       dsTyping3.id='aiDsTyping';
@@ -6635,34 +6927,39 @@ function renderAiMsg(result){
     });
     // 来源标签已移除
   }else{
-    // 普通回答渲染
-    var lines=result.answer.split('\n');
-    lines.forEach(function(line){
-      // 解析Markdown加粗语法 **text** → <strong>text</strong>
-      line=line.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
-      // 清除残留单星号
-      line=line.replace(/\*(.*?)\*/g,'$1');
-      if(line.startsWith('【')){
-        var tagText=line.replace(/[【】]/g,'');
-        if(tagText.indexOf('学长学姐问答')>=0){
-          html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,128,255,0.15),rgba(64,160,255,0.08));border:1px solid rgba(0,128,255,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
-        }else if(tagText.indexOf('高德地图')>=0){
-          html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,180,100,0.15),rgba(0,150,80,0.08));border:1px solid rgba(0,180,100,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:#00852a;">🗺️ '+tagText+'</div>';
+    // 普通回答渲染——判断是否为AI大模型回复（支持Markdown）
+    var isAIReply=result.sources.some(function(s){return s.indexOf('AI大模型')>=0||s.indexOf('多模态')>=0;});
+    if(isAIReply){
+      // AI大模型回复：使用Markdown渲染
+      html+=renderMarkdown(result.answer);
+    }else{
+      // 本地知识库回复：保持原有格式
+      var lines=result.answer.split('\n');
+      lines.forEach(function(line){
+        line=line.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
+        line=line.replace(/\*(.*?)\*/g,'$1');
+        if(line.startsWith('【')){
+          var tagText=line.replace(/[【】]/g,'');
+          if(tagText.indexOf('学长学姐问答')>=0){
+            html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,128,255,0.15),rgba(64,160,255,0.08));border:1px solid rgba(0,128,255,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:var(--gold);">'+tagText+'</div>';
+          }else if(tagText.indexOf('高德地图')>=0){
+            html+='<div style="display:inline-block;background:linear-gradient(135deg,rgba(0,180,100,0.15),rgba(0,150,80,0.08));border:1px solid rgba(0,180,100,0.3);border-radius:12px;padding:4px 10px;margin:6px 0 4px;font-size:12px;color:#00852a;">🗺️ '+tagText+'</div>';
+          }else{
+            html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+          }
+        }else if(line.startsWith('❓')){
+          html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
+        }else if(line.startsWith('💡')){
+          html+='<div style="font-size:13px;color:rgba(13,42,74,0.88);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(0,128,255,0.06);border-radius:8px">'+line.replace('💡 ','')+'</div>';
+        }else if(line.startsWith('👤')){
+          html+='<div style="font-size:11px;color:rgba(0,128,255,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
+        }else if(line.trim()===''){
+          // skip empty
         }else{
-          html+='<h3 style="font-size:13px;color:var(--gold);margin:8px 0 4px;opacity:0.8;font-weight:600">'+tagText+'</h3>';
+          html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(13,42,74,0.85)">'+line+'</p>';
         }
-      }else if(line.startsWith('❓')){
-        html+='<div style="font-size:14px;color:#fff;font-weight:600;margin:6px 0 2px;line-height:1.5">'+line.replace('❓ ','')+'</div>';
-      }else if(line.startsWith('💡')){
-        html+='<div style="font-size:13px;color:rgba(13,42,74,0.88);line-height:1.7;margin:2px 0;padding:6px 10px;background:rgba(0,128,255,0.06);border-radius:8px">'+line.replace('💡 ','')+'</div>';
-      }else if(line.startsWith('👤')){
-        html+='<div style="font-size:11px;color:rgba(0,128,255,0.6);margin:2px 0 6px">'+line.replace('👤 ','')+'</div>';
-      }else if(line.trim()===''){
-        // skip empty
-      }else{
-        html+='<p style="font-size:13px;line-height:1.6;margin:3px 0;color:rgba(13,42,74,0.85)">'+line+'</p>';
-      }
-    });
+      });
+    }
     if(result.sources.length>0){
       html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(13,42,74,0.5)">📎 来源：'+result.sources.map(function(s){
         if(s==='成电频道'){
@@ -6670,6 +6967,9 @@ function renderAiMsg(result){
         }
         if(s==='AI大模型(联网)'){
           return '<span style="color:var(--gold)">AI大模型(联网)</span>';
+        }
+        if(s==='AI大模型(多模态)'){
+          return '<span style="color:var(--gold)">AI大模型(多模态)</span>';
         }
         if(s==='高德地图'){
           return '<span style="color:#00852a">高德地图</span>';
