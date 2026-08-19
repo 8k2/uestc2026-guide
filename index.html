@@ -880,7 +880,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
   <div class="ai-input-bar" id="aiInputBar" style="display:none">
     <div class="ai-attach-btn" onclick="document.getElementById('aiFileInput').click()">📎</div>
     <input type="file" id="aiFileInput" style="display:none" accept="image/*,.txt,.md,.c,.cpp,.py,.java,.js,.html,.css,.json,.csv" onchange="aiHandleFile(this.files)">
-    <textarea class="ai-input-field" id="aiInput" placeholder="问点什么… 回车发送，📎可上传图片/文件" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}" oninput="autoResize(this)"></textarea>
+    <textarea class="ai-input-field" id="aiInput" placeholder="泥电大池塘，你大胆说" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}" oninput="autoResize(this)"></textarea>
     <div class="ai-send-btn" id="aiSendBtn" onclick="aiSend()">➤</div>
   </div>
   <div class="nearby-section" id="nearbySection">
@@ -5896,92 +5896,7 @@ function renderMarkdown(text){
   return html;
 }
 
-// textarea自动高度
-function autoResize(el){
-  el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight,80)+'px';
-}
 
-// AI附件处理
-function aiHandleFile(files){
-  if(!files||files.length===0)return;
-  for(var i=0;i<files.length;i++){
-    var f=files[i];
-    if(f.size>4*1024*1024){
-      alert(f.name+' 超过4MB，请压缩后再上传');
-      continue;
-    }
-    var reader=new FileReader();
-    reader.onload=(function(file){
-      return function(e){
-        var isImg=file.type.indexOf('image')>=0;
-        aiAttachments.push({
-          name:file.name,
-          type:file.type,
-          size:file.size,
-          data:e.target.result,
-          isImg:isImg
-        });
-        aiRenderAttachments();
-      };
-    })(f);
-    if(f.type.indexOf('image')>=0){
-      reader.readAsDataURL(f);
-    }else{
-      reader.readAsText(f);
-    }
-  }
-  document.getElementById('aiFileInput').value='';
-}
-
-function aiRenderAttachments(){
-  var box=document.getElementById('aiAttachPreview');
-  if(aiAttachments.length===0){box.style.display='none';return;}
-  box.style.display='flex';
-  var html='';
-  aiAttachments.forEach(function(att,idx){
-    if(att.isImg){
-      html+='<div style="position:relative"><img class="ai-attach-thumb" src="'+att.data+'"><span class="remove" style="position:absolute;top:-4px;right:-4px;background:rgba(0,0,0,0.6);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer" onclick="aiRemoveAttach('+idx+')">✕</span></div>';
-    }else{
-      html+='<div class="ai-attach-chip">📄 '+att.name+'<span class="remove" onclick="aiRemoveAttach('+idx+')">✕</span></div>';
-    }
-  });
-  box.innerHTML=html;
-}
-
-function aiRemoveAttach(idx){
-  aiAttachments.splice(idx,1);
-  aiRenderAttachments();
-}
-
-// 简易Markdown→HTML渲染
-function aiMarkdown(md){
-  if(!md)return '';
-  var html=md;
-  // 代码块
-  html=html.replace(/```([\s\S]*?)```/g,function(m,p1){
-    return '<pre><code>'+p1.replace(/^\n/,'').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</code></pre>';
-  });
-  // 行内代码
-  html=html.replace(/`([^`]+)`/g,'<code>$1</code>');
-  // 加粗
-  html=html.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
-  // 标题
-  html=html.replace(/^### (.+)$/gm,'<h3 style="font-size:14px;color:var(--gold);margin:8px 0 4px">$1</h3>');
-  html=html.replace(/^## (.+)$/gm,'<h3 style="font-size:15px;color:var(--gold);margin:8px 0 4px">$1</h3>');
-  // 引用
-  html=html.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
-  // 无序列表
-  html=html.replace(/^- (.+)$/gm,'<li style="margin:3px 0;list-style:none;padding-left:14px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">•</span>$1</li>');
-  // 有序列表
-  html=html.replace(/^\d+\. (.+)$/gm,'<li style="margin:3px 0;list-style:none;padding-left:20px">$1</li>');
-  // 段落
-  html=html.split('\n\n').map(function(p){
-    if(p.indexOf('<')===0)return p;
-    return '<p style="font-size:13px;line-height:1.7;margin:4px 0;color:rgba(13,42,74,0.85)">'+p.replace(/\n/g,'<br>')+'</p>';
-  }).join('');
-  return html;
-}
 
 // 大模型配置（智谱GLM-4-Flash + GLM-4V，完全免费）
 var AI_MODELS={
