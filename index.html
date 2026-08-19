@@ -5842,55 +5842,56 @@ function aiRemoveAttach(idx){
 // 简易Markdown渲染
 function renderMarkdown(text){
   if(!text)return'';
-  var html=String(text);
-  html=html.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // 代码块 ```lang\ncode```
-  html=html.replace(/```(\w*)\n?([\s\S]*?)```/g,function(m,lang,code){
-    return '<pre><code>'+code.replace(/\n$/,'')+'</code></pre>';
-  });
-  // 行内代码 `code`
-  html=html.replace(/`([^`]+)`/g,'<code>$1</code>');
-  // 表格
-  if(html.indexOf('|---')>=0||html.indexOf('|:--')>=0||html.indexOf('|--:')>=0){
-    var lines=html.split('\n');
-    var tableHtml='';
-    var inTable=false;
-    for(var i=0;i<lines.length;i++){
-      var line=lines[i].trim();
-      if(line.indexOf('|')===0&&line.indexOf('|',1)>0){
-        var cells=line.split('|');
-        cells=cells.slice(1,cells.length-1);
-        if(line.indexOf('---')>=0||line.indexOf(':--')>=0){
-          continue; // 分隔行跳过
-        }
-        if(!inTable){tableHtml+='<table>';inTable=true;}
-        var tag=tableHtml==='<table>'?'th':'td';
-        tableHtml+='<tr>';
-        cells.forEach(function(c){tableHtml+='<'+tag+'>'+c.trim()+'</'+tag+'>';});
-        tableHtml+='</tr>';
-      }else{
-        if(inTable){tableHtml+='</table>';inTable=false;tableHtml='';}
-      }
+  // 先按代码块分段处理，避免代码内容被转义/替换
+  var segments=[];
+  var remaining=String(text);
+  var codeBlockRe=/```(\w*)\r?\n?([\s\S]*?)```/g;
+  var lastIdx=0;
+  var match;
+  while((match=codeBlockRe.exec(remaining))!==null){
+    // 代码块前的普通文本
+    if(match.index>lastIdx){
+      segments.push({type:'text',content:remaining.substring(lastIdx,match.index)});
     }
-    if(inTable)tableHtml+='</table>';
+    segments.push({type:'code',lang:match[1]||'',content:match[2].replace(/\n$/,'')});
+    lastIdx=match.index+match[0].length;
   }
-  // 加粗 **text**
-  html=html.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
-  // 标题
-  html=html.replace(/^### (.+)$/gm,'<h3>$1</h3>');
-  html=html.replace(/^## (.+)$/gm,'<h3>$1</h3>');
-  html=html.replace(/^# (.+)$/gm,'<h3>$1</h3>');
-  // 引用
-  html=html.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
-  // 无序列表
-  html=html.replace(/^- (.+)$/gm,'<li style="margin:2px 0;list-style:none;padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">•</span>$1</li>');
-  // 有序列表
-  html=html.replace(/^\d+\. (.+)$/gm,'<li style="margin:2px 0;list-style:none;padding-left:20px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">$&</span></li>');
-  // 换行
-  html=html.replace(/\n/g,'<br>');
-  // 清理pre/code内的br
-  html=html.replace(/<pre>([\s\S]*?)<\/pre>/g,function(m,c){
-    return '<pre>'+c.replace(/<br>/g,'\n').replace(/&lt;/g,'<').replace(/&gt;/g,'>')+'</pre>';
+  // 剩余普通文本
+  if(lastIdx<remaining.length){
+    segments.push({type:'text',content:remaining.substring(lastIdx)});
+  }
+  // 如果没有代码块，整段当文本处理
+  if(segments.length===0)segments.push({type:'text',content:remaining});
+
+  var html='';
+  segments.forEach(function(seg){
+    if(seg.type==='code'){
+      // 代码块：转义HTML，保留原始格式
+      var codeEsc=seg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      html+='<pre><code>'+codeEsc+'</code></pre>';
+    }else{
+      // 普通文本：转义HTML
+      var t=seg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // 行内代码 `code`
+      t=t.replace(/`([^`]+)`/g,'<code>$1</code>');
+      // 加粗 **text**
+      t=t.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');
+      // 标题
+      t=t.replace(/^### (.+)$/gm,'<h3 style="font-size:14px;color:var(--gold);margin:8px 0 4px">$1</h3>');
+      t=t.replace(/^## (.+)$/gm,'<h3 style="font-size:15px;color:var(--gold);margin:8px 0 4px">$1</h3>');
+      t=t.replace(/^# (.+)$/gm,'<h3 style="font-size:15px;color:var(--gold);margin:8px 0 4px">$1</h3>');
+      // 引用
+      t=t.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+      // 无序列表
+      t=t.replace(/^- (.+)$/gm,'<li style="margin:2px 0;list-style:none;padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">•</span>$1</li>');
+      // 有序列表
+      t=t.replace(/^\d+\. (.+)$/gm,'<li style="margin:2px 0;list-style:none;padding-left:20px;position:relative"><span style="position:absolute;left:0;color:var(--gold)">$&</span></li>');
+      // 换行
+      t=t.replace(/\n/g,'<br>');
+      // 清理列表前的br
+      t=t.replace(/<br><li/g,'<li');
+      html+=t;
+    }
   });
   return html;
 }
@@ -6671,17 +6672,7 @@ function callAIModel(query,localAnswer,callback,attachments){
   var hasFile=attachments&&attachments.length>0&&attachments.some(function(a){return a.type!=='image'});
   var engine=hasImg?AI_MODELS.glmv:AI_MODELS.glm;
   if(!engine||!engine.apiKey){callback(null);return;}
-  var systemPrompt='你是"成电AI"，一个全能型AI助手，服务于电子科技大学学生。你的能力包括：\n'+
-    '1. 校园问题：报到、宿舍、选课、校园生活等——优先参考本地知识库答案\n'+
-    '2. 编程写代码：C/C++/Python/Java/JS等——直接写出完整代码并解释\n'+
-    '3. 搜题做题：如果用户发题目图片或文字，直接给出答案和解析\n'+
-    '4. 文件解析：分析用户上传的代码文件、文本文件并回答相关问题\n'+
-    '5. 图片理解：描述用户上传的图片内容并回答相关问题\n'+
-    '6. 通用问答：天气、新闻、翻译、写作、数学等任何问题都能回答\n'+
-    '7. 回答使用Markdown格式，代码用```包裹，支持加粗、列表、表格\n'+
-    '8. 回答要详细、准确、有条理，不要过度简短\n'+
-    '9. 如果用户问编程题，直接给出完整代码，不要说"我可以帮你"然后不写\n'+
-    '10. 校园相关问题结合电子科技大学清水河校区的实际情况回答';
+  var systemPrompt='你是"成电AI"，一个全能型AI助手。用户让你写代码时直接写出完整代码，不要啰嗦。校园问题优先参考本地知识库。支持Markdown格式输出。';
   // 构建user message content
   var userParts=[];
   userParts.push({type:'text',text:'本地知识库回答：'+(localAnswer||'无匹配')+'\n\n用户问题：'+query});
