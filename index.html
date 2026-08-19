@@ -6973,23 +6973,7 @@ function renderAiMsg(result){
         }
       });
     }
-    if(result.sources.length>0){
-      html+='<div class="ai-source" style="margin-top:6px;font-size:11px;color:rgba(13,42,74,0.5)">📎 来源：'+result.sources.map(function(s){
-        if(s==='成电频道'){
-          return '<span style="color:var(--gold);cursor:pointer">成电频道(QQ)</span>';
-        }
-        if(s==='AI大模型(联网)'){
-          return '<span style="color:var(--gold)">AI大模型(联网)</span>';
-        }
-        if(s==='AI大模型(多模态)'){
-          return '<span style="color:var(--gold)">AI大模型(多模态)</span>';
-        }
-        if(s==='高德地图'){
-          return '<span style="color:#00852a">高德地图</span>';
-        }
-        return '<a style="color:var(--gold);cursor:pointer;text-decoration:underline" data-detail-key="'+s+'" onclick="closeSearch();openDetail(this.getAttribute(\'data-detail-key\'))">'+s+'</a>';
-      }).join('、')+'</div>';
-    }
+    // 来源标签已按用户要求移除
   }
   // 校园网/校园卡专用"查看详情"按钮
   if(result.detailKey){
