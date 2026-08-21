@@ -872,22 +872,6 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <button class="photo-upload-btn" onclick="openUploadModal()">＋ 晒照片</button>
     </div>
     <div class="photo-wall" id="photoWall">
-      <!-- 圈主照片（锁定/解密） -->
-      <div class="boss-card" id="bossCard" onclick="handleBossPhotoClick()">
-        <span class="boss-badge">👑 圈主</span>
-        <div class="boss-card-img" id="bossImg" style="background-image:url('https://8k2.github.io/uestc2026-guide/boss_avatar.jpg')">
-          <div class="boss-locked-overlay" id="bossLockOverlay">
-            <div class="lock-icon">🔒</div>
-            <div class="lock-title">解密照片打不开</div>
-            <div class="lock-hint">圈主真容即将揭晓…</div>
-            <button class="boss-unlock-btn" onclick="event.stopPropagation();openContactQR('boss_photo')">🔍 解密照片</button>
-          </div>
-          <div class="boss-progress-wrap" id="bossProgressWrap">
-            <div class="boss-progress-bar"><div class="boss-progress-fill" id="bossProgressFill" style="width:0%"></div></div>
-            <div class="boss-progress-text" id="bossProgressText">解锁进度：0/2000</div>
-          </div>
-        </div>
-      </div>
       <div style="text-align:center;padding:40px;color:var(--text3);width:100%">加载中... 🔄</div>
     </div>
   </div>
@@ -7447,6 +7431,7 @@ window.toggleTelCard=function(headerEl){
 // 圈主联系方式弹窗 + 解密计数器
 const BOSS_UNLOCK_TARGET = 2000;
 let _bossUnlocked = false;
+let _bossCount = 0;
 
 // 尝试从飞书读取解锁计数（复用 visitors 表，用特殊标记区分）
 async function _bossGetCount(){
@@ -7480,13 +7465,13 @@ async function _bossLogContact(source){
   } catch(e){}
 }
 
-// 更新圈主照片解锁进度UI
+// 更新圈主照片解锁进度UI（通过重新渲染照片墙）
 function _bossUpdateProgress(count){
+  _bossCount = count;
   if(_bossUnlocked) return;
-  var pct = Math.min(100, Math.round(count / BOSS_UNLOCK_TARGET * 100));
   var fill = document.getElementById('bossProgressFill');
   var text = document.getElementById('bossProgressText');
-  if(fill) fill.style.width = pct + '%';
+  if(fill) fill.style.width = Math.min(100, Math.round(count / BOSS_UNLOCK_TARGET * 100)) + '%';
   if(text) text.textContent = '解锁进度：' + count + '/' + BOSS_UNLOCK_TARGET;
 }
 
@@ -7495,43 +7480,31 @@ function _bossCheckUnlock(count){
   if(_bossUnlocked) return;
   if(count >= BOSS_UNLOCK_TARGET){
     _bossUnlocked = true;
-    var card = document.getElementById('bossCard');
-    if(card){
-      card.classList.add('unlocked');
-      var badge = card.querySelector('.boss-badge');
-      if(badge) badge.textContent = '👑 圈主·已解锁';
-    }
     localStorage.setItem('boss_photo_unlocked', '1');
     _notify('🎉【圈主照片解锁】', '#### 圈主照片已解锁！\n保存次数达到 ' + count + ' 次（目标 ' + BOSS_UNLOCK_TARGET + '），圈主真容已展示');
+    // 重新渲染照片墙，让圈主照片显示为正常状态
+    if(typeof renderPhotoWall === 'function') renderPhotoWall();
   }
 }
 
 // 初始化圈主照片状态
 async function _bossInit(){
-  // 先检查本地缓存
   if(localStorage.getItem('boss_photo_unlocked') === '1'){
     _bossUnlocked = true;
-    var card = document.getElementById('bossCard');
-    if(card){
-      card.classList.add('unlocked');
-      var badge = card.querySelector('.boss-badge');
-      if(badge) badge.textContent = '👑 圈主·已解锁';
-    }
     return;
   }
-  // 异步从飞书拉取计数
   var count = await _bossGetCount();
-  _bossUpdateProgress(count);
+  _bossCount = count;
+  // 重新渲染照片墙以显示进度数字
+  if(typeof renderPhotoWall === 'function' && typeof _allPhotos !== 'undefined' && _allPhotos.length > 0) renderPhotoWall();
   _bossCheckUnlock(count);
 }
 
-// 点击圈主照片
+// 点击圈主照片（锁定时提示）
 function handleBossPhotoClick(){
   if(_bossUnlocked){
-    // 已解锁：正常放大查看
     showToast('👑 这就是圈主本尊！');
   } else {
-    // 未解锁：提示
     showToast('🔒 照片已加密，点击「解密照片」添加圈主微信解锁');
   }
 }
@@ -7700,17 +7673,7 @@ async function logVisitor(){
 // 加载照片列表
 async function loadPhotos(){
   try {
-    // 不清空整个wall，只更新加载提示（保留bossCard）
-    var wall = document.getElementById('photoWall');
-    var boss = document.getElementById('bossCard');
-    if(boss){
-      // 移除bossCard后面的所有兄弟节点（旧的用户照片/加载提示）
-      var next = boss.nextSibling;
-      while(next){ var tmp = next.nextSibling; wall.removeChild(next); next = tmp; }
-      boss.insertAdjacentHTML('afterend', '<div id="photoLoading" style="text-align:center;padding:40px;color:var(--text3);width:100%">加载中...</div>');
-    } else {
-      wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>';
-    }
+    document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>';
     var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tPhotos+'/records?page_size=100');
     if(result.code !== 0) throw new Error(result.msg || 'API error');
     _allPhotos = (result.data.items || []).map(function(r){
@@ -7730,6 +7693,7 @@ async function loadPhotos(){
     });
     _allPhotos.sort(function(a,b){ return (b.time||0) - (a.time||0); });
     renderPhotoWall();
+    _bossInit();
   } catch(e){
     console.error('加载照片失败:', e);
     document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载失败，请稍后重试</div>';
@@ -7740,52 +7704,48 @@ async function loadPhotos(){
 function renderPhotoWall(){
   var wall = document.getElementById('photoWall');
   if(!wall) return;
-  // 保留圈主照片卡片（第一个子元素），只渲染用户照片部分
-  var bossCard = document.getElementById('bossCard');
-  var userPhotosHtml = '';
   if(_allPhotos.length === 0){
-    userPhotosHtml = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2;width:100%">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
-  } else {
-    userPhotosHtml = _allPhotos.map(function(p, i){
-      var imgSrc = p.imgData || '';
-      var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
-      return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
-        '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
+    wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
+    return;
+  }
+  wall.innerHTML = _allPhotos.map(function(p, i){
+    var imgSrc = p.imgData || '';
+    var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
+    var isBoss = (p.title || '').indexOf('圈主') >= 0 || (p.nickname || '').indexOf('圈主') >= 0;
+    if(isBoss && !_bossUnlocked){
+      // 圈主照片锁定状态
+      return '<div class="photo-card boss-photo-card" style="width:calc(33.33% - 6px);position:relative">' +
+        '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\');filter:blur(8px)">' +
           (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
+          '<div style="position:absolute;inset:0;background:rgba(13,42,74,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2">' +
+            '<div style="font-size:36px">🔒</div>' +
+            '<div style="font-size:13px;font-weight:700;color:#B8D0EC">解密照片打不开</div>' +
+            '<div style="font-size:10px;color:rgba(184,208,236,0.7)">圈主真容即将揭晓…</div>' +
+            '<button onclick="event.stopPropagation();openContactQR(\'boss_photo\')" style="margin-top:4px;padding:6px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(0,128,255,0.3)">🔍 解密照片</button>' +
+            '<div style="margin-top:4px;width:80%;height:5px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden"><div id="bossProgressFill" style="height:100%;width:' + Math.round(_bossCount/BOSS_UNLOCK_TARGET*100) + '%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s"></div></div>' +
+            '<div id="bossProgressText" style="font-size:9px;color:rgba(184,208,236,0.8)">解锁进度：' + _bossCount + '/' + BOSS_UNLOCK_TARGET + '</div>' +
+          '</div>' +
         '</div>' +
         '<div class="photo-card-info">' +
-          '<div class="photo-card-title">' + escapeHtml(p.title || '无标题') + '</div>' +
-          '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
+          '<div class="photo-card-title">🔒 ' + escapeHtml(p.title || '无标题') + '</div>' +
+          '<div class="photo-card-meta"><span>👑 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
           '<div class="photo-card-time">' + timeStr + '</div>' +
         '</div>' +
       '</div>';
-    }).join('');
-  }
-  // 保留 bossCard，替换后面的内容
-  if(bossCard){
-    var next = bossCard.nextSibling;
-    while(next){ var tmp = next.nextSibling; wall.removeChild(next); next = tmp; }
-    bossCard.insertAdjacentHTML('afterend', userPhotosHtml);
-  } else {
-    // bossCard 不存在（可能被loadPhotos清掉），重建
-    var bossHtml = '<div class="boss-card' + (_bossUnlocked ? ' unlocked' : '') + '" id="bossCard" onclick="handleBossPhotoClick()">' +
-      '<span class="boss-badge">👑 ' + (_bossUnlocked ? '圈主·已解锁' : '圈主') + '</span>' +
-      '<div class="boss-card-img" id="bossImg" style="background-image:url(\'https://8k2.github.io/uestc2026-guide/boss_avatar.jpg\')">' +
-        '<div class="boss-locked-overlay" id="bossLockOverlay">' +
-          '<div class="lock-icon">🔒</div>' +
-          '<div class="lock-title">解密照片打不开</div>' +
-          '<div class="lock-hint">圈主真容即将揭晓…</div>' +
-          '<button class="boss-unlock-btn" onclick="event.stopPropagation();openContactQR(\'boss_photo\')">🔍 解密照片</button>' +
-        '</div>' +
-        '<div class="boss-progress-wrap" id="bossProgressWrap">' +
-          '<div class="boss-progress-bar"><div class="boss-progress-fill" id="bossProgressFill" style="width:0%"></div></div>' +
-          '<div class="boss-progress-text" id="bossProgressText">解锁进度：0/2000</div>' +
-        '</div>' +
+    }
+    // 普通照片（含已解锁的圈主照片）
+    var prefix = isBoss ? '👑 ' : '';
+    return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
+      '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
+        (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
+      '</div>' +
+      '<div class="photo-card-info">' +
+        '<div class="photo-card-title">' + prefix + escapeHtml(p.title || '无标题') + '</div>' +
+        '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
+        '<div class="photo-card-time">' + timeStr + '</div>' +
       '</div>' +
     '</div>';
-    wall.innerHTML = bossHtml + userPhotosHtml;
-    _bossInit();
-  }
+  }).join('');
 }
 
 // 照片详情弹窗
