@@ -351,6 +351,23 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .photo-card-time{font-size:9px;color:var(--text3);margin-top:1px}
 .photo-section{display:none}
 .photo-section.active{display:block}
+/* 圈主照片锁定/解密样式 */
+.boss-card{width:100%;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(0,128,255,0.08),rgba(64,160,255,0.04));border:1.5px solid rgba(0,128,255,0.15);cursor:pointer;transition:all .3s;position:relative;margin-bottom:10px}
+.boss-card:active{transform:scale(0.98)}
+.boss-card-img{width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;position:relative;overflow:hidden}
+.boss-locked-overlay{position:absolute;inset:0;background:rgba(13,42,74,0.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:2}
+.boss-locked-overlay .lock-icon{font-size:48px;filter:drop-shadow(0 2px 8px rgba(0,128,255,0.4))}
+.boss-locked-overlay .lock-title{font-size:16px;font-weight:700;color:#B8D0EC;letter-spacing:1px}
+.boss-locked-overlay .lock-hint{font-size:12px;color:rgba(184,208,236,0.7);margin-top:2px}
+.boss-unlock-btn{margin-top:6px;padding:8px 24px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,128,255,0.3);transition:all .2s}
+.boss-unlock-btn:active{transform:scale(0.95)}
+.boss-progress-wrap{position:absolute;bottom:0;left:0;right:0;padding:8px 12px;background:rgba(13,42,74,0.7);z-index:3}
+.boss-progress-bar{height:6px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden}
+.boss-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s}
+.boss-progress-text{font-size:10px;color:rgba(184,208,236,0.8);text-align:center;margin-top:3px}
+.boss-card.unlocked .boss-locked-overlay{display:none}
+.boss-card.unlocked .boss-progress-wrap{display:none}
+.boss-badge{position:absolute;top:8px;left:8px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-size:10px;padding:3px 10px;border-radius:10px;font-weight:600;z-index:4}
 .photo-header{display:flex;justify-content:flex-start;align-items:center;padding:8px 12px;gap:10px}
 .photo-header-title{font-size:16px;font-weight:bold;color:var(--gold)}
 .photo-upload-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer}
@@ -400,7 +417,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
     <div class="topbar-title">BK成电圈主全能版</div>
   </div>
   <div class="topbar-motto">求实求新 · 大气大为</div>
-  <div class="topbar-contact" onclick="openContactQR()">
+  <div class="topbar-contact" onclick="openContactQR('topbar')">
     <span class="topbar-contact-icon">📱</span>圈主联系方式
   </div>
 </div>
@@ -605,7 +622,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 
     <div class="welfare-scroll">
       <!-- 家教服务 -->
-      <div class="welfare-card" onclick="openContactQR()">
+      <div class="welfare-card" onclick="openContactQR('welfare_tutor')">
         <div class="welfare-card-top" data-theme="tutor">
           <span class="welfare-card-icon">📚</span>
           <span class="welfare-card-title">清水河家教</span>
@@ -623,7 +640,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       </div>
 
       <!-- 驾考培训 -->
-      <div class="welfare-card" onclick="openContactQR()">
+      <div class="welfare-card" onclick="openContactQR('welfare_drive')">
         <div class="welfare-card-top" data-theme="drive">
           <span class="welfare-card-icon">🚗</span>
           <span class="welfare-card-title">校园驾考培训</span>
@@ -641,7 +658,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       </div>
 
       <!-- 数码产品福利 -->
-      <div class="welfare-card" onclick="openContactQR()">
+      <div class="welfare-card" onclick="openContactQR('welfare_digital')">
         <div class="welfare-card-top" data-theme="digital">
           <span class="welfare-card-icon">💻</span>
           <span class="welfare-card-title">数码产品福利</span>
@@ -855,6 +872,22 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       <button class="photo-upload-btn" onclick="openUploadModal()">＋ 晒照片</button>
     </div>
     <div class="photo-wall" id="photoWall">
+      <!-- 圈主照片（锁定/解密） -->
+      <div class="boss-card" id="bossCard" onclick="handleBossPhotoClick()">
+        <span class="boss-badge">👑 圈主</span>
+        <div class="boss-card-img" id="bossImg" style="background-image:url('https://8k2.github.io/uestc2026-guide/boss_avatar.jpg')">
+          <div class="boss-locked-overlay" id="bossLockOverlay">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-title">解密照片打不开</div>
+            <div class="lock-hint">圈主真容即将揭晓…</div>
+            <button class="boss-unlock-btn" onclick="event.stopPropagation();openContactQR('boss_photo')">🔍 解密照片</button>
+          </div>
+          <div class="boss-progress-wrap" id="bossProgressWrap">
+            <div class="boss-progress-bar"><div class="boss-progress-fill" id="bossProgressFill" style="width:0%"></div></div>
+            <div class="boss-progress-text" id="bossProgressText">解锁进度：0/2000</div>
+          </div>
+        </div>
+      </div>
       <div style="text-align:center;padding:40px;color:var(--text3);width:100%">加载中... 🔄</div>
     </div>
   </div>
@@ -7411,8 +7444,99 @@ window.toggleTelCard=function(headerEl){
   else{card.classList.add('expanded');}
 };
 
-// 圈主联系方式弹窗
-window.openContactQR=function(){
+// 圈主联系方式弹窗 + 解密计数器
+const BOSS_UNLOCK_TARGET = 2000;
+let _bossUnlocked = false;
+
+// 尝试从飞书读取解锁计数（复用 visitors 表，用特殊标记区分）
+async function _bossGetCount(){
+  try {
+    var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records?page_size=500');
+    if(result.code !== 0) return 0;
+    var count = 0;
+    (result.data.items || []).forEach(function(r){
+      var f = r.fields || {};
+      // 统计来源包含 'contact_qr' 的记录（所有打开联系方式的入口）
+      var src = (f['\u6765\u6e90'] || '').toString();
+      if(src.indexOf('contact_qr') >= 0) count++;
+    });
+    return count;
+  } catch(e){ return 0; }
+}
+
+// 记录一次联系方式打开（用于解锁计数）
+async function _bossLogContact(source){
+  try {
+    var ua = navigator.userAgent;
+    var device = /Mobile|Android|iPhone/i.test(ua) ? '手机' : (/Windows|Mac|Linux/i.test(ua) ? '电脑' : '未知');
+    await _fsAPI('POST', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records', {
+      fields: {
+        '\u8bbf\u5ba2ID': _uid('BC'),
+        '\u8bbe\u5907\u4fe1\u606f': device + ' | ' + ua.substring(0,100),
+        '\u6765\u6e90': 'contact_qr_' + (source || 'unknown'),
+        '\u8bbf\u95ee\u65f6\u95f4': Date.now()
+      }
+    });
+  } catch(e){}
+}
+
+// 更新圈主照片解锁进度UI
+function _bossUpdateProgress(count){
+  if(_bossUnlocked) return;
+  var pct = Math.min(100, Math.round(count / BOSS_UNLOCK_TARGET * 100));
+  var fill = document.getElementById('bossProgressFill');
+  var text = document.getElementById('bossProgressText');
+  if(fill) fill.style.width = pct + '%';
+  if(text) text.textContent = '解锁进度：' + count + '/' + BOSS_UNLOCK_TARGET;
+}
+
+// 检查并执行解锁
+function _bossCheckUnlock(count){
+  if(_bossUnlocked) return;
+  if(count >= BOSS_UNLOCK_TARGET){
+    _bossUnlocked = true;
+    var card = document.getElementById('bossCard');
+    if(card){
+      card.classList.add('unlocked');
+      var badge = card.querySelector('.boss-badge');
+      if(badge) badge.textContent = '👑 圈主·已解锁';
+    }
+    localStorage.setItem('boss_photo_unlocked', '1');
+    _notify('🎉【圈主照片解锁】', '#### 圈主照片已解锁！\n保存次数达到 ' + count + ' 次（目标 ' + BOSS_UNLOCK_TARGET + '），圈主真容已展示');
+  }
+}
+
+// 初始化圈主照片状态
+async function _bossInit(){
+  // 先检查本地缓存
+  if(localStorage.getItem('boss_photo_unlocked') === '1'){
+    _bossUnlocked = true;
+    var card = document.getElementById('bossCard');
+    if(card){
+      card.classList.add('unlocked');
+      var badge = card.querySelector('.boss-badge');
+      if(badge) badge.textContent = '👑 圈主·已解锁';
+    }
+    return;
+  }
+  // 异步从飞书拉取计数
+  var count = await _bossGetCount();
+  _bossUpdateProgress(count);
+  _bossCheckUnlock(count);
+}
+
+// 点击圈主照片
+function handleBossPhotoClick(){
+  if(_bossUnlocked){
+    // 已解锁：正常放大查看
+    showToast('👑 这就是圈主本尊！');
+  } else {
+    // 未解锁：提示
+    showToast('🔒 照片已加密，点击「解密照片」添加圈主微信解锁');
+  }
+}
+
+window.openContactQR=function(source){
   var m=document.getElementById('contactModal');
   m.style.display='flex';
   // 重置留言状态
@@ -7424,6 +7548,14 @@ window.openContactQR=function(){
   if(cnt) cnt.textContent='0/200';
   var btn=document.getElementById('contactMsgBtn');
   if(btn){btn.disabled=false;btn.style.opacity='1';btn.textContent='提交留言';}
+  // 记录一次联系方式打开（用于圈主照片解锁计数）
+  _bossLogContact(source || 'unknown');
+  // 异步刷新进度
+  setTimeout(async function(){
+    var c = await _bossGetCount();
+    _bossUpdateProgress(c);
+    _bossCheckUnlock(c);
+  }, 800);
 };
 window.closeContactQR=function(e){
   if(e&&e.target&&e.target.id!=='contactModal'&&e.type==='click'){return}
@@ -7598,24 +7730,35 @@ async function loadPhotos(){
 function renderPhotoWall(){
   var wall = document.getElementById('photoWall');
   if(!wall) return;
+  // 保留圈主照片卡片（第一个子元素），只渲染用户照片部分
+  var bossCard = document.getElementById('bossCard');
+  var userPhotosHtml = '';
   if(_allPhotos.length === 0){
-    wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
-    return;
+    userPhotosHtml = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2;width:100%">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
+  } else {
+    userPhotosHtml = _allPhotos.map(function(p, i){
+      var imgSrc = p.imgData || '';
+      var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
+      return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
+        '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
+          (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
+        '</div>' +
+        '<div class="photo-card-info">' +
+          '<div class="photo-card-title">' + escapeHtml(p.title || '无标题') + '</div>' +
+          '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
+          '<div class="photo-card-time">' + timeStr + '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
   }
-  wall.innerHTML = _allPhotos.map(function(p, i){
-    var imgSrc = p.imgData || '';
-    var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
-    return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
-      '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
-        (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
-      '</div>' +
-      '<div class="photo-card-info">' +
-        '<div class="photo-card-title">' + escapeHtml(p.title || '无标题') + '</div>' +
-        '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
-        '<div class="photo-card-time">' + timeStr + '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+  // 保留 bossCard，替换后面的内容
+  if(bossCard){
+    var next = bossCard.nextSibling;
+    while(next){ var tmp = next.nextSibling; wall.removeChild(next); next = tmp; }
+    bossCard.insertAdjacentHTML('afterend', userPhotosHtml);
+  } else {
+    wall.innerHTML = userPhotosHtml;
+  }
 }
 
 // 照片详情弹窗
@@ -7857,6 +8000,7 @@ function escapeHtml(str){
 function initPhotoWall(){
   logVisitor();
   loadPhotos();
+  _bossInit();
 }
 
 // 导出访客记录为CSV
@@ -7897,6 +8041,7 @@ window.openUploadModal=openUploadModal;
 window.closeUploadModal=closeUploadModal;
 window.exportVisitorsExcel=exportVisitorsExcel;
 window.initPhotoWall=initPhotoWall;
+window.handleBossPhotoClick=handleBossPhotoClick;
 
 </script>
 </body>
