@@ -7700,7 +7700,17 @@ async function logVisitor(){
 // 加载照片列表
 async function loadPhotos(){
   try {
-    document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>';
+    // 不清空整个wall，只更新加载提示（保留bossCard）
+    var wall = document.getElementById('photoWall');
+    var boss = document.getElementById('bossCard');
+    if(boss){
+      // 移除bossCard后面的所有兄弟节点（旧的用户照片/加载提示）
+      var next = boss.nextSibling;
+      while(next){ var tmp = next.nextSibling; wall.removeChild(next); next = tmp; }
+      boss.insertAdjacentHTML('afterend', '<div id="photoLoading" style="text-align:center;padding:40px;color:var(--text3);width:100%">加载中...</div>');
+    } else {
+      wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>';
+    }
     var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tPhotos+'/records?page_size=100');
     if(result.code !== 0) throw new Error(result.msg || 'API error');
     _allPhotos = (result.data.items || []).map(function(r){
@@ -7757,7 +7767,24 @@ function renderPhotoWall(){
     while(next){ var tmp = next.nextSibling; wall.removeChild(next); next = tmp; }
     bossCard.insertAdjacentHTML('afterend', userPhotosHtml);
   } else {
-    wall.innerHTML = userPhotosHtml;
+    // bossCard 不存在（可能被loadPhotos清掉），重建
+    var bossHtml = '<div class="boss-card' + (_bossUnlocked ? ' unlocked' : '') + '" id="bossCard" onclick="handleBossPhotoClick()">' +
+      '<span class="boss-badge">👑 ' + (_bossUnlocked ? '圈主·已解锁' : '圈主') + '</span>' +
+      '<div class="boss-card-img" id="bossImg" style="background-image:url(\'https://8k2.github.io/uestc2026-guide/boss_avatar.jpg\')">' +
+        '<div class="boss-locked-overlay" id="bossLockOverlay">' +
+          '<div class="lock-icon">🔒</div>' +
+          '<div class="lock-title">解密照片打不开</div>' +
+          '<div class="lock-hint">圈主真容即将揭晓…</div>' +
+          '<button class="boss-unlock-btn" onclick="event.stopPropagation();openContactQR(\'boss_photo\')">🔍 解密照片</button>' +
+        '</div>' +
+        '<div class="boss-progress-wrap" id="bossProgressWrap">' +
+          '<div class="boss-progress-bar"><div class="boss-progress-fill" id="bossProgressFill" style="width:0%"></div></div>' +
+          '<div class="boss-progress-text" id="bossProgressText">解锁进度：0/2000</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    wall.innerHTML = bossHtml + userPhotosHtml;
+    _bossInit();
   }
 }
 
