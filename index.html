@@ -354,19 +354,19 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 /* 圈主照片神秘锁定/解密样式 */
 .boss-mystery-card{width:calc(33.33% - 6px);position:relative;border-radius:14px;overflow:hidden;border:2px solid rgba(0,128,255,0.2);background:linear-gradient(135deg,rgba(0,30,60,0.9),rgba(0,50,100,0.85));cursor:pointer;transition:all .3s}
 .boss-mystery-card:active{transform:scale(0.98)}
-.boss-mystery-img{width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;filter:blur(6px) brightness(0.5);transition:filter .5s}
+.boss-mystery-img{width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;filter:blur(3px) brightness(0.75);transition:filter .5s}
 .boss-mystery-card.unlocked .boss-mystery-img{filter:none}
-.boss-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;background:rgba(13,42,74,0.82)}
+.boss-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;background:linear-gradient(180deg,rgba(13,42,74,0.12) 0%,rgba(13,42,74,0.38) 55%,rgba(13,42,74,0.72) 100%)}
 .boss-mystery-card.unlocked .boss-lock-overlay{display:none}
 .boss-lock-icon{font-size:40px;filter:drop-shadow(0 2px 8px rgba(0,128,255,0.4))}
-.boss-lock-title{font-size:13px;font-weight:700;color:#B8D0EC;letter-spacing:1px}
-.boss-lock-hint{font-size:10px;color:rgba(184,208,236,0.65);text-align:center;line-height:1.4}
+.boss-lock-title{font-size:13px;font-weight:700;color:#fff;letter-spacing:1px;text-shadow:0 1px 6px rgba(0,0,0,0.6)}
+.boss-lock-hint{font-size:10px;color:rgba(255,255,255,0.85);text-align:center;line-height:1.4;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
 .boss-unlock-btn{margin-top:4px;padding:6px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(0,128,255,0.3);transition:all .2s}
 .boss-unlock-btn:active{transform:scale(0.95)}
 .boss-progress-wrap{width:80%;margin-top:4px}
 .boss-progress-bar{height:5px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden}
 .boss-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s}
-.boss-progress-text{font-size:9px;color:rgba(184,208,236,0.8);text-align:center;margin-top:3px}
+.boss-progress-text{font-size:9px;color:rgba(255,255,255,0.92);text-align:center;margin-top:3px;text-shadow:0 1px 4px rgba(0,0,0,0.5)}
 .boss-crown-badge{position:absolute;top:8px;left:8px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#fff;font-size:10px;padding:3px 10px;border-radius:10px;font-weight:700;z-index:4;box-shadow:0 2px 8px rgba(255,165,0,0.3)}
 .boss-unlocked-banner{position:absolute;bottom:0;left:0;right:0;padding:6px 12px;background:linear-gradient(180deg,transparent,rgba(0,128,255,0.85));z-index:3;text-align:center}
 .boss-unlocked-banner-text{font-size:12px;font-weight:800;color:#fff;letter-spacing:1px;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
@@ -7739,9 +7739,9 @@ function _renderBossCard(){
     '<div class="boss-lock-overlay">' +
       '<div class="boss-lock-icon">🔒</div>' +
       '<div class="boss-lock-title">圈主真容 · 神秘锁定</div>' +
-      '<div class="boss-lock-hint">圈主真容即将揭晓…</div>' +
+      '<div class="boss-lock-hint">保存/扫描二维码解锁真容</div>' +
       '<button class="boss-unlock-btn" onclick="event.stopPropagation();openContactQR(\'boss_photo\')">🔍 解密照片</button>' +
-      '<div class="boss-progress-wrap">' +
+      '<div class="boss-progress-wrap" style="background:rgba(13,42,74,0.35);border-radius:8px;padding:6px 8px">' +
         '<div class="boss-progress-bar"><div id="bossProgressFill" style="height:100%;width:' + Math.round(_bossCount/BOSS_UNLOCK_TARGET*100) + '%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s"></div></div>' +
         '<div id="bossProgressText" class="boss-progress-text">解锁进度：' + _bossCount + '/' + BOSS_UNLOCK_TARGET + '</div>' +
       '</div>' +
