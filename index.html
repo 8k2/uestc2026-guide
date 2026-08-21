@@ -529,9 +529,6 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       </div>
       <div class="hero-sub">电子科技大学 · 清水河校区</div>
       <div class="hero-welcome">Welcome to UESTC</div>
-      <div style="margin-top:8px;font-size:12px;color:rgba(0,128,255,0.7);display:flex;align-items:center;justify-content:center;gap:4px">
-        <span>👁️</span><span id="visitCount" style="font-weight:700;color:var(--gold)">0</span><span>人次访问</span>
-      </div>
     </div>
     <div class="hero-vol" id="heroVol" onclick="toggleVol()">🔊</div>
   </div>
@@ -7654,14 +7651,13 @@ let _allPhotos = [];
 let _currentPhotoIdx = -1;
 let _currentComments = [];
 
-// 记录访客 + PushPlus推送 + 浏览量统计
+// 记录访客 + PushPlus推送（含累计访问人次）
 let _visitCount = 0;
 async function logVisitor(){
   try {
     var ua = navigator.userAgent;
     var device = /Mobile|Android|iPhone/i.test(ua) ? '手机' : (/Windows|Mac|Linux/i.test(ua) ? '电脑' : '未知');
     var platform = /MicroMessenger/i.test(ua) ? '微信' : (/QQ/i.test(ua) ? 'QQ' : '浏览器');
-    var lang = navigator.language || '未知';
     var screen = window.screen.width + 'x' + window.screen.height;
     var ref = document.referrer || '直接访问';
     var visitId = _uid('V');
@@ -7673,24 +7669,14 @@ async function logVisitor(){
         '\u8bbf\u95ee\u65f6\u95f4': Date.now()
       }
     });
-    // PushPlus推送通知到圈主微信
-    var now = new Date().toLocaleString('zh-CN');
-    _notify('👁️ 【新访客提醒】', '#### 有人访问了新生指南\n---\n**设备：**' + device + '\n**平台：**' + platform + '\n**屏幕：**' + screen + '\n**来源：**' + ref + '\n**时间：**' + now);
-    // 异步拉取总访客数
-    _fetchVisitCount();
-  } catch(e){ console.warn('访客记录失败:', e); }
-}
-
-// 拉取访客总数
-async function _fetchVisitCount(){
-  try {
+    // 拉取累计访客总数
     var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records?page_size=500');
-    if(result.code !== 0) return;
-    var count = (result.data.items || []).length;
+    var count = (result.code === 0 && result.data.items) ? result.data.items.length : 0;
     _visitCount = count;
-    var el = document.getElementById('visitCount');
-    if(el) el.textContent = count;
-  } catch(e){}
+    // PushPlus推送通知到圈主微信（含累计访问人次）
+    var now = new Date().toLocaleString('zh-CN');
+    _notify('👁️ 【新访客提醒】', '#### 有人访问了新生指南\n---\n**设备：**' + device + '\n**平台：**' + platform + '\n**屏幕：**' + screen + '\n**来源：**' + ref + '\n**累计访问：**' + count + ' 人次\n**时间：**' + now);
+  } catch(e){ console.warn('访客记录失败:', e); }
 }
 
 // 加载照片列表
