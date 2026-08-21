@@ -352,7 +352,7 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .photo-section{display:none}
 .photo-section.active{display:block}
 /* 圈主照片神秘锁定/解密样式 */
-.boss-mystery-card{width:100%;max-width:500px;margin:0 auto 10px;position:relative;border-radius:14px;overflow:hidden;border:2px solid rgba(0,128,255,0.2);background:linear-gradient(135deg,rgba(0,30,60,0.9),rgba(0,50,100,0.85));cursor:pointer;transition:all .3s}
+.boss-mystery-card{width:100%;max-width:500px;margin:0 0 10px 0;position:relative;border-radius:14px;overflow:hidden;border:2px solid rgba(0,128,255,0.2);background:linear-gradient(135deg,rgba(0,30,60,0.9),rgba(0,50,100,0.85));cursor:pointer;transition:all .3s}
 .boss-mystery-card:active{transform:scale(0.98)}
 .boss-mystery-img{width:100%;aspect-ratio:16/9;background-size:cover;background-position:center;transition:filter .5s}
 .boss-mystery-card.unlocked .boss-mystery-img{filter:none}
@@ -517,8 +517,8 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 <div class="page active" id="page-home">
   <div class="hero">
     <div class="hero-bg"></div>
-    <video class="hero-video" id="heroVideo" autoplay loop playsinline webkit-playsinline x5-playsinline x5-video-player-type="mp4" x5-video-player-fullscreen="false" x5-video-orientation="portraint" muted preload="metadata" poster="https://8k2.github.io/uestc2026-guide/uestc_badge.jpg">
-      <source src="https://8k2.github.io/uestc2026-guide/bg_video.mp4?v=20260821" type="video/mp4">
+    <video class="hero-video" id="heroVideo" autoplay loop playsinline webkit-playsinline x5-playsinline x5-video-player-type="mp4" x5-video-player-fullscreen="false" x5-video-orientation="portraint" preload="auto" poster="https://8k2.github.io/uestc2026-guide/uestc_badge.jpg">
+      <source src="https://8k2.github.io/uestc2026-guide/bg_video.mp4?v=20260821b" type="video/mp4">
     </video>
     <div class="hero-overlay"></div>
     <div class="hero-content">
@@ -529,8 +529,11 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
       </div>
       <div class="hero-sub">电子科技大学 · 清水河校区</div>
       <div class="hero-welcome">Welcome to UESTC</div>
+      <div style="margin-top:8px;font-size:12px;color:rgba(0,128,255,0.7);display:flex;align-items:center;justify-content:center;gap:4px">
+        <span>👁️</span><span id="visitCount" style="font-weight:700;color:var(--gold)">0</span><span>人次访问</span>
+      </div>
     </div>
-    <div class="hero-vol" id="heroVol" onclick="toggleVol()">🔇</div>
+    <div class="hero-vol" id="heroVol" onclick="toggleVol()">🔊</div>
   </div>
 
   <div class="search-box" onclick="openSearch()">
@@ -7393,11 +7396,13 @@ panel.addEventListener('touchend',function(e){
 (function(){
   const v=document.getElementById('heroVideo');
   var volBtn=document.getElementById('heroVol');
-  var soundOn=false;
+  var soundOn=true;
   v.style.display='block';
+  v.muted=false;
+  v.volume=0.3;
   // 视频加载失败时隐藏video，露出CSS渐变背景
   v.addEventListener('error',function(){v.style.display='none';},true);
-  // 移动端兜底：首次触摸触发播放
+  // 移动端兜底：首次触摸触发播放（微信X5需要用户交互）
   v.play().catch(function(){
     document.addEventListener('touchstart',function(){v.play().catch(function(){});},{once:true});
     document.addEventListener('click',function(){v.play().catch(function(){});},{once:true});
@@ -7411,7 +7416,7 @@ panel.addEventListener('touchend',function(e){
       volBtn.classList.add('off');
     }else{
       v.muted=false;
-      v.volume=0.5;
+      v.volume=0.3;
       soundOn=true;
       volBtn.textContent='🔊';
       volBtn.classList.remove('off');
@@ -7649,20 +7654,43 @@ let _allPhotos = [];
 let _currentPhotoIdx = -1;
 let _currentComments = [];
 
-// 记录访客
+// 记录访客 + PushPlus推送 + 浏览量统计
+let _visitCount = 0;
 async function logVisitor(){
   try {
     var ua = navigator.userAgent;
     var device = /Mobile|Android|iPhone/i.test(ua) ? '手机' : (/Windows|Mac|Linux/i.test(ua) ? '电脑' : '未知');
+    var platform = /MicroMessenger/i.test(ua) ? '微信' : (/QQ/i.test(ua) ? 'QQ' : '浏览器');
+    var lang = navigator.language || '未知';
+    var screen = window.screen.width + 'x' + window.screen.height;
+    var ref = document.referrer || '直接访问';
+    var visitId = _uid('V');
     await _fsAPI('POST', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records', {
       fields: {
-        '\u8bbf\u5ba2ID': _uid('V'),
-        '\u8bbe\u5907\u4fe1\u606f': device + ' | ' + ua.substring(0,100),
-        '\u6765\u6e90': document.referrer || '\u76f4\u63a5\u8bbf\u95ee',
+        '\u8bbf\u5ba2ID': visitId,
+        '\u8bbe\u5907\u4fe1\u606f': device + ' | ' + platform + ' | ' + screen + ' | ' + ua.substring(0,80),
+        '\u6765\u6e90': ref,
         '\u8bbf\u95ee\u65f6\u95f4': Date.now()
       }
     });
+    // PushPlus推送通知到圈主微信
+    var now = new Date().toLocaleString('zh-CN');
+    _notify('👁️ 【新访客提醒】', '#### 有人访问了新生指南\n---\n**设备：**' + device + '\n**平台：**' + platform + '\n**屏幕：**' + screen + '\n**来源：**' + ref + '\n**时间：**' + now);
+    // 异步拉取总访客数
+    _fetchVisitCount();
   } catch(e){ console.warn('访客记录失败:', e); }
+}
+
+// 拉取访客总数
+async function _fetchVisitCount(){
+  try {
+    var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records?page_size=500');
+    if(result.code !== 0) return;
+    var count = (result.data.items || []).length;
+    _visitCount = count;
+    var el = document.getElementById('visitCount');
+    if(el) el.textContent = count;
+  } catch(e){}
 }
 
 // 加载照片列表
