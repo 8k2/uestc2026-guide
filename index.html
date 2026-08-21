@@ -351,13 +351,25 @@ body{font-family:-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;backgr
 .photo-card-time{font-size:9px;color:var(--text3);margin-top:1px}
 .photo-section{display:none}
 .photo-section.active{display:block}
-/* 圈主照片霸气展示样式 */
-.boss-photo-card{width:100%!important;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,rgba(0,128,255,0.12),rgba(64,160,255,0.06));border:2px solid rgba(0,128,255,0.25);cursor:pointer;transition:all .3s;position:relative;grid-column:1/-1!important;max-width:500px;margin:0 auto 12px}
-.boss-photo-card:active{transform:scale(0.98)}
-.boss-photo-card .photo-card-img{aspect-ratio:4/3}
-.boss-crown-badge{position:absolute;top:10px;left:10px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#fff;font-size:11px;padding:4px 12px;border-radius:12px;font-weight:700;z-index:4;box-shadow:0 2px 8px rgba(255,165,0,0.3)}
-.boss-king-banner{position:absolute;bottom:0;left:0;right:0;padding:6px 12px;background:linear-gradient(180deg,transparent,rgba(0,128,255,0.85));z-index:3;text-align:center}
-.boss-king-banner-text{font-size:13px;font-weight:800;color:#fff;letter-spacing:1px;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
+/* 圈主照片神秘锁定/解密样式 */
+.boss-mystery-card{width:calc(33.33% - 6px);position:relative;border-radius:14px;overflow:hidden;border:2px solid rgba(0,128,255,0.2);background:linear-gradient(135deg,rgba(0,30,60,0.9),rgba(0,50,100,0.85));cursor:pointer;transition:all .3s}
+.boss-mystery-card:active{transform:scale(0.98)}
+.boss-mystery-img{width:100%;aspect-ratio:4/3;background-size:cover;background-position:center;filter:blur(6px) brightness(0.5);transition:filter .5s}
+.boss-mystery-card.unlocked .boss-mystery-img{filter:none}
+.boss-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;background:rgba(13,42,74,0.82)}
+.boss-mystery-card.unlocked .boss-lock-overlay{display:none}
+.boss-lock-icon{font-size:40px;filter:drop-shadow(0 2px 8px rgba(0,128,255,0.4))}
+.boss-lock-title{font-size:13px;font-weight:700;color:#B8D0EC;letter-spacing:1px}
+.boss-lock-hint{font-size:10px;color:rgba(184,208,236,0.65);text-align:center;line-height:1.4}
+.boss-unlock-btn{margin-top:4px;padding:6px 18px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;border-radius:16px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(0,128,255,0.3);transition:all .2s}
+.boss-unlock-btn:active{transform:scale(0.95)}
+.boss-progress-wrap{width:80%;margin-top:4px}
+.boss-progress-bar{height:5px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden}
+.boss-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s}
+.boss-progress-text{font-size:9px;color:rgba(184,208,236,0.8);text-align:center;margin-top:3px}
+.boss-crown-badge{position:absolute;top:8px;left:8px;background:linear-gradient(135deg,#FFD700,#FFA500);color:#fff;font-size:10px;padding:3px 10px;border-radius:10px;font-weight:700;z-index:4;box-shadow:0 2px 8px rgba(255,165,0,0.3)}
+.boss-unlocked-banner{position:absolute;bottom:0;left:0;right:0;padding:6px 12px;background:linear-gradient(180deg,transparent,rgba(0,128,255,0.85));z-index:3;text-align:center}
+.boss-unlocked-banner-text{font-size:12px;font-weight:800;color:#fff;letter-spacing:1px;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
 .photo-header{display:flex;justify-content:flex-start;align-items:center;padding:8px 12px;gap:10px}
 .photo-header-title{font-size:16px;font-weight:bold;color:var(--gold)}
 .photo-upload-btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:bold;cursor:pointer}
@@ -7418,8 +7430,30 @@ window.toggleTelCard=function(headerEl){
   else{card.classList.add('expanded');}
 };
 
-// 圈主联系方式弹窗 + 访客统计
-// 记录一次联系方式打开（用于访客统计）
+// 圈主联系方式弹窗 + 解密计数器
+const BOSS_UNLOCK_TARGET = 2000;
+let _bossUnlocked = false;
+let _bossCount = 0;
+
+// 圈主照片固定使用 boss_avatar.jpg
+const BOSS_AVATAR_URL = 'https://8k2.github.io/uestc2026-guide/boss_avatar.jpg';
+
+// 尝试从飞书读取解锁计数（复用 visitors 表，用特殊标记区分）
+async function _bossGetCount(){
+  try {
+    var result = await _fsAPI('GET', '/open-apis/bitable/v1/apps/'+_FS.base+'/tables/'+_FS.tVisitors+'/records?page_size=500');
+    if(result.code !== 0) return 0;
+    var count = 0;
+    (result.data.items || []).forEach(function(r){
+      var f = r.fields || {};
+      var src = (f['\u6765\u6e90'] || '').toString();
+      if(src.indexOf('contact_qr') >= 0) count++;
+    });
+    return count;
+  } catch(e){ return 0; }
+}
+
+// 记录一次联系方式打开（用于解锁计数）
 async function _bossLogContact(source){
   try {
     var ua = navigator.userAgent;
@@ -7435,9 +7469,36 @@ async function _bossLogContact(source){
   } catch(e){}
 }
 
-// 初始化（保留接口兼容）
+// 更新圈主照片解锁进度UI
+function _bossUpdateProgress(count){
+  _bossCount = count;
+  if(_bossUnlocked) return;
+  var fill = document.getElementById('bossProgressFill');
+  var text = document.getElementById('bossProgressText');
+  if(fill) fill.style.width = Math.min(100, Math.round(count / BOSS_UNLOCK_TARGET * 100)) + '%';
+  if(text) text.textContent = '解锁进度：' + count + '/' + BOSS_UNLOCK_TARGET;
+}
+
+// 检查并执行解锁
+function _bossCheckUnlock(count){
+  if(_bossUnlocked) return;
+  if(count >= BOSS_UNLOCK_TARGET){
+    _bossUnlocked = true;
+    localStorage.setItem('boss_photo_unlocked', '1');
+    _notify('🎉【圈主照片解锁】', '#### 圈主照片已解锁！\n保存次数达到 ' + count + ' 次（目标 ' + BOSS_UNLOCK_TARGET + '），圈主真容已展示');
+    renderPhotoWall();
+  }
+}
+
+// 初始化圈主照片状态
 async function _bossInit(){
-  // 圈主照片直接霸气展示，无需解锁逻辑
+  if(localStorage.getItem('boss_photo_unlocked') === '1'){
+    _bossUnlocked = true;
+  }
+  var count = await _bossGetCount();
+  _bossCount = count;
+  if(typeof _allPhotos !== 'undefined' && _allPhotos.length > 0) renderPhotoWall();
+  _bossCheckUnlock(count);
 }
 
 window.openContactQR=function(source){
@@ -7452,8 +7513,14 @@ window.openContactQR=function(source){
   if(cnt) cnt.textContent='0/200';
   var btn=document.getElementById('contactMsgBtn');
   if(btn){btn.disabled=false;btn.style.opacity='1';btn.textContent='提交留言';}
-  // 记录一次联系方式打开（访客统计）
+  // 记录一次联系方式打开（用于圈主照片解锁计数）
   _bossLogContact(source || 'unknown');
+  // 异步刷新进度并检查解锁
+  setTimeout(async function(){
+    var c = await _bossGetCount();
+    _bossUpdateProgress(c);
+    _bossCheckUnlock(c);
+  }, 800);
 };
 window.closeContactQR=function(e){
   if(e&&e.target&&e.target.id!=='contactModal'&&e.type==='click'){return}
@@ -7629,30 +7696,15 @@ async function loadPhotos(){
 function renderPhotoWall(){
   var wall = document.getElementById('photoWall');
   if(!wall) return;
-  if(_allPhotos.length === 0){
-    wall.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
+  var userPhotos = _allPhotos.filter(function(p){ return (p.title||'').indexOf('圈主') < 0 && (p.nickname||'').indexOf('圈主') < 0; });
+  var bossHTML = _renderBossCard();
+  if(userPhotos.length === 0){
+    wall.innerHTML = bossHTML + '<div style="text-align:center;padding:40px;color:var(--text3);line-height:2;grid-column:1/-1">还没有人爆照，快来成为第一个吧！<br><span style="font-size:13px">点击下方按钮晒出你的第一张照片</span></div>';
     return;
   }
-  wall.innerHTML = _allPhotos.map(function(p, i){
+  wall.innerHTML = bossHTML + userPhotos.map(function(p, i){
     var imgSrc = p.imgData || '';
     var timeStr = p.time ? new Date(p.time).toLocaleString('zh-CN') : '';
-    var isBoss = (p.title || '').indexOf('圈主') >= 0 || (p.nickname || '').indexOf('圈主') >= 0;
-    if(isBoss){
-      // 圈主照片——霸气直接展示，金色皇冠徽章+渐变底栏
-      return '<div class="photo-card boss-photo-card" onclick="openPhotoDetail(' + i + ')">' +
-        '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
-          '<span class="boss-crown-badge">👑 圈主本尊</span>' +
-          (p.college ? '<span class="photo-card-badge" style="left:auto;right:10px">' + escapeHtml(p.college) + '</span>' : '') +
-          '<div class="boss-king-banner"><div class="boss-king-banner-text">⚡ 成电圈主 · 全场最帅 ⚡</div></div>' +
-        '</div>' +
-        '<div class="photo-card-info">' +
-          '<div class="photo-card-title">👑 ' + escapeHtml(p.title || '无标题') + '</div>' +
-          '<div class="photo-card-meta"><span>👤 ' + escapeHtml(p.nickname) + '</span><span>❤️ ' + (p.likes||0) + '</span></div>' +
-          '<div class="photo-card-time">' + timeStr + '</div>' +
-        '</div>' +
-      '</div>';
-    }
-    // 普通照片
     return '<div class="photo-card" onclick="openPhotoDetail(' + i + ')">' +
       '<div class="photo-card-img" style="background-image:url(\'' + imgSrc + '\')">' +
         (p.college ? '<span class="photo-card-badge">' + escapeHtml(p.college) + '</span>' : '') +
@@ -7664,6 +7716,50 @@ function renderPhotoWall(){
       '</div>' +
     '</div>';
   }).join('');
+}
+
+// 渲染圈主神秘照片卡片（固定插在爆照墙第一位）
+function _renderBossCard(){
+  if(_bossUnlocked){
+    // 已解锁——展示真实圈主头像
+    return '<div class="boss-mystery-card unlocked" onclick="_bossToast()">' +
+      '<div class="boss-mystery-img" style="background-image:url(\'' + BOSS_AVATAR_URL + '\')"></div>' +
+      '<span class="boss-crown-badge">👑 圈主</span>' +
+      '<div class="boss-unlocked-banner"><div class="boss-unlocked-banner-text">⚡ 成电圈主本尊 ⚡</div></div>' +
+      '<div class="photo-card-info">' +
+        '<div class="photo-card-title">👑 成电圈主</div>' +
+        '<div class="photo-card-meta"><span>UESTC</span><span>👑 本尊</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+  // 未解锁——神秘锁定状态
+  return '<div class="boss-mystery-card" onclick="_bossToast()">' +
+    '<div class="boss-mystery-img" style="background-image:url(\'' + BOSS_AVATAR_URL + '\')"></div>' +
+    '<span class="boss-crown-badge">👑 圈主</span>' +
+    '<div class="boss-lock-overlay">' +
+      '<div class="boss-lock-icon">🔒</div>' +
+      '<div class="boss-lock-title">圈主真容 · 神秘锁定</div>' +
+      '<div class="boss-lock-hint">圈主真容即将揭晓…</div>' +
+      '<button class="boss-unlock-btn" onclick="event.stopPropagation();openContactQR(\'boss_photo\')">🔍 解密照片</button>' +
+      '<div class="boss-progress-wrap">' +
+        '<div class="boss-progress-bar"><div id="bossProgressFill" style="height:100%;width:' + Math.round(_bossCount/BOSS_UNLOCK_TARGET*100) + '%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:3px;transition:width .5s"></div></div>' +
+        '<div id="bossProgressText" class="boss-progress-text">解锁进度：' + _bossCount + '/' + BOSS_UNLOCK_TARGET + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="photo-card-info">' +
+      '<div class="photo-card-title">🔒 成电圈主</div>' +
+      '<div class="photo-card-meta"><span>UESTC</span><span>👑 神秘</span></div>' +
+    '</div>' +
+  '</div>';
+}
+
+// 圈主照片点击提示
+function _bossToast(){
+  if(_bossUnlocked){
+    showToast('👑 这就是圈主本尊！');
+  } else {
+    showToast('🔒 圈主照片已加密，点击「解密照片」保存二维码解锁');
+  }
 }
 
 // 照片详情弹窗
