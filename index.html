@@ -8125,6 +8125,42 @@ window.exportVisitorsExcel=exportVisitorsExcel;
 window.initPhotoWall=initPhotoWall;
 // handleBossPhotoClick 已内联为 _bossToast，无需单独挂载
 
+// === 直达链接路由：打开 #photowall 直接进入爆照墙 ===
+function _openPhotoWallDirect(){
+  // 确保主Tab在首页（searchPanel 基于首页展示）
+  if(curTab !== 0){
+    document.querySelectorAll('.page')[curTab]?.classList.remove('active');
+    document.querySelectorAll('.tabbar-item')[curTab]?.classList.remove('active');
+    curTab = 0;
+    document.querySelectorAll('.page')[0]?.classList.add('active');
+    document.querySelectorAll('.tabbar-item')[0]?.classList.add('active');
+  }
+  openSearch();
+  // 确保切到本地模式（爆照墙）
+  switchMode('local');
+  // 如果首次访问（还没加载过照片），initPhotoWall 会被 switchMode 自动调用；
+  // 若已是第二次进入（_photoLoaded=true 但数据为空），强制刷新一次
+  if(window._photoLoaded && _allPhotos.length === 0){
+    initPhotoWall();
+  }
+}
+function _handleHashRoute(){
+  var h = location.hash || '';
+  if(h.indexOf('photowall') >= 0){
+    // 等待 DOM 就绪后打开爆照墙
+    setTimeout(_openPhotoWallDirect, 100);
+  }
+}
+// 页面加载完成后执行
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', _handleHashRoute);
+}else{
+  _handleHashRoute();
+}
+// 监听 hash 变化（链接带 #photowall 跳转时）
+window.addEventListener('hashchange', _handleHashRoute);
+window._openPhotoWallDirect=_openPhotoWallDirect;
+
 </script>
 </body>
 </html>
