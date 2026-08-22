@@ -7619,10 +7619,10 @@ const _FS = {
   aid: 'cli_aa09a1ab' + '1db8dd18',
   sec: 'tNdGYyi' + 'QocRSv2h' + 'SR7OO7k1' + 'Ej3mhO7Cu',
   base: 'U6Wxbebx' + 'MaOZ6ysuMj' + 'xcC1ISnm7',
-  tPhotos: 'tblUyfVmpv' + 'Nn07La',
-  tComments: 'tblv0KTm' + 'NTRBN12U',
-  tVisitors: 'tblJZUsF' + '9yaij8bd',
-  tMessages: 'tbldKsiT' + 'j78yO8Li'
+  tPhotos: 'tblgasbLF' + 'nnTvjip',
+  tComments: 'tbl1rFVH' + '5DT8HjrG',
+  tVisitors: 'tblwqBIRQ' + 'bqD0Et2',
+  tMessages: 'tblbrwgu0' + 'h6sk0u0'
 };
 let _fsToken = null;
 let _fsTokenTime = 0;
@@ -7688,7 +7688,30 @@ async function logVisitor(){
   } catch(e){ console.warn('访客记录失败:', e); }
 }
 
-// 加载照片列表
+// 照片本地缓存键
+var _photosCacheKey = 'uestc_photos_cache_v1';
+var _photoLoadRetries = 0;
+var _photoMaxRetries = 2;
+
+// 从 localStorage 读取缓存照片
+function _loadPhotosCache(){
+  try {
+    var raw = localStorage.getItem(_photosCacheKey);
+    if(!raw) return [];
+    var data = JSON.parse(raw);
+    if(data && data.photos && data.photos.length > 0) return data.photos;
+  } catch(e){}
+  return [];
+}
+
+// 保存照片到 localStorage 缓存
+function _savePhotosCache(photos){
+  try {
+    localStorage.setItem(_photosCacheKey, JSON.stringify({photos: photos, time: Date.now()}));
+  } catch(e){}
+}
+
+// 加载照片列表（带缓存降级 + 自动重试）
 async function loadPhotos(){
   try {
     document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载中...</div>';
@@ -7710,11 +7733,43 @@ async function loadPhotos(){
       };
     });
     _allPhotos.sort(function(a,b){ return (b.time||0) - (a.time||0); });
+    _savePhotosCache(_allPhotos);
+    _photoLoadRetries = 0;
     renderPhotoWall();
     _bossInit();
   } catch(e){
     console.error('加载照片失败:', e);
-    document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">加载失败，请稍后重试</div>';
+    _photoLoadRetries++;
+    // 降级1: 尝试本地缓存
+    var cached = _loadPhotosCache();
+    if(cached.length > 0){
+      _allPhotos = cached;
+      renderPhotoWall();
+      _bossInit();
+      // 右下角小提示：当前为缓存数据
+      var hint = document.createElement('div');
+      hint.style.cssText = 'position:fixed;bottom:70px;right:12px;background:rgba(0,128,255,0.12);color:var(--text2);font-size:12px;padding:6px 12px;border-radius:8px;z-index:8888;pointer-events:none;max-width:200px;text-align:center;line-height:1.5';
+      hint.textContent = '云端同步中，当前展示缓存照片';
+      document.body.appendChild(hint);
+      setTimeout(function(){ if(hint.parentNode) hint.parentNode.removeChild(hint); }, 3500);
+      return;
+    }
+    // 降级2: 自动重试（最多2次）
+    if(_photoLoadRetries <= _photoMaxRetries){
+      document.getElementById('photoWall').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">正在重新加载... (' + _photoLoadRetries + '/' + _photoMaxRetries + ')</div>';
+      setTimeout(function(){ loadPhotos(); }, 1500);
+      return;
+    }
+    // 降级3: 友好提示 + 重试按钮（不显示"加载失败"）
+    var bossHTML = (typeof _renderBossCard === 'function') ? _renderBossCard() : '';
+    document.getElementById('photoWall').innerHTML = bossHTML +
+      '<div style="text-align:center;padding:30px 20px;color:var(--text3);line-height:2;width:100%">' +
+        '<div style="font-size:28px;margin-bottom:8px">📸</div>' +
+        '<div style="font-size:15px;font-weight:600;color:var(--text2)">爆照墙正在准备中</div>' +
+        '<div style="font-size:13px;margin-top:4px">数据同步中，请稍等片刻再试</div>' +
+        '<button onclick="_photoLoadRetries=0;loadPhotos()" style="margin-top:14px;padding:8px 24px;border:1px solid rgba(0,128,255,0.3);border-radius:20px;background:rgba(0,128,255,0.08);color:var(--primary);font-size:13px;cursor:pointer;font-family:inherit">🔄 重新加载</button>' +
+      '</div>';
+    _bossInit();
   }
 }
 
@@ -8068,7 +8123,7 @@ window.openUploadModal=openUploadModal;
 window.closeUploadModal=closeUploadModal;
 window.exportVisitorsExcel=exportVisitorsExcel;
 window.initPhotoWall=initPhotoWall;
-window.handleBossPhotoClick=handleBossPhotoClick;
+// handleBossPhotoClick 已内联为 _bossToast，无需单独挂载
 
 </script>
 </body>
