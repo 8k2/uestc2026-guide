@@ -5451,7 +5451,10 @@ function openSearch(){
   searchOpen=true;
   document.getElementById('searchPanel').classList.add('open');
   switchMode('local');
-  history.pushState({search:true},'','#search');
+  // 直达链接 #photowall 时保持 hash 不被覆盖；其他情况记录 #search 历史
+  if(!location.hash || location.hash.indexOf('photowall') < 0){
+    history.pushState({search:true},'','#search');
+  }
 }
 function closeSearch(){
   searchOpen=false;
@@ -8137,26 +8140,23 @@ function _openPhotoWallDirect(){
     document.querySelectorAll('.page')[0]?.classList.add('active');
     document.querySelectorAll('.tabbar-item')[0]?.classList.add('active');
   }
-  openSearch();
-  // 确保切到本地模式（爆照墙）
-  switchMode('local');
-  // 如果首次访问（还没加载过照片），initPhotoWall 会被 switchMode 自动调用；
-  // 若已是第二次进入（_photoLoaded=true 但数据为空），强制刷新一次
-  if(window._photoLoaded && _allPhotos.length === 0){
+  if(!searchOpen){
+    // 未打开则打开（内部会 switchMode('local') 并首次加载照片墙）
+    openSearch();
+  }else{
+    // 已打开，确保在本地模式（照片墙）
+    switchMode('local');
+  }
+  // 兜底：已标记加载过但数据为空（如之前 API 失败过），直达时强制刷新一次
+  if(window._photoLoaded && _allPhotos.length === 0 && typeof initPhotoWall === 'function'){
     initPhotoWall();
   }
-  // 恢复直达 hash（openSearch 会改成 #search，这里还原保持链接语义）
-  try{
-    if(location.hash !== '#photowall'){
-      history.replaceState({photoWall:true},'', '#photowall');
-    }
-  }catch(e){}
 }
 function _handleHashRoute(){
   var h = location.hash || '';
   if(h.indexOf('photowall') >= 0){
     // 等待 DOM 就绪后打开爆照墙
-    setTimeout(_openPhotoWallDirect, 100);
+    setTimeout(_openPhotoWallDirect, 50);
   }
 }
 // 页面加载完成后执行
