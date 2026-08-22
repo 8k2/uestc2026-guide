@@ -973,8 +973,10 @@ function switchTab(i){
   document.querySelectorAll('.tabbar-item')[curTab]?.classList.add('active');
   history.pushState({tab:i},'','#tab-'+tabNames[i]);
 }
-// 初始push首页历史
-history.replaceState({tab:0},'','#tab-home');
+// 初始push首页历史（保留已有hash如 #photowall，仅首次访问设置默认）
+if(!location.hash || location.hash === '#'){
+  history.replaceState({tab:0},'','#tab-home');
+}
 // 监听浏览器返回
 window.addEventListener('popstate',function(e){
   if(detailOpen){
@@ -8143,6 +8145,12 @@ function _openPhotoWallDirect(){
   if(window._photoLoaded && _allPhotos.length === 0){
     initPhotoWall();
   }
+  // 恢复直达 hash（openSearch 会改成 #search，这里还原保持链接语义）
+  try{
+    if(location.hash !== '#photowall'){
+      history.replaceState({photoWall:true},'', '#photowall');
+    }
+  }catch(e){}
 }
 function _handleHashRoute(){
   var h = location.hash || '';
